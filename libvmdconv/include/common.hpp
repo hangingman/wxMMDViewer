@@ -9,8 +9,14 @@
    typedef bool               BOOL;
    typedef unsigned short int WORD;
    typedef unsigned long int  DWORD;
-   #define TRUE          true
-   #define FALSE         false
+
+   #ifndef TRUE
+      #define TRUE true
+   #endif
+
+   #ifndef FALSE
+      #define FALSE false
+   #endif
 
    /** MSW _countof */
    #include <type_traits>

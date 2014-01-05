@@ -5,7 +5,7 @@
 
 const char clsVMDFile::c_hdr_string[]={"Vocaloid Motion Data 0002"};
 const char clsVMDFile::c_actor_v2[]={"miku"};
-const char clsVMDFile::c_actor_v3[]={"‰‰¹ƒ~ƒN"};
+const char clsVMDFile::c_actor_v3[]={"åˆéŸ³ãƒŸã‚¯"};
 
 const BYTE clsVMDFile::c_hokan_data[]={
      0x14, 0x14, 0x14, 0x14, 0x14, 0x14, 0x14, 0x14, 
