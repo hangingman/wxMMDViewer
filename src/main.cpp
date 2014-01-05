@@ -1,5 +1,5 @@
-/* JaneClone - a text board site viewer for 2ch
- * Copyright (C) 2012 Hiroyuki Nagata
+/* wxMMDViewer - VMD file or PMD file viewer with wxWidgets and OpenGL
+ * Copyright (C) 2014 Hiroyuki Nagata
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,11 +22,10 @@
 #include <wx/wx.h>
 
 /** ライブラリのリンクテスト用 */
-#include "common.h"
-#include "MMD_IO.h"
-#include "clsCSVFile.h"
-#include "clsVMDFile.h"
-#include "VMDConverter.h"
+#include "common.hpp"
+#include "MMD_IO.hpp"
+#include "clsCSVFile.hpp"
+#include "clsVMDFile.hpp"
 
 /*
  * wxAppを継承したwxMainを宣言

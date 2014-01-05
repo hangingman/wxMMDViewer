@@ -9,5 +9,5 @@ libvmdconv_la_SOURCES		= MMD_IO.cpp	 \
 				  clsCSVFile.cpp \
 				  clsPMDFile.cpp \
 				  clsVMDFile.cpp \
-				  common.cpp
-#d3dxhelper.cpp
+				  common.cpp	 \
+				  d3dxhelper.cpp

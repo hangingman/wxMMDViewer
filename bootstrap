@@ -6,4 +6,4 @@ if ! test -d m4; then
 fi
 
 # exec autoreconf
-autoreconf -vi
+autoreconf -vi -I`pwd`/m4
