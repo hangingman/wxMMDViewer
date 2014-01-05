@@ -1,66 +1,66 @@
 ------------------------------------------------------------------------------------
-�y���O�z             VMDConverter
-�yVer.�z       	  �@ 1.0.193.2
-�y���Ō��J���z       2008/10/18
-�y�X�V���z           2008/11/27
-�y�쐬�ҁz           �x��������
-�y���J�ꏊ�z         http://yumin3123.at.webry.info/
-�y������z         Windows XP / Vista
-�y�J�����z         Microsoft Visual Studio 2005 Professional Edition - JPN(VC8.0) 
-�y�K�{�����^�C���z   DirectX9 Runtime ( d3dx9_33.dll)
-		     VC8 Runtime ���삵�Ȃ��ꍇ���L�Q��
+【名前】             VMDConverter
+【Ver.】       	  　 1.0.193.2
+【初版公開日】       2008/10/18
+【更新日】           2008/11/27
+【作成者】           Ｙｕｍｉｎ
+【公開場所】         http://yumin3123.at.webry.info/
+【動作環境】         Windows XP / Vista
+【開発環境】         Microsoft Visual Studio 2005 Professional Edition - JPN(VC8.0) 
+【必須ランタイム】   DirectX9 Runtime ( d3dx9_33.dll)
+		     VC8 Runtime 動作しない場合下記参照
                      http://kkkon.hp.infoseek.co.jp/tips/VC/Win32VC8_RuntimeError.shtml
 
 ------------------------------------------------------------------------------------
-�y�T�v�z
+【概要】
 
-�@MikuMikuDance���[�V�����t�@�C��(.vmd)�ƃe�L�X�g(.csv)�̑��ݕϊ���
-�@�s���c�[���ł��B
+　MikuMikuDanceモーションファイル(.vmd)とテキスト(.csv)の相互変換を
+　行うツールです。
 
 
-�y�C���X�g�[���z
+【インストール】
 
-�@zip�t�@�C����K���ȃt�H���_�ɉ𓀂��܂��B
-  �K�w�}
-�@�@�@�@[�C���X�g�[���t�H���_]
-          �@�@�@�@|-VMDConverter.exe ���s���W���[��
+　zipファイルを適当なフォルダに解凍します。
+  階層図
+　　　　[インストールフォルダ]
+          　　　　|-VMDConverter.exe 実行モジュール
 
-�y�A���C���X�g�[���z
+【アンインストール】
 
-�@�K�v�Ȃ��Ȃ�����[�C���X�g�[���t�H���_]���Ə����Ă��������B
-�@�i���W�X�g���͎g�p���Ă���܂���j
+　必要なくなったら[インストールフォルダ]ごと消してください。
+　（レジストリは使用しておりません）
 
-�y��{�I�Ȏg�����z
+【基本的な使い方】
 
-�@1)VMDConverter.exe�ɑΏۂƂȂ郂�[�V�����t�@�C�����h���b�O���h���b�v����
-�@  csv�t�@�C���ɕϊ����܂��B(operation.png)
+　1)VMDConverter.exeに対象となるモーションファイルをドラッグ＆ドロップして
+　  csvファイルに変換します。(operation.png)
 
-�@2)��������Excel���ŏo���オ����csv�t�@�C�����J���ăt���[��No�ABone����
-    ���W��p�x��ҏW���܂��B
+　2)メモ帳やExcel等で出来上がったcsvファイルを開いてフレームNo、Bone毎に
+    座標や角度を編集します。
 
-    �E�L�����N�^�[���[�V�����̃t�H�[�}�b�g(model.png)
-    �E�J�����E�Ɩ��f�[�^�̃t�H�[�}�b�g(camera.png)
+    ・キャラクターモーションのフォーマット(model.png)
+    ・カメラ・照明データのフォーマット(camera.png)
 
-  3)�Ă�VMDConverter.exe�ɕҏW����csv�t�@�C�����h���b�O���h���b�v����
-    vmd�t�@�C���ɕϊ����܂��B
+  3)再びVMDConverter.exeに編集したcsvファイルをドラッグ＆ドロップして
+    vmdファイルに変換します。
 
-�y���p�z
+【応用】
 
-  Excel���̕\�v�Z�\�t�g�Ő��w�֐������܂��g���΃��[�V��������������
-�@���ł͂���܂���i�T���v���͕ʓr HairSim.xls��DL���Ă��������B�j
+  Excel等の表計算ソフトで数学関数をうまく使えばモーション自動生成も
+　夢ではありません（サンプルは別途 HairSim.xlsをDLしてください。）
 
-�y�d�v�z
-  �u���^�C�v!?�n�N��p�v�̏�����(ver 0.2�ȑO�j�ō�������[�V�����t�@�C����
-�@�s���ȃw�b�_�[���ɂ�萳��ɕϊ��ł��܂���Bver 0.2a�ȍ~��
-  Dynamic Motion Generator�Ő����������̂��g�p���Ă��������B
+【重要】
+  「乳タイプ!?ハク専用」の初期版(ver 0.2以前）で作ったモーションファイルは
+　不正なヘッダー情報により正常に変換できません。ver 0.2a以降か
+  Dynamic Motion Generatorで生成したものを使用してください。
 
-�y�c�[���J���Ҍ������z
-�@�ʓrVMDConverter�̃\�[�X�t�@�C���ꎮ��DL���邱�Ƃ��ł��܂��B
-�@�\�[�X�R�[�h�̒��쌠�͂x���������ɋA�����A�ȉ��̏����Ń��C�Z���X���܂��B
-�@�E.\include�y��.\lib_src�ȉ��̃\�[�X�t�@�C���͎��R�Ɏ���\�t�g�ւ̑g�ݍ��݁A
-�@�@���ρA�Ĕz�z���s�����Ƃ��ł��܂��B
+【ツール開発者向け情報】
+　別途VMDConverterのソースファイル一式をDLすることができます。
+　ソースコードの著作権はＹｕｍｉｎに帰属し、以下の条件でライセンスします。
+　・.\include及び.\lib_src以下のソースファイルは自由に自作ソフトへの組み込み、
+　　改変、再配布を行うことができます。
 
-�y�Ɛӎ����z
-�@���̃\�t�g�E�F�A�̎g�p�ɂ���ĉ��炩�̖�肪���������ꍇ�ł��A
-�@�����ł͈�؂̐ӔC�𕉂��܂���̂ł��炩���߂������������B
+【免責事項】
+　このソフトウェアの使用によって何らかの問題が発生した場合でも、
+　当方では一切の責任を負いませんのであらかじめご了承下さい。
 
