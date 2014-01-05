@@ -32,15 +32,14 @@ VMD_HEADER::VMD_HEADER()
 void VMD_HEADER::Export(FIELDS&rec) const
 {
      NEW_FIELD(rec);
-     // FIXME
-     //rec << std::pair<char*,size_t>((char*)hdr_string,sizeof(hdr_string));
+     rec << std::pair<char*,size_t>((char*)hdr_string,sizeof(hdr_string));
      rec << *(int*)unknown ;
 }
 
 void VMD_HEADER::Import(FIELDS&rec)
 {
-     // FIXME
-     //rec >> std::pair<char*,size_t>((char*)hdr_string,sizeof(hdr_string));
+     std::pair<char*,size_t> pair((char*)hdr_string,sizeof(hdr_string));
+     rec >> pair;
      rec >> *(int*)unknown;
 }
 
@@ -52,13 +51,12 @@ VMD_V2_HEADER::VMD_V2_HEADER()
 void VMD_V2_HEADER::Export(FIELDS&rec) const
 {
      NEW_FIELD(rec);
-     // FIXME
-     //rec<<std::pair<char*,size_t>((char*)actor,sizeof(actor));
+     rec << std::pair<char*,size_t>((char*)actor,sizeof(actor));
 }
 void VMD_V2_HEADER::Import(FIELDS&rec)
 {
-     // FIXME
-     //rec>>std::pair<char*,size_t>((char*)actor,sizeof(actor));
+     std::pair<char*,size_t> pair((char*)actor,sizeof(actor));
+     rec >> pair;
 }
 
 VMD_V3_HEADER::VMD_V3_HEADER()
@@ -69,13 +67,12 @@ VMD_V3_HEADER::VMD_V3_HEADER()
 void VMD_V3_HEADER::Export(FIELDS&rec) const
 {
      NEW_FIELD(rec);
-     // FIXME
-     //rec<<std::pair<char*,size_t>((char*)actor,sizeof(actor));
+     rec << std::pair<char*,size_t>((char*)actor,sizeof(actor));
 }
 void VMD_V3_HEADER::Import(FIELDS&rec)
 {
-     // FIXME
-     //rec>>std::pair<char*,size_t>((char*)actor,sizeof(actor));
+     std::pair<char*,size_t> pair((char*)actor,sizeof(actor));
+     rec >> pair;
 }
 
 VMD_MOTION_RECORD::VMD_MOTION_RECORD()
@@ -85,15 +82,12 @@ VMD_MOTION_RECORD::VMD_MOTION_RECORD()
      memset(pos,0,sizeof(pos) );
      memset(qt,0,sizeof(qt) );
      memcpy( pad,clsVMDFile::c_hokan_data,sizeof(pad) );
-     //qt[3]=1.0f;
-
 }
 void VMD_MOTION_RECORD::Export(FIELDS&rec)  const
 {
      float rx,ry,rz,theta,vec[3];
      NEW_FIELD(rec);
-     // FIXME
-     //rec << std::pair<char*,size_t>((char*)name,sizeof(name));
+     rec << std::pair<char*,size_t>((char*)name,sizeof(name));
 
      rec << frame_no ;
 
@@ -120,8 +114,8 @@ void VMD_MOTION_RECORD::Export(FIELDS&rec)  const
 void VMD_MOTION_RECORD::Import(FIELDS&rec)
 {
      float rx,ry,rz;
-     // FIXME
-     //rec >> std::pair<char*,size_t>((char*)name,sizeof(name));
+     std::pair<char*,size_t> pair1((char*)name,sizeof(name));
+     rec >> pair1;
 
      rec >> frame_no ;
 
@@ -133,8 +127,8 @@ void VMD_MOTION_RECORD::Import(FIELDS&rec)
      rec >> rz ;
 
      D3DX_HELPER::SetAngle( qt,ToRadian(rx),ToRadian(ry),ToRadian(rz) );
-     // FIXME
-     //rec >> std::pair<BYTE*,size_t>((BYTE*)pad,sizeof(pad));
+     std::pair<BYTE*,size_t> pair2((BYTE*)pad,sizeof(pad));
+     rec >> pair2;
 }
 
 VMD_MORP_RECORD::VMD_MORP_RECORD()
@@ -162,7 +156,6 @@ VMD_CAMERA_RECORD::VMD_CAMERA_RECORD()
      memset(pos,0,sizeof(pos) );
      memset(angle,0,sizeof(angle) );
      memcpy( pad,clsVMDFile::c_hokan_data2,sizeof(pad) );
-//	qt[3]=1.0f;
 }
 void VMD_CAMERA_RECORD::Export(FIELDS&rec)  const
 {
@@ -197,8 +190,8 @@ void VMD_CAMERA_RECORD::Import(FIELDS&rec)
      angle[1] = ToRadian( angle[1] );
      angle[2] = ToRadian( angle[2] );
 
-     // FIXME
-     //rec >> std::pair<BYTE*,size_t>((BYTE*)pad,sizeof(pad));
+     std::pair<BYTE*,size_t> pair((BYTE*)pad,sizeof(pad));
+     rec >> pair;
 }
 VMD_LIGHT_RECORD::VMD_LIGHT_RECORD()
  :frame_no(0)

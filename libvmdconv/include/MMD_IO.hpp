@@ -6,7 +6,7 @@
  */
 FIELDS& operator<<( FIELDS&fields,const std::string& name );
 FIELDS& operator<<( FIELDS&fields,const std::pair<char*,size_t>& pchars );
-FIELDS& operator<<( FIELDS&fields,const std::pair<char*,long unsigned int> pchars );
+FIELDS& operator<<( FIELDS&fields,const std::pair<char*,long unsigned int>& pchars );
 FIELDS& operator<<( FIELDS&fields,const std::pair<BYTE*,size_t>& pbytes );
 
 template<typename T> FIELDS& operator<<( FIELDS&fields,const T t)
