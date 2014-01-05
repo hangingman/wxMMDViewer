@@ -1,0 +1,21 @@
+*********************************************
+comskip のインストール方法(仮)
+(comskip Installation Instructions (temporary))
+*********************************************
+
+Copyright (C) 2013 Hiroyuki Nagata
+
+   Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without warranty of any kind.
+
+基本インストール
+(Basic Install)
+==================
+
+ $ git clone https://github.com/Hiroyuki-Nagata/comskip.git
+ $ cd comskip/
+ $ ./bootstrap
+ $ ./configure
+ $ make
