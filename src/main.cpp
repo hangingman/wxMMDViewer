@@ -28,10 +28,7 @@
  */
 class wxMain: public wxApp {
 
-  wxLocale m_Locale;
-
 public:
-  wxMain() : m_Locale(wxLANGUAGE_DEFAULT){}
   virtual bool OnInit();
   virtual int OnExit();
 
@@ -39,6 +36,8 @@ private:
   wxSingleInstanceChecker* m_checker;
   MMDViewer* wxMMDViewer;
 };
+
+IMPLEMENT_APP(wxMain)
 
 /**
  * wxMainの実装
@@ -48,6 +47,7 @@ bool wxMain::OnInit()
     if (!wxApp::OnInit())
 	 return false;
 
+    const wxString name = wxString::Format(_("wxMMDViewer-%s"), wxGetUserId().c_str());
     m_checker = new wxSingleInstanceChecker(name);
     if ( m_checker->IsAnotherRunning()) 
     {
@@ -56,7 +56,7 @@ bool wxMain::OnInit()
 	 return false;
     }
 
-    wxMMDViewer = new MMDViewer(NULL, wxID_ANY, wxEmptyString);
+    wxMMDViewer = new MMDViewer(wxT("wxMMDViewer"));
     SetTopWindow(wxMMDViewer);
     wxMMDViewer->Show();
      

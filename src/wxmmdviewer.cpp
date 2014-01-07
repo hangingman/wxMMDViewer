@@ -19,9 +19,9 @@
  *	Hiroyuki Nagata <newserver002@gmail.com>
  */
 
-MMDViewer::MMDViewer(wxWindow* parent, int id, const wxString& title, 
-		     const wxPoint& pos, const wxSize& size, long style):
-     wxFrame(parent, id, title, pos, size, wxDEFAULT_FRAME_STYLE)
+#include "wxmmdviewer.hpp"
+
+MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
 {
-     
+     CreateStatusBar(2);
 }

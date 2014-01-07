@@ -5,10 +5,7 @@ wxmmdviewerexec_PROGRAMS	= wxMMDViewer
 #wxmmdviewerexecrc_DATA		= $(wildcard rc/*)
 
 wxMMDViewerdir	  	= $(pkglibdir)
-wxMMDViewer_SOURCES 	= main.cpp        ¥
-			  enumstring.hpp  ¥
-			  wxmmdviewer.cpp ¥
-			  wxmmdviewer.hpp 
+wxMMDViewer_SOURCES 	= main.cpp enumstring.hpp wxmmdviewer.cpp wxmmdviewer.hpp
 
 # common build rule
 wxMMDViewer_CXXFLAGS	= @CXXFLAGS@ -I$(top_builddir)/libvmdconv/include

@@ -27,13 +27,7 @@
 class MMDViewer : public wxFrame {
 
 public:
-     
-     MMDViewer(wxWindow* parent, 
-	       int id, 
-	       const wxString& title,
-	       const wxPoint& pos = wxDefaultPosition,
-	       const wxSize& size = wxDefaultSize,
-	       long style = wxDEFAULT_FRAME_STYLE);
-
+     MMDViewer(const wxString& title);
+};
 
 #endif /** WXMMDVIEWER_HPP_ */
