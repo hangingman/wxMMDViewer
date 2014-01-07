@@ -23,11 +23,24 @@
 #define WXMMDVIEWER_HPP_
 
 #include <wx/wx.h>
+#include <wx/aui/aui.h>
+#include <wx/aui/auibook.h>
+#include "basicglpane.hpp"
 
 class MMDViewer : public wxFrame {
 
 public:
      MMDViewer(const wxString& title);
+
+private:
+     // すべてのウィジェットが載るAuiマネージャー
+     wxAuiManager m_mgr;
+     // OpenGL描画用キャンバス
+     BasicGLPane* glPane;
+
+     void SetProperties();
+     void DoLayout();
+     void SetAuiPaneInfo();
 };
 
 #endif /** WXMMDVIEWER_HPP_ */

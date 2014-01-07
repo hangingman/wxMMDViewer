@@ -23,5 +23,55 @@
 
 MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
 {
+     // 各種GUI設定を行う
+     SetProperties();       // 前回までの設定を読み出す
+     DoLayout();            // 実際にレイアウトに展開する
+
+     // OpenGL用描画用キャンバス
+     glPane = new BasicGLPane(this, 0);
+
+     // ステータスバーを設定する
      CreateStatusBar(2);
+     SetStatusText(wxT("完了"));
+}
+
+/**
+ * SetProperties
+ * 前回からのデータ引継ぎ等の処理を行う。
+ */
+void MMDViewer::SetProperties() {
+
+     SetTitle(_("wxMMDViewer"));
+     SetSize(wxSize(960, 640));
+}
+
+/**
+ * DoLayout
+ * ユーザーが触る前のアプリのレイアウトを設定する
+ * 前回の起動時にレイアウトに変更があった場合はそれを反映する
+ */
+void MMDViewer::DoLayout() {
+
+     // Auiマネージャーがどのフレームを管理するか示す
+     m_mgr.SetManagedWindow(this);
+     // Auiマネージャーの設定を反映する
+     m_mgr.Update();
+     // 初期設定はこのLayout()が呼ばれる前に行わなくてはいけない
+     Layout();
+}
+
+/**
+ * SetAuiPaneInfo
+ * AuiManagerのPaneInfoを設定する
+ */
+void MMDViewer::SetAuiPaneInfo() {
+     
+     // OpenGL描画用キャンバス
+     wxAuiPaneInfo glCanvas;
+     glCanvas.Name(wxT("wxGLCanvas"));
+     glCanvas.Top();
+     glCanvas.CloseButton(false);
+
+     // OpenGL描画用キャンバスを載せる
+     m_mgr.AddPane(glPane, glCanvas);
 }
