@@ -20,12 +20,8 @@
  */
 
 #include <wx/wx.h>
-
-/** ライブラリのリンクテスト用 */
-#include "common.hpp"
-#include "MMD_IO.hpp"
-#include "clsCSVFile.hpp"
-#include "clsVMDFile.hpp"
+#include <wx/snglinst.h>
+#include "wxmmdviewer.hpp"
 
 /*
  * wxAppを継承したwxMainを宣言
@@ -38,17 +34,31 @@ public:
   wxMain() : m_Locale(wxLANGUAGE_DEFAULT){}
   virtual bool OnInit();
   virtual int OnExit();
-};
 
-IMPLEMENT_APP(wxMain)
+private:
+  wxSingleInstanceChecker* m_checker;
+  MMDViewer* wxMMDViewer;
+};
 
 /**
  * wxMainの実装
  */
-bool wxMain::OnInit() {
-
+bool wxMain::OnInit() 
+{
     if (!wxApp::OnInit())
 	 return false;
+
+    m_checker = new wxSingleInstanceChecker(name);
+    if ( m_checker->IsAnotherRunning()) 
+    {
+	 wxMessageBox(wxT("誤作動防止のためwxMMDViewerは複数起動できません。終了します。"), 
+		      wxT("wxMMDViewer起動"), wxOK | wxICON_ERROR);
+	 return false;
+    }
+
+    wxMMDViewer = new MMDViewer(NULL, wxID_ANY, wxEmptyString);
+    SetTopWindow(wxMMDViewer);
+    wxMMDViewer->Show();
      
     return true;
 }
