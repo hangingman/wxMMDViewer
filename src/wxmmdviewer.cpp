@@ -63,7 +63,12 @@ void MMDViewer::SetProperties()
 	  if (!wxMMDDir.HasSubDirs(wxT("model")))
 	  {
 	       ::wxMkdir(wxmmd + wxFS + wxT("model"));
-	  }     
+	  }
+
+	  if (!wxMMDDir.HasSubDirs(wxT("csv")))
+	  {
+	       ::wxMkdir(wxmmd + wxFS + wxT("csv"));
+	  }
      }
 }
 
@@ -119,15 +124,21 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
      {
 	  if (wxFile::Exists(filenames[n]))
 	  {
-	       std::string name_check( filenames[n].mb_str() );
-	       size_t period = name_check.find_last_of(".");
-	       if ( period!=std::string::npos && !strcmp(&name_check.c_str()[period],".vmd") )
+	       wxFileName file(filenames[n]);
+	       wxString ext      = file.GetExt();
+	       wxString filename = file.GetName();
+
+	       if ( filenames[n] != wxEmptyString && ext == wxT("vmd") )
 	       {
-		    wxMMDViewerUtil::VMD2CSV( filenames[n].mb_str() );
+		    const wxString outputPath = mmdModelDir + wxFS + filename + wxFS + filename + wxT(".csv");
+		    ::wxMkdir(mmdModelDir + wxFS + filename);
+		    wxMMDViewerUtil::VMD2CSV( filenames[n].mb_str(), outputPath.mb_str() );
 	       } 
-	       else if ( period!=std::string::npos && !strcmp(&name_check.c_str()[period],".csv")  )
+	       else if ( filenames[n] != wxEmptyString && ext == wxT("csv") )
 	       {
-		    wxMMDViewerUtil::CSV2VMD( filenames[n].mb_str() );
+		    const wxString outputPath = mmdCSVDir + wxFS + filename + wxFS + filename + wxT(".vmd");
+		    ::wxMkdir(mmdCSVDir + wxFS + filename);
+		    wxMMDViewerUtil::CSV2VMD( filenames[n].mb_str(), outputPath.mb_str() );
 	       }
 	  }
      }

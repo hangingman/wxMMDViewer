@@ -29,9 +29,13 @@
 #include <wx/dataobj.h>
 #include <wx/file.h>
 #include <wx/dir.h>
+#include <wx/filename.h>
 #include "common.hpp"
 #include "basicglpane.hpp"
 #include "wxmmdutil.hpp"
+
+const wxString mmdModelDir = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("model");
+const wxString mmdCSVDir   = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("csv");
 
 /**
  * メインのクラス

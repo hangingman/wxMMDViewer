@@ -23,17 +23,18 @@
 
 /**
  * CSVファイルからVMDへの変換
- * @param const char* ファイル名
+ * @param const char* 入力ファイルのパス
+ * @param const char* 出力ファイルのパス
  */
-int wxMMDViewerUtil::CSV2VMD( const char*name )
+int wxMMDViewerUtil::CSV2VMD( const char* inputFile, const char* outputFile )
 {
      size_t line = 0,size;
      FIELDS fields;
      clsVMDFile vmd;
      clsCSVFile csv;
 
-     std::string in_name(name);
-     std::string out_name(name);
+     std::string in_name(inputFile);
+     std::string out_name(outputFile);
 
      std::string::size_type pos = out_name.find_last_of(".");
      if ( pos == std::string::npos )
@@ -106,16 +107,17 @@ int wxMMDViewerUtil::CSV2VMD( const char*name )
 
 /**
  * VMDファイルからCSVへの変換
- * @param const char* ファイル名
+ * @param const char* 入力ファイルのパス
+ * @param const char* 出力ファイルのパス
  */
-int wxMMDViewerUtil::VMD2CSV( const char*name )
+int wxMMDViewerUtil::VMD2CSV( const char* inputFile, const char* outputFile )
 {
      FIELDS fields;
      clsVMDFile vmd;
      clsCSVFile csv;
 
-     std::string in_name(name);
-     std::string out_name(name);
+     std::string in_name(inputFile);
+     std::string out_name(outputFile);
 
      std::string::size_type pos = out_name.find_last_of(".");
      if ( pos == std::string::npos )

@@ -36,14 +36,16 @@ public:
 
      /**
       * CSVファイルからVMDへの変換
-      * @param const char* ファイル名
+      * @param const char* 入力ファイルのパス
+      * @param const char* 出力ファイルのパス
       */
-     static int CSV2VMD( const char*name );
+     static int CSV2VMD( const char* inputFile, const char* outputFile );
      /**
       * VMDファイルからCSVへの変換
-      * @param const char* ファイル名
+      * @param const char* 入力ファイルのパス
+      * @param const char* 出力ファイルのパス
       */
-     static int VMD2CSV( const char*name );
+     static int VMD2CSV( const char* inputFile, const char* outputFile );
 };
 
 #endif /** WXMMDVIEWERUTIL_HPP_ */
