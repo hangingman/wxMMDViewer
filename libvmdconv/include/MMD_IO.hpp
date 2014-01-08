@@ -1,6 +1,8 @@
 #ifndef MMD_IO_HPP
 #define MMD_IO_HPP
 
+#include "common.hpp"
+
 /**
  * size_t is unsigned int or long unsigned int
  */

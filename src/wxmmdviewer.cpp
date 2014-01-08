@@ -49,6 +49,22 @@ void MMDViewer::SetProperties()
 {
      SetTitle(_("wxMMDViewer"));
      SetSize(wxSize(960, 640));
+
+     const wxString wxmmd = ::wxGetHomeDir() + wxFS + WXMMD_DIR;
+     wxDir wxMMDDir(wxmmd);
+
+     /**
+      * 必要な隠しディレクトリを作成する
+      */
+     if (!wxDir(::wxGetHomeDir()).HasSubDirs(WXMMD_DIR))
+     {
+	  ::wxMkdir(wxmmd);
+
+	  if (!wxMMDDir.HasSubDirs(wxT("model")))
+	  {
+	       ::wxMkdir(wxmmd + wxFS + wxT("model"));
+	  }     
+     }
 }
 
 /**
@@ -103,7 +119,16 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
      {
 	  if (wxFile::Exists(filenames[n]))
 	  {
-	       wxMessageBox(wxString::Format(wxT("%s"), filenames[n].c_str()));
+	       std::string name_check( filenames[n].mb_str() );
+	       size_t period = name_check.find_last_of(".");
+	       if ( period!=std::string::npos && !strcmp(&name_check.c_str()[period],".vmd") )
+	       {
+		    wxMMDViewerUtil::VMD2CSV( filenames[n].mb_str() );
+	       } 
+	       else if ( period!=std::string::npos && !strcmp(&name_check.c_str()[period],".csv")  )
+	       {
+		    wxMMDViewerUtil::CSV2VMD( filenames[n].mb_str() );
+	       }
 	  }
      }
 }

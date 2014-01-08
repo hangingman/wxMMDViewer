@@ -19,42 +19,31 @@
  *	Hiroyuki Nagata <newserver002@gmail.com>
  */
 
-#ifndef WXMMDVIEWER_HPP_
-#define WXMMDVIEWER_HPP_
+#ifndef COMMON_HPP_
+#define COMMON_HPP_
 
-#include <wx/wx.h>
-#include <wx/aui/aui.h>
-#include <wx/aui/auibook.h>
-#include <wx/dnd.h>
-#include <wx/dataobj.h>
-#include <wx/file.h>
-#include <wx/dir.h>
-#include "common.hpp"
-#include "basicglpane.hpp"
-#include "wxmmdutil.hpp"
+#ifdef HAVE_CONFIG_H
+   #include "config.h"
+#endif
 
-/**
- * メインのクラス
- */
-class MMDViewer : public wxFrame 
-{
+#define XSTR(x) #x
+#define STR(x)  XSTR(x)
 
-public:
-     MMDViewer(const wxString& title);
-     ~MMDViewer();
+// ファイルの区切り文字(FileSeparator)
+#ifdef __WXMSW__
+  #define wxFS wxT("\\") 
+#else
+  #define wxFS wxT("/") 
+#endif
 
-private:
-     // すべてのウィジェットが載るAuiマネージャー
-     wxAuiManager m_mgr;
-     // OpenGL描画用キャンバス
-     BasicGLPane* glPane;
+// 実行ファイルの拡張子
+#ifdef __WXMSW__
+  #define wxExt wxT(".exe") 
+#else
+  #define wxExt wxT("") 
+#endif
 
-     void SetProperties();
-     void DoLayout();
-     void SetAuiPaneInfo();
-     void OnDropFile(wxDropFilesEvent &event);
+/** wxMMDViewerの作業用隠しフォルダ名 */
+#define WXMMD_DIR wxT(".wxmmd")
 
-     DECLARE_EVENT_TABLE()
-};
-
-#endif /** WXMMDVIEWER_HPP_ */
+#endif /** COMMON_HPP_ */

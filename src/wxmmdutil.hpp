@@ -19,42 +19,31 @@
  *	Hiroyuki Nagata <newserver002@gmail.com>
  */
 
-#ifndef WXMMDVIEWER_HPP_
-#define WXMMDVIEWER_HPP_
+#ifndef WXMMDVIEWERUTIL_HPP_
+#define WXMMDVIEWERUTIL_HPP_
 
-#include <wx/wx.h>
-#include <wx/aui/aui.h>
-#include <wx/aui/auibook.h>
-#include <wx/dnd.h>
-#include <wx/dataobj.h>
-#include <wx/file.h>
-#include <wx/dir.h>
-#include "common.hpp"
-#include "basicglpane.hpp"
-#include "wxmmdutil.hpp"
+#include "MMD_IO.hpp"
+#include "clsCSVFile.hpp"
+#include "clsVMDFile.hpp"
 
 /**
- * メインのクラス
+ * ユーティリティクラス
  */
-class MMDViewer : public wxFrame 
+class wxMMDViewerUtil 
 {
 
 public:
-     MMDViewer(const wxString& title);
-     ~MMDViewer();
 
-private:
-     // すべてのウィジェットが載るAuiマネージャー
-     wxAuiManager m_mgr;
-     // OpenGL描画用キャンバス
-     BasicGLPane* glPane;
-
-     void SetProperties();
-     void DoLayout();
-     void SetAuiPaneInfo();
-     void OnDropFile(wxDropFilesEvent &event);
-
-     DECLARE_EVENT_TABLE()
+     /**
+      * CSVファイルからVMDへの変換
+      * @param const char* ファイル名
+      */
+     static int CSV2VMD( const char*name );
+     /**
+      * VMDファイルからCSVへの変換
+      * @param const char* ファイル名
+      */
+     static int VMD2CSV( const char*name );
 };
 
-#endif /** WXMMDVIEWER_HPP_ */
+#endif /** WXMMDVIEWERUTIL_HPP_ */
