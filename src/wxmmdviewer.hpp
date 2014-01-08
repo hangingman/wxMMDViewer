@@ -25,12 +25,19 @@
 #include <wx/wx.h>
 #include <wx/aui/aui.h>
 #include <wx/aui/auibook.h>
+#include <wx/dnd.h>
+#include <wx/dataobj.h>
+#include <wx/file.h>
 #include "basicglpane.hpp"
 
+/**
+ * メインのクラス
+ */
 class MMDViewer : public wxFrame {
 
 public:
      MMDViewer(const wxString& title);
+     ~MMDViewer();
 
 private:
      // すべてのウィジェットが載るAuiマネージャー
@@ -41,6 +48,9 @@ private:
      void SetProperties();
      void DoLayout();
      void SetAuiPaneInfo();
+     void OnDropFile(wxDropFilesEvent &event);
+
+     DECLARE_EVENT_TABLE()
 };
 
 #endif /** WXMMDVIEWER_HPP_ */

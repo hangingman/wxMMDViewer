@@ -21,6 +21,10 @@
 
 #include "wxmmdviewer.hpp"
 
+BEGIN_EVENT_TABLE(MMDViewer, wxFrame)
+    EVT_DROP_FILES(MMDViewer::OnDropFile)
+END_EVENT_TABLE()
+
 MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
 {
      // 各種GUI設定を行う
@@ -29,6 +33,8 @@ MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
 
      // OpenGL用描画用キャンバス
      glPane = new BasicGLPane(this, 0);
+     // DnDできるように設定する
+     this->DragAcceptFiles(true);
 
      // ステータスバーを設定する
      CreateStatusBar(2);
@@ -39,8 +45,8 @@ MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
  * SetProperties
  * 前回からのデータ引継ぎ等の処理を行う。
  */
-void MMDViewer::SetProperties() {
-
+void MMDViewer::SetProperties() 
+{
      SetTitle(_("wxMMDViewer"));
      SetSize(wxSize(960, 640));
 }
@@ -50,8 +56,8 @@ void MMDViewer::SetProperties() {
  * ユーザーが触る前のアプリのレイアウトを設定する
  * 前回の起動時にレイアウトに変更があった場合はそれを反映する
  */
-void MMDViewer::DoLayout() {
-
+void MMDViewer::DoLayout() 
+{
      // Auiマネージャーがどのフレームを管理するか示す
      m_mgr.SetManagedWindow(this);
      // Auiマネージャーの設定を反映する
@@ -64,8 +70,8 @@ void MMDViewer::DoLayout() {
  * SetAuiPaneInfo
  * AuiManagerのPaneInfoを設定する
  */
-void MMDViewer::SetAuiPaneInfo() {
-     
+void MMDViewer::SetAuiPaneInfo() 
+{     
      // OpenGL描画用キャンバス
      wxAuiPaneInfo glCanvas;
      glCanvas.Name(wxT("wxGLCanvas"));
@@ -74,4 +80,30 @@ void MMDViewer::SetAuiPaneInfo() {
 
      // OpenGL描画用キャンバスを載せる
      m_mgr.AddPane(glPane, glCanvas);
+}
+
+/**
+ * デストラクタ
+ */
+MMDViewer::~MMDViewer() 
+{
+     // Auiマネージャーを削除する
+     m_mgr.UnInit();
+}
+
+/**
+ * ファイルがドラッグ＆ドロップされた時の処理
+ */
+void MMDViewer::OnDropFile(wxDropFilesEvent &event)
+{
+     int nFiles = event.GetNumberOfFiles();
+     const wxString* filenames = event.GetFiles();
+
+     for ( int n = 0; n < nFiles; n++ )
+     {
+	  if (wxFile::Exists(filenames[n]))
+	  {
+	       wxMessageBox(wxString::Format(wxT("%s"), filenames[n].c_str()));
+	  }
+     }
 }
