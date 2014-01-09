@@ -24,6 +24,10 @@
  
 #include "wx/wx.h"
 #include "wx/glcanvas.h"
+
+#ifdef __WXMAC__
+   #include <GL/glut.h>
+#endif
  
 class BasicGLPane : public wxGLCanvas
 {
