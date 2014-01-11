@@ -571,7 +571,7 @@ finished:
  *    0: success
  *   -1: ArgumentError
  */
-int wxNKF::SetOption(const wxString option) {
+int wxNKF::SetOption(const wxString& option) {
 
      wxCharBuffer buffer = option.ToUTF8();
      const char* buf = buffer.data();
@@ -1612,7 +1612,7 @@ void wxNKF::SetOutputEncoding(wxNKFEncoding* enc) {
  * wxString to Multibyte String(Shift_JIS, EUC-JP, ISO-2022-JP, and so on.)
  * UTF-8 is officially supported by wxString. If you use UTF-8, You should use wxString::ToUTF-8.  
  */
-std::string wxNKF::WxToMultiByte(const wxString inputString, const wxString option) {
+std::string wxNKF::WxToMultiByte(const wxString& inputString, const wxString& option) {
 
      // validation
      if (inputString == wxEmptyString || option == wxEmptyString)

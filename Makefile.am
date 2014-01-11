@@ -178,3 +178,5 @@ remove_distdir :
 	rm -rf $(distdir).tar.gz
 	rm -rf $(distdir).zip
 	rm -rf $(BUNDLE)
+
+clean-hook: remove_distdir

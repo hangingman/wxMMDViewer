@@ -70,6 +70,14 @@ if test "$PLATFORM_STRING" = "Apple"; then
       CPPFLAGS="$CPPFLAGS -I/opt/local/include";
       LIBS="$LIBS -L/opt/local/lib"
    fi
+
+   case "$CXX" in
+           *clang*)
+	   CXXFLAGS="$CXXFLAGS -stdlib=libc++"
+    	;;
+           *)
+        ;;
+   esac
 fi
 
 #-----------------------------------------------------------------------
@@ -168,3 +176,9 @@ AC_CONFIG_FILES([Makefile
                  libvmdconv/src/Makefile
                  src/Makefile])
 AC_OUTPUT
+
+AC_MSG_RESULT([CC:		$CC])
+AC_MSG_RESULT([CXX:		$CXX])
+AC_MSG_RESULT([CPPFLAGS:	$CPPFLAGS])
+AC_MSG_RESULT([CXXFLAGS:	$CXXFLAGS])
+AC_MSG_RESULT([LIBS:		$LIBS])

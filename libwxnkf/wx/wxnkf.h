@@ -82,7 +82,7 @@ class wxNKF {
    * 
    * wxString to Multibyte String(Shift_JIS, EUC-JP, UTF-8, and so on.)
    */
-  std::string WxToMultiByte(const wxString inputString, const wxString option);	
+  std::string WxToMultiByte(const wxString& inputString, const wxString& option);	
   /**
    * convert charcter code in string to string, with option
    * 
