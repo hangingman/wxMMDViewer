@@ -1,5 +1,5 @@
 # subdirectories
-SUBDIRS = libvmdconv src
+SUBDIRS = libwxnkf libvmdconv src
 
 # chain with ChangeLog
 dist-hook: ChangeLog

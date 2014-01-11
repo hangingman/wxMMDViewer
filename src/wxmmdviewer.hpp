@@ -22,6 +22,7 @@
 #ifndef WXMMDVIEWER_HPP_
 #define WXMMDVIEWER_HPP_
 
+#include <memory>
 #include <wx/wx.h>
 #include <wx/aui/aui.h>
 #include <wx/aui/auibook.h>
@@ -35,6 +36,7 @@
 #include "common.hpp"
 #include "basicglpane.hpp"
 #include "wxmmdutil.hpp"
+#include "wx/wxnkf.h"
 
 const wxString mmdModelDir = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("model");
 const wxString mmdCSVDir   = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("csv");
@@ -55,14 +57,37 @@ private:
      // OpenGL描画用キャンバス
      BasicGLPane* glPane;
      // ログ出力用ウィンドウ
-     //wxPanel* logPanel;
      wxTextCtrl* txtPane;
-     wxLogTextCtrl* logPane;
 
      void SetProperties();
      void DoLayout();
      void SetAuiPaneInfo();
      void OnDropFile(wxDropFilesEvent &event);
+
+     wxString Dump(const std::string& dump)
+	  {
+	       return wxString(StringToHex(dump).c_str(), wxConvUTF8);
+	  };
+     
+     std::string StringToHex(const std::string& input)
+	  {
+	       static const char* const lut = "0123456789ABCDEF";
+	       size_t len = input.length();
+
+	       std::string output;
+	       output.reserve(5 * len);
+	       for (size_t i = 0; i < len; ++i)
+	       {
+		    const unsigned char c = input[i];
+		    output.push_back('0');
+		    output.push_back('x');
+		    output.push_back(lut[c >> 4]);
+		    output.push_back(lut[c & 15]);
+		    output.push_back(' ');
+	       }
+	       return output;
+	  };
+     
 
      DECLARE_EVENT_TABLE()
 };

@@ -34,12 +34,11 @@ MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
      // OpenGL用描画用キャンバス
      glPane = new BasicGLPane(this, 0);
      // ログ出力用ウィンドウ
-     //logPanel = new wxPanel(this, wxID_ANY);
      txtPane = new wxTextCtrl(this, wxID_ANY, wxEmptyString, 
 			      wxDefaultPosition, 
 			      wxDefaultSize,
 			      wxTE_MULTILINE | wxTE_READONLY);
-     logPane = new wxLogTextCtrl(txtPane);
+     wxLog::SetActiveTarget(new wxLogTextCtrl(txtPane));
 
      // 各種GUI設定を行う
      SetProperties();       // 前回までの設定を読み出す
@@ -51,6 +50,7 @@ MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
      // ステータスバーを設定する
      CreateStatusBar(2);
      SetStatusText(wxT("完了"));
+     wxLogMessage(wxT("レイアウト完了..."));
 }
 
 /**
@@ -167,7 +167,29 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 	       else if ( filenames[n] != wxEmptyString && ext == wxT("pmd") )
 	       {
 		    clsPMDFile pmdFile;
-		    pmdFile.Open(filenames[n].mb_str());
+		    const bool openIsSuccess = pmdFile.Open(filenames[n].mb_str());
+
+		    // 内部のデータをトレースする
+		    const wxString ret = openIsSuccess ? wxT("成功") : wxT("失敗");
+		    wxLogMessage(wxT("ファイル: %s 読み込み %s"), filenames[n].c_str(), ret.c_str());
+		    wxLogMessage(wxT("Version: %d"), pmdFile.GetVersion());
+		    wxLogMessage(wxT("Header: %s"), wxString::FromAscii(pmdFile.GetHeaderString()).c_str());
+		    // TODO:ActorにはShift_JISのモデル名が入るので文字コード変換が必要
+		    //std::unique_ptr<wxNKF> nkf(new wxNKF());
+		    //const std::string input(pmdFile.GetActor());
+		    //wxLogMessage(wxT("Actor: %s"), wxString::FromAscii(pmdFile.GetActor()).c_str());
+		    //const std::string option = "--oc=UTF-8 --ic=CP932";
+		    //const wxString output = nkf->MultiByteToWx(input, option);
+		    //wxLogMessage(wxT("Actor: %s"), output.c_str());
+		    wxLogMessage(wxT("VertexChunkSize: %d"), pmdFile.GetVertexChunkSize());
+		    wxLogMessage(wxT("GetIndexChunkSize: %d"), pmdFile.GetIndexChunkSize());
+		    wxLogMessage(wxT("BoneChunkSize: %d"), pmdFile.GetBoneChunkSize());
+		    wxLogMessage(wxT("IKChunkSize: %d"), pmdFile.GetIKChunkSize());
+		    wxLogMessage(wxT("MaterialChunkSize: %d"), pmdFile.GetMaterialChunkSize());
+		    wxLogMessage(wxT("MorpChunkSize: %d"), pmdFile.GetMorpChunkSize());
+		    wxLogMessage(wxT("CtrlChunkSize: %d"), pmdFile.GetCtrlChunkSize());
+		    wxLogMessage(wxT("GrpNameChunkSize: %d"), pmdFile.GetGrpNameChunkSize());
+		    wxLogMessage(wxT("GrpChunkSize: %d"), pmdFile.GetGrpChunkSize());
 	       }
 	  }
      }

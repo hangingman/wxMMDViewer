@@ -139,6 +139,9 @@ else
    AX_CHECK_GLUT()
 fi
 
+# Checks for header files.
+AC_CHECK_HEADERS([fcntl.h langinfo.h locale.h stdlib.h string.h strings.h unistd.h])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
 AC_TYPE_SIZE_T
@@ -156,9 +159,10 @@ AC_SUBST(GLUT_LIBS)
 AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
 
 # Checks for library functions.
-AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([memset munmap nl_langinfo strcasecmp strchr strcspn strpbrk strrchr strspn strstr fdatasync usleep fullfsync localtime_r gmtime_r])
 
 AC_CONFIG_FILES([Makefile
+		 libwxnkf/Makefile
                  libvmdconv/Makefile
                  libvmdconv/include/Makefile
                  libvmdconv/src/Makefile
