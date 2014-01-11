@@ -30,6 +30,8 @@
 #include <wx/file.h>
 #include <wx/dir.h>
 #include <wx/filename.h>
+#include <wx/log.h>
+#include <clsPMDFile.hpp>
 #include "common.hpp"
 #include "basicglpane.hpp"
 #include "wxmmdutil.hpp"
@@ -52,6 +54,10 @@ private:
      wxAuiManager m_mgr;
      // OpenGL描画用キャンバス
      BasicGLPane* glPane;
+     // ログ出力用ウィンドウ
+     //wxPanel* logPanel;
+     wxTextCtrl* txtPane;
+     wxLogTextCtrl* logPane;
 
      void SetProperties();
      void DoLayout();

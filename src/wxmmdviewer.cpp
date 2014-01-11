@@ -27,12 +27,24 @@ END_EVENT_TABLE()
 
 MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
 {
+
+     // Auiマネージャーがどのフレームを管理するか示す
+     m_mgr.SetManagedWindow(this);
+
+     // OpenGL用描画用キャンバス
+     glPane = new BasicGLPane(this, 0);
+     // ログ出力用ウィンドウ
+     //logPanel = new wxPanel(this, wxID_ANY);
+     txtPane = new wxTextCtrl(this, wxID_ANY, wxEmptyString, 
+			      wxDefaultPosition, 
+			      wxDefaultSize,
+			      wxTE_MULTILINE | wxTE_READONLY);
+     logPane = new wxLogTextCtrl(txtPane);
+
      // 各種GUI設定を行う
      SetProperties();       // 前回までの設定を読み出す
      DoLayout();            // 実際にレイアウトに展開する
 
-     // OpenGL用描画用キャンバス
-     glPane = new BasicGLPane(this, 0);
      // DnDできるように設定する
      this->DragAcceptFiles(true);
 
@@ -79,8 +91,8 @@ void MMDViewer::SetProperties()
  */
 void MMDViewer::DoLayout() 
 {
-     // Auiマネージャーがどのフレームを管理するか示す
-     m_mgr.SetManagedWindow(this);
+     // レイアウトの設定
+     SetAuiPaneInfo();
      // Auiマネージャーの設定を反映する
      m_mgr.Update();
      // 初期設定はこのLayout()が呼ばれる前に行わなくてはいけない
@@ -96,11 +108,23 @@ void MMDViewer::SetAuiPaneInfo()
      // OpenGL描画用キャンバス
      wxAuiPaneInfo glCanvas;
      glCanvas.Name(wxT("wxGLCanvas"));
-     glCanvas.Top();
      glCanvas.CloseButton(false);
+     glCanvas.Caption(wxT("ビュー部"));
+     glCanvas.BestSize(400, 400);
+     glCanvas.Center();
+     
+     // ログ出力用ウィンドウ
+     wxAuiPaneInfo logWindow;
+     logWindow.Name(wxT("wxLogWindow"));
+     logWindow.Bottom();
+     logWindow.CloseButton(true);
+     logWindow.Caption(wxT("ログ表示"));
+     logWindow.MaxSize(20, 20);
 
      // OpenGL描画用キャンバスを載せる
      m_mgr.AddPane(glPane, glCanvas);
+     m_mgr.AddPane(txtPane, logWindow);
+     m_mgr.Update();
 }
 
 /**
@@ -139,6 +163,11 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 		    const wxString outputPath = mmdCSVDir + wxFS + filename + wxFS + filename + wxT(".vmd");
 		    ::wxMkdir(mmdCSVDir + wxFS + filename);
 		    wxMMDViewerUtil::CSV2VMD( filenames[n].mb_str(), outputPath.mb_str() );
+	       }
+	       else if ( filenames[n] != wxEmptyString && ext == wxT("pmd") )
+	       {
+		    clsPMDFile pmdFile;
+		    pmdFile.Open(filenames[n].mb_str());
 	       }
 	  }
      }

@@ -1,6 +1,8 @@
 #ifndef CLSPMDFILE_HPP
 #define CLSPMDFILE_HPP
 
+#include "common.hpp"
+
 #pragma pack(1)
 struct PMD_HEADER {
      PMD_HEADER(){
