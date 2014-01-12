@@ -28,15 +28,21 @@
 #ifdef __WXMAC__
    #include <GL/glut.h>
 #endif
+
+#include <clsPMDFile.hpp>
  
 class BasicGLPane : public wxGLCanvas
 {
-     wxGLContext*	m_context;
+     wxGLContext* m_context;
  
 public:
      BasicGLPane(wxFrame* parent, int* args);
      virtual ~BasicGLPane();
- 
+
+     void SetPMDFile(const clsPMDFile& pmdFile);
+     clsPMDFile& GetPMDFile();
+
+private: 
      void resized(wxSizeEvent& evt);
  
      int getWidth();
@@ -44,7 +50,6 @@ public:
  
      void render(wxPaintEvent& evt);
      void prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
-     void prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
  
      // events
      void mouseMoved(wxMouseEvent& event);
@@ -56,6 +61,11 @@ public:
      void keyPressed(wxKeyEvent& event);
      void keyReleased(wxKeyEvent& event);
  
+     // true: PMDファイル投入済、false: PMDファイルなし
+     bool usePMDFile;
+     // PMDファイルの情報
+     clsPMDFile m_pmdFile;
+
      DECLARE_EVENT_TABLE()
 };
 

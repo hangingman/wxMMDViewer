@@ -63,6 +63,7 @@ private:
      void DoLayout();
      void SetAuiPaneInfo();
      void OnDropFile(wxDropFilesEvent &event);
+     void DrawPMDFile(clsPMDFile& pmdFile);
 
      wxString Dump(const std::string& dump)
 	  {

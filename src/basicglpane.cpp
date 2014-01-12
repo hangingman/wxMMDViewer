@@ -77,8 +77,6 @@ BasicGLPane::~BasicGLPane()
  
 void BasicGLPane::resized(wxSizeEvent& evt)
 {
-//	wxGLCanvas::OnSize(evt);
- 
      Refresh();
 }
  
@@ -87,9 +85,9 @@ void BasicGLPane::prepare3DViewport(int topleft_x, int topleft_y, int bottomrigt
 {
  
      glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black Background
-     glClearDepth(1.0f);	// Depth Buffer Setup
-     glEnable(GL_DEPTH_TEST); // Enables Depth Testing
-     glDepthFunc(GL_LEQUAL); // The Type Of Depth Testing To Do
+     glClearDepth(1.0f);	           // Depth Buffer Setup
+     glEnable(GL_DEPTH_TEST);              // Enables Depth Testing
+     glDepthFunc(GL_LEQUAL);               // The Type Of Depth Testing To Do
      glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
  
      glEnable(GL_COLOR_MATERIAL);
@@ -103,25 +101,6 @@ void BasicGLPane::prepare3DViewport(int topleft_x, int topleft_y, int bottomrigt
      glMatrixMode(GL_MODELVIEW);
      glLoadIdentity();
  
-}
- 
-/** Inits the OpenGL viewport for drawing in 2D. */
-void BasicGLPane::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y)
-{
-     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black Background
-     glEnable(GL_TEXTURE_2D);   // textures
-     glEnable(GL_COLOR_MATERIAL);
-     glEnable(GL_BLEND);
-     glDisable(GL_DEPTH_TEST);
-     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
- 
-     glViewport(topleft_x, topleft_y, bottomrigth_x-topleft_x, bottomrigth_y-topleft_y);
-     glMatrixMode(GL_PROJECTION);
-     glLoadIdentity();
- 
-     gluOrtho2D(topleft_x, bottomrigth_x, bottomrigth_y, topleft_y);
-     glMatrixMode(GL_MODELVIEW);
-     glLoadIdentity();
 }
  
 int BasicGLPane::getWidth()
@@ -142,49 +121,98 @@ void BasicGLPane::render( wxPaintEvent& evt )
      wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
  
      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
- 
-     // ------------- draw some 2D ----------------
-     prepare2DViewport(0,0,getWidth()/2, getHeight());
-     glLoadIdentity();
- 
-     // white background
-     glColor4f(1, 1, 1, 1);
-     glBegin(GL_QUADS);
-     glVertex3f(0,0,0);
-     glVertex3f(getWidth(),0,0);
-     glVertex3f(getWidth(),getHeight(),0);
-     glVertex3f(0,getHeight(),0);
-     glEnd();
- 
-     // red square
-     glColor4f(1, 0, 0, 1);
-     glBegin(GL_QUADS);
-     glVertex3f(getWidth()/8, getHeight()/3, 0);
-     glVertex3f(getWidth()*3/8, getHeight()/3, 0);
-     glVertex3f(getWidth()*3/8, getHeight()*2/3, 0);
-     glVertex3f(getWidth()/8, getHeight()*2/3, 0);
-     glEnd();
- 
-     // ------------- draw some 3D ----------------
-     prepare3DViewport(getWidth()/2,0,getWidth(), getHeight());
-     glLoadIdentity();
- 
-     glColor4f(0,0,1,1);
-     glTranslatef(0,0,-5);
-     glRotatef(50.0f, 0.0f, 1.0f, 0.0f);
- 
-     glColor4f(1, 0, 0, 1);
-     for (int i = 0; i < 6; i++)
+
+     if (usePMDFile)
      {
-	  glBegin(GL_LINE_STRIP);
-	  glVertex3fv(&v[faces[i][0]][0]);
-	  glVertex3fv(&v[faces[i][1]][0]);
-	  glVertex3fv(&v[faces[i][2]][0]);
-	  glVertex3fv(&v[faces[i][3]][0]);
-	  glVertex3fv(&v[faces[i][0]][0]);
+	  // ------------- draw some 3D ----------------
+	  prepare3DViewport(0,0,getWidth(), getHeight());
+	  glLoadIdentity();
+ 
+	  glColor4f(0,0,1,1);
+	  glTranslatef(0,0,-5);
+	  glRotatef(50.0f, 0.0f, 1.0f, 0.0f);
+ 
+	  /** 頂点情報を描画する */
+	  PMD_VERTEX_CHUNK pmdVertexChunk = m_pmdFile.GetVertexChunk();
+	  if ( !pmdVertexChunk.empty() )
+	  {
+	       glColor4f(1, 0, 0, 1);
+
+	       std::vector<PMD_VERTEX_RECORD>::const_iterator it = pmdVertexChunk.begin();
+	       GLubyte indices[pmdVertexChunk.size()];
+	       GLfloat vert[pmdVertexChunk.size()][6];
+	       int index = 0;
+
+	       for (auto it = pmdVertexChunk.begin(); it != pmdVertexChunk.end(); ++it, ++index)
+	       {
+		    indices[index] = index;
+
+		    vert[index][0] = it->x;
+		    vert[index][1] = it->y;
+		    vert[index][2] = it->z;
+		    vert[index][3] = it->nx;
+		    vert[index][4] = it->ny;
+		    vert[index][5] = it->nz;
+
+		    wxLogMessage(wxT("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f"), 
+			         it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty);
+	       }
+
+	       // 頂点情報の数
+	       glClear(GL_COLOR_BUFFER_BIT);
+	       glEnableClientState(GL_VERTEX_ARRAY);
+	       // 3次元, float型, オフセットなし, 配列へのポインタ
+	       glVertexPointer(3 , GL_FLOAT , 0 , vert);
+	       // 線を引く, 配列のサイズ, float型, 
+	       glDrawElements(GL_LINE_LOOP , 3 , GL_UNSIGNED_BYTE , indices);
+	  }
+     }
+     else
+     {
+	  // red square
+	  glColor4f(1, 0, 0, 1);
+	  glBegin(GL_QUADS);
+	  glVertex3f(getWidth()/8, getHeight()/3, 0);
+	  glVertex3f(getWidth()*3/8, getHeight()/3, 0);
+	  glVertex3f(getWidth()*3/8, getHeight()*2/3, 0);
+	  glVertex3f(getWidth()/8, getHeight()*2/3, 0);
 	  glEnd();
+ 
+	  // ------------- draw some 3D ----------------
+	  prepare3DViewport(0,0,getWidth(), getHeight());
+	  glLoadIdentity();
+ 
+	  glColor4f(0,0,1,1);
+	  glTranslatef(0,0,-5);
+	  glRotatef(50.0f, 0.0f, 1.0f, 0.0f);
+ 
+	  glColor4f(1, 0, 0, 1);
+	  for (int i = 0; i < 6; i++)
+	  {
+	       glBegin(GL_LINE_STRIP);
+	       glVertex3fv(&v[faces[i][0]][0]);
+	       glVertex3fv(&v[faces[i][1]][0]);
+	       glVertex3fv(&v[faces[i][2]][0]);
+	       glVertex3fv(&v[faces[i][3]][0]);
+	       glVertex3fv(&v[faces[i][0]][0]);
+	       glEnd();
+	  }
      }
  
      glFlush();
      SwapBuffers();
 }
+
+void BasicGLPane::SetPMDFile(const clsPMDFile& pmdFile)
+{
+     m_pmdFile = pmdFile;
+     usePMDFile = true;
+
+     Refresh();
+}
+
+clsPMDFile& BasicGLPane::GetPMDFile()
+{
+     return m_pmdFile;
+}
+

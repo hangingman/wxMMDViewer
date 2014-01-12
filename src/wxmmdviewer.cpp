@@ -190,7 +190,15 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 		    wxLogMessage(wxT("CtrlChunkSize: %d"), pmdFile.GetCtrlChunkSize());
 		    wxLogMessage(wxT("GrpNameChunkSize: %d"), pmdFile.GetGrpNameChunkSize());
 		    wxLogMessage(wxT("GrpChunkSize: %d"), pmdFile.GetGrpChunkSize());
+
+		    // PMDファイルをwxGLCanvasに投入する
+		    DrawPMDFile(pmdFile);
 	       }
 	  }
      }
+}
+
+void MMDViewer::DrawPMDFile(clsPMDFile& pmdFile)
+{
+     glPane->SetPMDFile(pmdFile);
 }
