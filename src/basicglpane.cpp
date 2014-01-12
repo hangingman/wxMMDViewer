@@ -119,28 +119,39 @@ void BasicGLPane::render( wxPaintEvent& evt )
  
      wxGLCanvas::SetCurrent(*m_context);
      wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
- 
-     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
      if (usePMDFile)
      {
 	  // ------------- draw some 3D ----------------
-	  prepare3DViewport(0,0,getWidth(), getHeight());
-	  glLoadIdentity();
+	  //prepare3DViewport(0,0,getWidth(), getHeight());
+	  //glLoadIdentity();
  
-	  glColor4f(0,0,1,1);
-	  glTranslatef(0,0,-5);
-	  glRotatef(50.0f, 0.0f, 1.0f, 0.0f);
+	  //glColor4f(0,0,1,1);
+	  //glTranslatef(0,0,-5);
+	  //glRotatef(50.0f, 0.0f, 1.0f, 0.0f);
  
 	  /** 頂点情報を描画する */
 	  PMD_VERTEX_CHUNK pmdVertexChunk = m_pmdFile.GetVertexChunk();
 	  if ( !pmdVertexChunk.empty() )
 	  {
+
+	       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	       prepare3DViewport(0,0,getWidth(), getHeight());
+	       glLoadIdentity();
+ 
+	       glColor4f(0,0,1,1);
+	       glTranslatef(0,0,-5);
+	       glRotatef(50.0f, 0.0f, 1.0f, 0.0f);
+
 	       glColor4f(1, 0, 0, 1);
 
 	       std::vector<PMD_VERTEX_RECORD>::const_iterator it = pmdVertexChunk.begin();
+
 	       GLubyte indices[pmdVertexChunk.size()];
-	       GLfloat vert[pmdVertexChunk.size()][6];
+	       GLfloat vert[pmdVertexChunk.size()][3]; // 頂点データ
+	       GLfloat norm[pmdVertexChunk.size()][3]; // 法線データ
+	       GLfloat texc[pmdVertexChunk.size()][2]; // テクスチャ座標・UV座標
+	       
 	       int index = 0;
 
 	       for (auto it = pmdVertexChunk.begin(); it != pmdVertexChunk.end(); ++it, ++index)
@@ -150,25 +161,47 @@ void BasicGLPane::render( wxPaintEvent& evt )
 		    vert[index][0] = it->x;
 		    vert[index][1] = it->y;
 		    vert[index][2] = it->z;
-		    vert[index][3] = it->nx;
-		    vert[index][4] = it->ny;
-		    vert[index][5] = it->nz;
+		    norm[index][0] = it->nx;
+		    norm[index][1] = it->ny;
+		    norm[index][2] = it->nz;
+		    texc[index][0] = it->tx;
+		    texc[index][1] = it->ty;
 
 		    wxLogMessage(wxT("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f"), 
 			         it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty);
 	       }
 
-	       // 頂点情報の数
-	       glClear(GL_COLOR_BUFFER_BIT);
+               /* 三角形の数 */
+	       //const int nf = sizeof indices / sizeof indices[0];
+	       const int nf = 0;
+
+               /* 頂点データ，法線データ，テクスチャ座標の配列を有効にする */
 	       glEnableClientState(GL_VERTEX_ARRAY);
-	       // 3次元, float型, オフセットなし, 配列へのポインタ
-	       glVertexPointer(3 , GL_FLOAT , 0 , vert);
-	       // 線を引く, 配列のサイズ, float型, 
-	       glDrawElements(GL_LINE_LOOP , 3 , GL_UNSIGNED_BYTE , indices);
+	       //glEnableClientState(GL_NORMAL_ARRAY);
+	       //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+               /* 頂点データ，法線データ，テクスチャ座標の場所を指定する */
+	       glVertexPointer(3, GL_FLOAT, 0, vert);
+	       //glNormalPointer(GL_FLOAT, 0, norm);
+	       //glTexCoordPointer(2, GL_FLOAT, 0, texc);
+  
+	       /* 頂点のインデックスの場所を指定して図形を描画する */
+	       glEnable(GL_TEXTURE_2D);
+	       glColor4f(1, 0, 0, 1);
+	       glDrawElements(GL_TRIANGLES, nf * 3, GL_UNSIGNED_INT, indices);
+	       glDisable(GL_TEXTURE_2D);
+  
+	       /* 頂点データ，法線データ，テクスチャ座標の配列を無効にする */
+	       glDisableClientState(GL_VERTEX_ARRAY);
+	       //glDisableClientState(GL_NORMAL_ARRAY);
+	       //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	  }
      }
      else
      {
+
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	  // red square
 	  glColor4f(1, 0, 0, 1);
 	  glBegin(GL_QUADS);
