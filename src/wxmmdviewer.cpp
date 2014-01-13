@@ -20,10 +20,17 @@
  */
 
 #include "wxmmdviewer.hpp"
+#include "main.hpp"
 
 BEGIN_EVENT_TABLE(MMDViewer, wxFrame)
+    EVT_CLOSE(MMDViewer::OnClose)
     EVT_DROP_FILES(MMDViewer::OnDropFile)
 END_EVENT_TABLE()
+
+BasicGLPane* MMDViewer::GetBasicGLPane()
+{
+     return glPane;
+}
 
 MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
 {
@@ -201,4 +208,14 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 void MMDViewer::DrawPMDFile(clsPMDFile& pmdFile)
 {
      glPane->SetPMDFile(pmdFile);
+}
+
+void MMDViewer::OnClose(wxCloseEvent& event)
+{
+     wxAppConsole* app = wxAppConsole::GetInstance();
+     if ( wxMain* main = dynamic_cast<wxMain*>(app) )
+     {
+	  main->ActivateRenderLoop(false);
+	  event.Skip(); // don't stop event, we still want window to close
+     }
 }

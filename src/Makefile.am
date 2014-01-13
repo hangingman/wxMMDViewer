@@ -6,6 +6,7 @@ wxmmdviewerexec_PROGRAMS	= wxMMDViewer
 
 wxMMDViewerdir	  	= $(pkglibdir)
 wxMMDViewer_SOURCES 	= main.cpp            \
+			  main.hpp            \
 			  enumstring.hpp      \
 			  wxmmdviewer.cpp     \
 			  wxmmdviewer.hpp     \

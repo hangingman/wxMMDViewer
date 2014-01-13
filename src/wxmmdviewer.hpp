@@ -33,10 +33,10 @@
 #include <wx/filename.h>
 #include <wx/log.h>
 #include <clsPMDFile.hpp>
+#include "wx/wxnkf.h"
 #include "common.hpp"
 #include "basicglpane.hpp"
 #include "wxmmdutil.hpp"
-#include "wx/wxnkf.h"
 
 const wxString mmdModelDir = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("model");
 const wxString mmdCSVDir   = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("csv");
@@ -50,6 +50,7 @@ class MMDViewer : public wxFrame
 public:
      MMDViewer(const wxString& title);
      ~MMDViewer();
+     BasicGLPane* GetBasicGLPane();
 
 private:
      // すべてのウィジェットが載るAuiマネージャー
@@ -59,12 +60,17 @@ private:
      // ログ出力用ウィンドウ
      wxTextCtrl* txtPane;
 
+     /** レイアウト  */
      void SetProperties();
      void DoLayout();
      void SetAuiPaneInfo();
      void OnDropFile(wxDropFilesEvent &event);
      void DrawPMDFile(clsPMDFile& pmdFile);
 
+     /** イベント */
+     void OnClose(wxCloseEvent& event);
+
+     /** ユーティリティ */
      wxString Dump(const std::string& dump)
 	  {
 	       return wxString(StringToHex(dump).c_str(), wxConvUTF8);
@@ -88,7 +94,6 @@ private:
 	       }
 	       return output;
 	  };
-     
 
      DECLARE_EVENT_TABLE()
 };

@@ -22,13 +22,9 @@
 #ifndef BASICGLPANE_HPP_
 #define BASICGLPANE_HPP_
  
-#include "wx/wx.h"
-#include "wx/glcanvas.h"
-
-#ifdef __WXMAC__
-   #include <GL/glut.h>
-#endif
-
+#include <wx/wx.h>
+#include <wx/glcanvas.h>
+#include <GL/glut.h>
 #include <clsPMDFile.hpp>
  
 class BasicGLPane : public wxGLCanvas
@@ -43,23 +39,24 @@ public:
      clsPMDFile& GetPMDFile();
 
 private: 
-     void resized(wxSizeEvent& evt);
+     void Resized(wxSizeEvent& evt);
  
-     int getWidth();
-     int getHeight();
+     int GetWidth();
+     int GetHeight();
  
-     void render(wxPaintEvent& evt);
-     void prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
- 
+     void Render(wxPaintEvent& evt);
+     void Prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
+     void SetCamera(float posX, float posY, float posZ, float targetX, float targetY, float targetZ);
+
      // events
-     void mouseMoved(wxMouseEvent& event);
-     void mouseDown(wxMouseEvent& event);
-     void mouseWheelMoved(wxMouseEvent& event);
-     void mouseReleased(wxMouseEvent& event);
-     void rightClick(wxMouseEvent& event);
-     void mouseLeftWindow(wxMouseEvent& event);
-     void keyPressed(wxKeyEvent& event);
-     void keyReleased(wxKeyEvent& event);
+     void MouseMoved(wxMouseEvent& event);
+     void MouseDown(wxMouseEvent& event);
+     void MouseWheelMoved(wxMouseEvent& event);
+     void MouseReleased(wxMouseEvent& event);
+     void RightClick(wxMouseEvent& event);
+     void MouseLeftWindow(wxMouseEvent& event);
+     void KeyPressed(wxKeyEvent& event);
+     void KeyReleased(wxKeyEvent& event);
  
      // true: PMDファイル投入済、false: PMDファイルなし
      bool usePMDFile;

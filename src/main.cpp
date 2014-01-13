@@ -19,23 +19,7 @@
  *	Hiroyuki Nagata <newserver002@gmail.com>
  */
 
-#include <wx/wx.h>
-#include <wx/snglinst.h>
-#include "wxmmdviewer.hpp"
-
-/*
- * wxAppを継承したwxMainを宣言
- */
-class wxMain: public wxApp {
-
-public:
-  virtual bool OnInit();
-  virtual int OnExit();
-
-private:
-  wxSingleInstanceChecker* m_checker;
-  MMDViewer* wxMMDViewer;
-};
+#include "main.hpp"
 
 IMPLEMENT_APP(wxMain)
 
@@ -56,10 +40,12 @@ bool wxMain::OnInit()
 	 return false;
     }
 
+    render_loop_on = false;
     wxMMDViewer = new MMDViewer(wxT("wxMMDViewer"));
     SetTopWindow(wxMMDViewer);
     wxMMDViewer->Show();
      
+    ActivateRenderLoop(true);
     return true;
 }
 
@@ -68,4 +54,28 @@ bool wxMain::OnInit()
  */
 int wxMain::OnExit() {
      return 0;
+}
+
+void wxMain::ActivateRenderLoop(bool on)
+{
+     if(on && !render_loop_on)
+     {
+	  Connect( wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(wxMain::OnIdle) );
+	  render_loop_on = true;
+     }
+     else if(!on && render_loop_on)
+     {
+	  Disconnect( wxEVT_IDLE, wxIdleEventHandler(wxMain::OnIdle) );
+	  render_loop_on = false;
+     }
+}
+
+void wxMain::OnIdle(wxIdleEvent& event)
+{
+     if(render_loop_on)
+     {
+	  wxThread::Sleep(5);
+	  wxMMDViewer->GetBasicGLPane()->Refresh();
+	  event.RequestMore(); // render continuously, not only once on idle
+     }
 }
