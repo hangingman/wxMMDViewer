@@ -16,6 +16,11 @@ wxMMDViewer_SOURCES 	= main.cpp            \
 			  wxmmdutil.hpp       \
 			  wxmmdutil.cpp
 
+# trackball.c	      \
+# trackball.h	      \
+# dxfrenderer.cpp     \
+# dxfrenderer.h
+
 # common build rule
 wxMMDViewer_CXXFLAGS	= @CXXFLAGS@ -I$(top_builddir)/libvmdconv/include -I$(top_builddir)/libwxnkf
 ACLOCAL_AMFLAGS		= -I m4

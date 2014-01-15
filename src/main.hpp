@@ -40,6 +40,7 @@ public:
   void ActivateRenderLoop(bool on);
 
 private:
+  virtual int FilterEvent(wxEvent& event);
   wxSingleInstanceChecker* m_checker;
   MMDViewer* wxMMDViewer;
 };

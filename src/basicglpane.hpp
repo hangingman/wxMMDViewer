@@ -26,7 +26,19 @@
 #include <wx/glcanvas.h>
 #include <GL/glut.h>
 #include <clsPMDFile.hpp>
- 
+
+// OpenGL view data
+struct GLData
+{
+     bool initialized;           // have OpenGL been initialized?
+     float beginx, beginy;       // position of mouse
+     float quat[4];              // orientation of object
+     float zoom;                 // field of view in degrees
+     float xangle;               // model's angle X
+     float yangle;               // model's angle Y
+     float rotate_x;             // camera's x 
+};
+
 class BasicGLPane : public wxGLCanvas
 {
      wxGLContext* m_context;
@@ -37,16 +49,15 @@ public:
 
      void SetPMDFile(const clsPMDFile& pmdFile);
      clsPMDFile& GetPMDFile();
+     // events
+     void KeyPressed(wxKeyEvent& event);
+     void KeyReleased(wxKeyEvent& event);
 
 private: 
      void Resized(wxSizeEvent& evt);
- 
      int GetWidth();
      int GetHeight();
- 
      void Render(wxPaintEvent& evt);
-     void Prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y);
-     void SetCamera(float posX, float posY, float posZ, float targetX, float targetY, float targetZ);
 
      // events
      void MouseMoved(wxMouseEvent& event);
@@ -55,13 +66,14 @@ private:
      void MouseReleased(wxMouseEvent& event);
      void RightClick(wxMouseEvent& event);
      void MouseLeftWindow(wxMouseEvent& event);
-     void KeyPressed(wxKeyEvent& event);
-     void KeyReleased(wxKeyEvent& event);
- 
+     void Spin(float xSpin, float ySpin);
+
      // true: PMDファイル投入済、false: PMDファイルなし
      bool usePMDFile;
      // PMDファイルの情報
-     clsPMDFile m_pmdFile;
+     clsPMDFile  m_pmdFile;
+     // モデルの描画状態
+     GLData      m_gldata;
 
      DECLARE_EVENT_TABLE()
 };

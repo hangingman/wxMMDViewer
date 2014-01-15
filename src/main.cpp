@@ -79,3 +79,19 @@ void wxMain::OnIdle(wxIdleEvent& event)
 	  event.RequestMore(); // render continuously, not only once on idle
      }
 }
+
+/**
+ * キーイベントをここで判断する
+ */
+int wxMain::FilterEvent(wxEvent& event) 
+{
+
+     if (event.GetEventType() == wxEVT_KEY_DOWN)
+     {
+	  wxLogDebug(wxT("Key pressed."));
+	  wxMMDViewer->GetBasicGLPane()->KeyPressed(((wxKeyEvent&)event));
+	  return true;
+     }
+ 
+     return -1;
+}
