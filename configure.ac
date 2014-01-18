@@ -174,6 +174,7 @@ AC_CONFIG_FILES([Makefile
                  libvmdconv/Makefile
                  libvmdconv/include/Makefile
                  libvmdconv/src/Makefile
+		 libvmdconv/test/Makefile
                  src/Makefile])
 AC_OUTPUT
 
