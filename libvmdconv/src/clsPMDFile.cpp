@@ -3,34 +3,143 @@
 
 #include "clsPMDFile.hpp"
 
-clsPMDFile::clsPMDFile(void)
-{
-}
+#define SIZEOF_VERTEX 4
 
-clsPMDFile::~clsPMDFile(void)
-{
-}
 BOOL clsPMDFile::Open(const char* name)
 {
+
      BYTE   size_b;
      WORD   size_w;
      size_t size;
-     std::fstream fs;
 
-#ifdef _WIN32
-     fs.open( name,std::ios::in | std::ios::binary,_SH_SECURE );
-#else
-     fs.open( name,std::ios::in | std::ios::binary);
-#endif
+     // open the file:
+     std::streampos fileSize;
+     std::ifstream fs;
+     
+     fs.open(name, std::ios::binary);
      if ( fs.bad() || fs.fail() )
+     {
+	  DEBUG("%s\n", "File open failed");
 	  return FALSE;
+     }
 
-     fs.read( (char*)&m_header,sizeof(m_header) );
+     // get its size:
+     fs.seekg(0, std::ios::end);
+     fileSize = fs.tellg();
+     fs.seekg(0, std::ios::beg);
 
-     fs.read( (char*)&size,sizeof(size) );
-     SetVertexChunkSize(size);
+     // read the data:
+     std::vector<BYTE> temporary(fileSize);
+     fs.read((char*) &temporary[0], fileSize);
+
+     std::vector<BYTE>::const_iterator fst = temporary.begin();
+     std::vector<BYTE>::const_iterator mid = temporary.begin();
+     std::advance(mid, sizeof(m_header));
+     // header
+     std::copy(fst, mid, reinterpret_cast<char*>(&m_header) );
+
+     DEBUG("header1 %s\n", &m_header.header1);
+     DEBUG("header2 %s\n", &m_header.header2);
+
+     // set PMD_VERTEX_RECORD size
+     fst = mid;
+     std::advance(mid, SIZEOF_VERTEX);
+     char vertexHex[SIZEOF_VERTEX];
+     std::copy(fst, mid, &vertexHex[0]);
+
+     // bin to hex
+     std::string vertexSize;
+     for (int i = 0; i < SIZEOF_VERTEX; i++)
+     {
+	  if ( vertexHex[3-i] == '0' )
+	  {
+	       continue;
+	  }
+	  else
+	  {
+	       std::stringstream ss;
+	       ss << std::hex << (int)vertexHex[3-i];
+	       if ( ss.str().size() == 1 )
+	       {
+		    vertexSize += "0";
+		    vertexSize += ss.str();
+	       }
+	       else
+	       {
+		    vertexSize += ss.str();
+	       }
+	  }
+     }
+
+     DEBUG("hex: %s\n", vertexSize.c_str());
+
+     DWORD size_d;
+     std::stringstream ss(vertexSize);
+     ss >> std::hex >> size_d;
+     DEBUG("num: %lu\n", size_d);
+
+     SetVertexChunkSize(size_d);
+     DEBUG("VertexChunkSize %lu\n", size_d);
+
+     // set PMD_VERTEX_RECORD
+     fst = mid;
+     std::advance(mid, size_d * sizeof(PMD_VERTEX_RECORD));
+     auto vertexFst = reinterpret_cast<PMD_VERTEX_CHUNK::const_iterator>(fst);
+
+     /**
+     PMD_VERTEX_CHUNK::const_iterator
+	  vertexMid = static_cast< PMD_VERTEX_CHUNK::const_iterator >(mid);
+     */
+     /**
+     std::transform(fst, mid, 
+		    back_inserter( m_vertexs ),
+		    [] () -> PMD_VERTEX_RECORD& { 
+			 PMD_VERTEX_RECORD;
+		    });*/
+     //std::copy(fst, mid, reinterpret_cast<BYTE*>(&m_vertexs));
+
+#if defined(DEBUG_BUILD) && defined(__GNUC__)
+     for (auto it = m_vertexs.begin(); it != m_vertexs.end(); ++it)
+     {
+	  DEBUG("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f", 
+		it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty);
+     }
+#endif
+
+     return true;
+
+/**
+   fs.read( (char*)&m_header,sizeof(m_header) );
+   DEBUG("header1 %s\n", &m_header.header1);
+   DEBUG("header2 %s\n", &m_header.header2);
+     
+   fs.read( (char*)&size,sizeof(size) );
+   SetVertexChunkSize(size);
+   DEBUG("VertexChunkSize %d\n", size);
+
+   DEBUG("sizeof(PMD_VERTEX_RECORD) %d\n", sizeof(PMD_VERTEX_RECORD));
+   DEBUG("size*sizeof(PMD_VERTEX_RECORD) %d\n", size*sizeof(PMD_VERTEX_RECORD));
+*/  
      if ( size )
-	  fs.read( (char*)&GetVertexChunk()[0],size*sizeof(PMD_VERTEX_RECORD) );
+     {
+	  try 
+	  {
+	       fs.clear();
+	       fs.seekg( sizeof(m_header) + sizeof(size), std::ios_base::beg);
+	       fs.read( (char*)(&m_vertexs[0]), size*sizeof(PMD_VERTEX_RECORD) );
+	       //inf.read( (char*)( &mDataBuffer[0] ), bytesAvailable ) ;
+	       DEBUG("end get VertexChunkSize\n");
+	  }
+	  catch(std::exception& e)
+	  {
+	       std::cerr << typeid(e).name() << std::endl;
+	       std::cerr << e.what() << std::endl;
+
+	       return FALSE;
+	  }
+     }
+
+     return true;
 
      fs.read( (char*)&size,sizeof(size) );
      SetIndexChunkSize(size);
@@ -197,7 +306,7 @@ int clsPMDFile::GetVertexChunkSize()
 }
 void clsPMDFile::SetVertexChunkSize(int size)
 {
-     m_vertexs.resize(size);
+     m_vertexs.reserve(size);
 }
 PMD_VERTEX_CHUNK& clsPMDFile::GetVertexChunk()
 {
@@ -210,7 +319,7 @@ int clsPMDFile::GetIndexChunkSize()
 }
 void clsPMDFile::SetIndexChunkSize(int size)
 {
-     m_indexs.resize(size);
+     m_indexs.reserve(size);
 }
 PMD_INDEX_CHUNK& clsPMDFile::GetIndexChunk()
 {
@@ -223,7 +332,7 @@ int clsPMDFile::GetBoneChunkSize()
 }
 void clsPMDFile::SetBoneChunkSize(int size)
 {
-     m_bones.resize( size );
+     m_bones.reserve( size );
 }
 std::vector<PMD_BONE_RECORD>& clsPMDFile::GetBoneChunk()
 {
@@ -235,7 +344,7 @@ int clsPMDFile::GetIKChunkSize()
 }
 void clsPMDFile::SetIKChunkSize(int size)
 {
-     m_ikbones.resize(size);
+     m_ikbones.reserve(size);
 }
 PMD_IK_CHUNK& clsPMDFile::GetIKChunk()
 {
@@ -249,7 +358,7 @@ int clsPMDFile::GetMaterialChunkSize()
 
 void clsPMDFile::SetMaterialChunkSize(int size)
 {
-     m_materials.resize( size );
+     m_materials.reserve( size );
 }
 
 PMD_MATERIAL_CHUNK& clsPMDFile::GetMaterialChunk()
@@ -264,7 +373,7 @@ int clsPMDFile::GetMorpChunkSize()
 
 void clsPMDFile::SetMorpChunkSize(int size)
 {
-     m_morps.resize(size);
+     m_morps.reserve(size);
 }
 
 PMD_MORP_CHUNK& clsPMDFile::GetMorpChunk()
@@ -277,7 +386,7 @@ int clsPMDFile::GetCtrlChunkSize()
 }
 void clsPMDFile::SetCtrlChunkSize(int size)
 {
-     m_ctrls.resize(size);
+     m_ctrls.reserve(size);
 }
 std::vector<WORD>& clsPMDFile::GetCtrlChunk()
 {
@@ -290,7 +399,7 @@ int clsPMDFile::GetGrpNameChunkSize()
 }
 void clsPMDFile::SetGrpNameChunkSize(int size)
 {
-     m_grp_name.resize(size);
+     m_grp_name.reserve(size);
 }
 PMD_GRP_NAME_CHUNK& clsPMDFile::GetGrpNameChunk()
 {
@@ -303,7 +412,7 @@ int clsPMDFile::GetGrpChunkSize()
 }
 void clsPMDFile::SetGrpChunkSize(int size)
 {
-     m_grp.resize(size);
+     m_grp.reserve(size);
 }
 PMD_GRP_CHUNK& clsPMDFile::GetGrpChunk()
 {

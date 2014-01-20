@@ -19,17 +19,31 @@
  *	Hiroyuki Nagata <newserver002@gmail.com>
  */
 
+#include <unistd.h>
+#include <memory>
 #include "clsPMDFile.hpp"
 
 int main()
 {
-     clsPMDFile pmdFile;
-     bool ret = pmdFile.Open("");
-     
-     if (!ret)
-     {
-	  return -1;
+     std::unique_ptr<clsPMDFile> pmdFile(new clsPMDFile());
+     std::string s_cwd = "data/HatsuneMiku.pmd";
+     int ret = 0;
+
+     try {
+	  std::cout << "Loading file is:" << s_cwd << std::endl;
+	  bool vmdRet = pmdFile->Open(s_cwd.c_str());
+
+	  if (!vmdRet)
+	  {
+	       return -2;
+	  }
+	  
      }
-     
-     return 0;
+     catch (const char* str)
+     {
+	  std::cout << str << std::endl;
+	  ret = -2;
+     }
+
+     return ret;
 }

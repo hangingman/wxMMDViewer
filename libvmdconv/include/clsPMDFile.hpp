@@ -149,8 +149,6 @@ typedef std::vector<PMD_GRP_RECORD>      PMD_GRP_CHUNK;
 class clsPMDFile
 {
 public:
-     clsPMDFile(void);
-     ~clsPMDFile(void);
 
      BOOL Open(const char* name);
      BOOL Commit(const char* name);
