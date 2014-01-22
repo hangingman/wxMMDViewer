@@ -71,7 +71,7 @@ int main()
      }
 
      // nVertices[]
-     const int nVertices = pmdFile->GetVertexChunkSize();
+     const DWORD nVertices = pmdFile->GetVertexChunkSize();
      if ( nVertices == 9036 )
      {
 	  std::cout << "nVertices [頂点数]: " << nVertices << " ...OK!" << std::endl;
@@ -81,7 +81,18 @@ int main()
 	  std::cout << "nVertices [頂点数]: " << nVertices << " ...NG" << std::endl;
 	  return -2;
      }
-     
+
+     // nIndices[]
+     const DWORD nIndices = pmdFile->GetIndexChunkSize();
+     if ( nIndices == 44991 )
+     {
+	  std::cout << "nIndices [頂点番号]: " << nIndices << " ...OK!" << std::endl;
+     }
+     else
+     {
+	  std::cout << "nIndices [頂点番号]: " << nIndices << " ...NG" << std::endl;
+	  return -2;
+     }     
 
      return ret;
 }

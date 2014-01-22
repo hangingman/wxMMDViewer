@@ -145,10 +145,9 @@ typedef std::vector<WORD>		 PMD_CTRL_CHUNK;
 typedef std::vector<PMD_GRP_NAME_RECORD> PMD_GRP_NAME_CHUNK;
 typedef std::vector<PMD_GRP_RECORD>      PMD_GRP_CHUNK;
 
-#define SIZEOF_BYTE           2
 #define SIZEOF_WORD           2
 #define SIZEOF_FLOAT          4
-#define SIZEOF_VERTEX         4
+#define SIZEOF_DWORD          4
 #define SIZEOF_VERTEX_RECORD 38
 
 class clsPMDFile
@@ -168,13 +167,13 @@ public:
      const char* GetActor();
      void	 SetActor(const char* name );
 
-     int		GetVertexChunkSize();
-     void	        SetVertexChunkSize(int size);
+     DWORD		GetVertexChunkSize();
+     void	        SetVertexChunkSize(DWORD size);
      PMD_VERTEX_CHUNK&  GetVertexChunk();
 
-     int		GetIndexChunkSize();
-     void	SetIndexChunkSize(int size);
-     PMD_INDEX_CHUNK& GetIndexChunk();
+     DWORD		GetIndexChunkSize();
+     void	        SetIndexChunkSize(DWORD size);
+     PMD_INDEX_CHUNK&   GetIndexChunk();
 
      int		GetBoneChunkSize();
      void	SetBoneChunkSize(int size);
@@ -217,103 +216,31 @@ public:
      PMD_GRP_CHUNK		m_grp;
 
 private:
-
-     unsigned char m_VertexFloat[SIZEOF_FLOAT];
-     unsigned char m_VertexWord[SIZEOF_WORD];
-
-     void  AddFloatChunk(BYTE b, int index)
-	  {
-	       if ( 0 <= index && index <= SIZEOF_FLOAT -1 )
-	       {
-		    if ( index == 0)
-		    {
-			 index = SIZEOF_FLOAT;
-		    }
-		    
-		    m_VertexFloat[index-1] = b;
-	       }
-	  };
      
-     float MakeFloatChunk()
-	  {
-	       std::string floatHex;
-	       for (int i = 0; i < SIZEOF_FLOAT; i++)
-	       {
-		    if ( m_VertexFloat[SIZEOF_FLOAT -1 -i] == '0' )
-		    {
-			 continue;
-		    }
-		    else
-		    {
-			 std::stringstream ss;
-			 ss << std::hex << (int)m_VertexFloat[SIZEOF_FLOAT -1 -i];
-			 if ( ss.str().size() == 1 )
-			 {
-			      floatHex += "0";
-			      floatHex += ss.str();
-			 }
-			 else
-			 {
-			      floatHex += ss.str();
-			 }
-		    }
-	       }
+     // PMDファイルはDWORD部分にサイズ情報を持っている
+     // バイナリ情報からDWORDの情報を取り出す
+     static DWORD GetDWORDSizeFromBin(unsigned char vertexHex[SIZEOF_DWORD]);
 
-	       float f;
-	       std::stringstream ss(floatHex);
-	       ss.setf(std::ios::hex, std::ios::basefield);
-	       DEBUG("Float HEX %s\n", floatHex.c_str());
-	       ss >> std::hex >> f;
+     // バイナリから型つきの値へ変換
+     unsigned char m_Float[SIZEOF_FLOAT];
+     unsigned char m_Word[SIZEOF_WORD];
 
-	       return f;
-	  };
+     void  AddFloatChunk(BYTE b, int index);
+     float MakeFloatChunk();
+     void  AddWordChunk(BYTE b, int index);
+     WORD  MakeWordChunk();
 
-     void  AddWordChunk(BYTE b, int index)
-	  {
-	       if ( 0 <= index && index <= SIZEOF_WORD -1 )
-	       {
-		    if ( index == 0)
-		    {
-			 index = SIZEOF_WORD;
-		    }
+     /**
+      * PMD_VERTEX_CHUNK: 頂点座標取得用
+      */
 
-		    m_VertexWord[index-1] = b;
-	       }
-	  };
-     
-     WORD MakeWordChunk()
-	  {
-	       std::string wordHex;
-	       for (int i = 0; i < SIZEOF_WORD; i++)
-	       {
-		    if ( m_VertexWord[SIZEOF_WORD -1 -i] == '0' )
-		    {
-			 continue;
-		    }
-		    else
-		    {
-			 std::stringstream ss;
-			 ss << std::hex << (int)m_VertexWord[SIZEOF_WORD -1 -i];
-			 if ( ss.str().size() == 1 )
-			 {
-			      wordHex += "0";
-			      wordHex += ss.str();
-			 }
-			 else
-			 {
-			      wordHex += ss.str();
-			 }
-		    }
-	       }
+     void  MakeVertexChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid);
 
-	       WORD w;
-	       std::stringstream ss(wordHex);
-	       ss.setf(std::ios::hex, std::ios::basefield);
-	       DEBUG("WORD HEX %s\n", wordHex.c_str());
-	       ss >> std::hex >> w;
+     /**
+      * PMD_INDEX_CHUNK: 頂点番号取得用
+      */
+     void  MakeIndexChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid);
 
-	       return w;
-	  };
 };
 
 #endif /** CLSPMDFILE_HPP */

@@ -40,152 +40,34 @@ BOOL clsPMDFile::Open(const char* name)
      DEBUG("header2 %s\n", &m_header.header2);
 
      // set PMD_VERTEX_RECORD size
+     unsigned char vertexHex[SIZEOF_DWORD];
      fst = mid;
-     std::advance(mid, SIZEOF_VERTEX);
-     char vertexHex[SIZEOF_VERTEX];
+     std::advance(mid, SIZEOF_DWORD);
      std::copy(fst, mid, &vertexHex[0]);
 
-     // bin to hex
-     std::string vertexSize;
-     for (int i = 0; i < SIZEOF_VERTEX; i++)
-     {
-	  if ( vertexHex[3-i] == '0' )
-	  {
-	       continue;
-	  }
-	  else
-	  {
-	       std::stringstream ss;
-	       ss << std::hex << (int)vertexHex[3-i];
-	       if ( ss.str().size() == 1 )
-	       {
-		    vertexSize += "0";
-		    vertexSize += ss.str();
-	       }
-	       else
-	       {
-		    vertexSize += ss.str();
-	       }
-	  }
-     }
+     DWORD nVertices = clsPMDFile::GetDWORDSizeFromBin(vertexHex);
+     SetVertexChunkSize(nVertices);
+     DEBUG("VertexChunkSize %lu\n", nVertices);
 
-     DEBUG("hex: %s\n", vertexSize.c_str());
-
-     DWORD size_d;
-     std::stringstream ss(vertexSize);
-     ss >> std::hex >> size_d;
-     DEBUG("num: %lu\n", size_d);
-
-     SetVertexChunkSize(size_d);
-     DEBUG("VertexChunkSize %lu\n", size_d);
-
-     // set PMD_VERTEX_RECORD
-     int index = 0;
+     // set PMD_VERTEX_CHUNK
      fst = mid;
-     //std::advance(fst, SIZEOF_VERTEX);
-     std::advance(mid, size_d * sizeof(PMD_VERTEX_RECORD) );
-     PMD_VERTEX_RECORD pvr;
+     std::advance(mid, nVertices * sizeof(PMD_VERTEX_RECORD) );
+     MakeVertexChunk(fst, mid);
 
-     for (auto it = fst; it != mid;  ++it, ++index )
-     {
-	  auto & value = *it;
-	  size_t offset = (index + 1) % SIZEOF_VERTEX_RECORD;
-	  DEBUG("value: %x, index: %d, offset %lu\n", value, index, offset);
+     // set PMD_INDEX_CHUNK size
+     unsigned char indexHex[SIZEOF_DWORD];
+     fst = mid;
+     std::advance(mid, SIZEOF_DWORD );
+     std::copy(fst, mid, &indexHex[0]);
 
-	  if ( 1 <= offset && offset <= 32 )
-	  {
-	       // float x,y,z,nx,ny,nz,tx,ty...
-	       AddFloatChunk(value, offset % 4);
-	       if ( offset % 4 == 0 && offset != 0 )
-	       {
-		    float f = MakeFloatChunk();
+     DWORD nIndices = clsPMDFile::GetDWORDSizeFromBin(indexHex);
+     SetIndexChunkSize(nIndices);
+     DEBUG("IndexChunkSize %lu\n", nIndices);
 
-		    switch (offset)
-		    {
-		    case 4:
-			 pvr.x = f;
-			 break;
-		    case 8:
-			 pvr.y = f;
-			 break;
-		    case 12:
-			 pvr.z = f;
-			 break;
-		    case 16:
-			 pvr.nx = f;
-			 break;
-		    case 20:
-			 pvr.ny = f;
-			 break;
-		    case 24:
-			 pvr.nz = f;
-			 break;
-		    case 28:
-			 pvr.tx = f;
-			 break;
-		    case 32:
-			 pvr.ty = f;
-			 break;
-		    default:
-			 DEBUG("some data is out of VertexChunkSize index %d\n", index);
-			 break;
-		    }
-	       }
-	  }
-	  else if ( 33 <= offset && offset <= 36 )
-	  {
-	       // WORD b1,b2
-	       AddWordChunk(value, offset % 2);
-	       if ( offset % 2 == 0 )
-	       {
-		    WORD w = MakeWordChunk();
-
-		    switch (offset)
-		    {
-		    case 34:
-			 pvr.b1 = w;
-			 break;
-		    case 36:
-			 pvr.b2 = w;
-			 break;
-		    }
-	       }
-	  }
-	  else if ( offset == 37 || offset == 0 )
-	  {
-	       // BYTE bw,unknown
-	       if ( offset == 37 )
-	       {
-		    DEBUG("BYTE bw HEX %x\n", value);
-		    pvr.bw == value;
-	       }
-	       else if ( offset == 0 )
-	       {
-		    DEBUG("BYTE unknown HEX %x\n", value);
-		    pvr.unknown == value;
-	       }
-	  }
-	  else
-	  {
-	       DEBUG("some data is out of VertexChunkSize index %d\n", index);
-	       break; // ERROR
-	  }
-
-	  if ( index != 0 && offset == 0 )
-	  {
-	       m_vertexs.push_back(pvr);
-	  }
-     } 
-
-#if defined(DEBUG_BUILD) && defined(__GNUC__)
-     for (auto it = m_vertexs.begin(); it != m_vertexs.end(); ++it)
-     {
-	  DEBUG("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f,"
-		"b1:%d, b2:%d, bw:%x, uk:%x\n",
-		it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty, 
-		it->b1, it->b2, it->bw, it->unknown);
-     }
-#endif
+     // set PMD_INDEX_CHUNK
+     fst = mid;
+     std::advance(mid, nIndices * SIZEOF_DWORD );
+     MakeIndexChunk(fst, mid);
 
      return TRUE;
 }
@@ -309,11 +191,11 @@ void clsPMDFile::SetActor(const char* name )
 #endif
 }
 
-int clsPMDFile::GetVertexChunkSize()
+DWORD clsPMDFile::GetVertexChunkSize()
 {
      return m_vertexs.size();
 }
-void clsPMDFile::SetVertexChunkSize(int size)
+void clsPMDFile::SetVertexChunkSize(DWORD size)
 {
      m_vertexs.reserve(size);
 }
@@ -322,11 +204,11 @@ PMD_VERTEX_CHUNK& clsPMDFile::GetVertexChunk()
      return m_vertexs;
 }
 
-int clsPMDFile::GetIndexChunkSize()
+DWORD clsPMDFile::GetIndexChunkSize()
 {
      return m_indexs.size();
 }
-void clsPMDFile::SetIndexChunkSize(int size)
+void clsPMDFile::SetIndexChunkSize(DWORD size)
 {
      m_indexs.reserve(size);
 }
@@ -426,4 +308,263 @@ void clsPMDFile::SetGrpChunkSize(int size)
 PMD_GRP_CHUNK& clsPMDFile::GetGrpChunk()
 {
      return m_grp;
+}
+
+DWORD clsPMDFile::GetDWORDSizeFromBin(unsigned char hex[SIZEOF_DWORD])
+{
+     // bin to hex
+     std::string sizeStr;
+     for (int i = 0; i < SIZEOF_DWORD; i++)
+     {
+	  if ( hex[3-i] == '0' )
+	  {
+	       continue;
+	  }
+	  else
+	  {
+	       std::stringstream ss;
+	       ss << std::hex << (int)hex[3-i];
+	       if ( ss.str().size() == 1 )
+	       {
+		    sizeStr += "0";
+		    sizeStr += ss.str();
+	       }
+	       else
+	       {
+		    sizeStr += ss.str();
+	       }
+	  }
+     }
+
+     DEBUG("hex: %s\n", sizeStr.c_str());
+
+     std::stringstream ss(sizeStr);
+     DWORD size_d;
+     ss >> std::hex >> size_d;
+     DEBUG("num: %lu\n", size_d);
+
+     return size_d;
+}
+
+void clsPMDFile::MakeVertexChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid)
+{
+     int index = 0;
+     PMD_VERTEX_RECORD pvr;
+
+     for (auto it = fst; it != mid;  ++it, ++index )
+     {
+	  auto & value = *it;
+	  size_t offset = (index + 1) % SIZEOF_VERTEX_RECORD;
+	  DEBUG("value: %x, index: %d, offset %lu\n", value, index, offset);
+
+	  if ( 1 <= offset && offset <= 32 )
+	  {
+	       // float x,y,z,nx,ny,nz,tx,ty...
+	       AddFloatChunk(value, offset % 4);
+	       if ( offset % 4 == 0 && offset != 0 )
+	       {
+		    float f = MakeFloatChunk();
+
+		    switch (offset)
+		    {
+		    case 4:
+			 pvr.x = f;
+			 break;
+		    case 8:
+			 pvr.y = f;
+			 break;
+		    case 12:
+			 pvr.z = f;
+			 break;
+		    case 16:
+			 pvr.nx = f;
+			 break;
+		    case 20:
+			 pvr.ny = f;
+			 break;
+		    case 24:
+			 pvr.nz = f;
+			 break;
+		    case 28:
+			 pvr.tx = f;
+			 break;
+		    case 32:
+			 pvr.ty = f;
+			 break;
+		    default:
+			 DEBUG("some data is out of VertexChunkSize index %d\n", index);
+			 break;
+		    }
+	       }
+	  }
+	  else if ( 33 <= offset && offset <= 36 )
+	  {
+	       // WORD b1,b2
+	       AddWordChunk(value, offset % 2);
+	       if ( offset % 2 == 0 )
+	       {
+		    WORD w = MakeWordChunk();
+
+		    switch (offset)
+		    {
+		    case 34:
+			 pvr.b1 = w;
+			 break;
+		    case 36:
+			 pvr.b2 = w;
+			 break;
+		    }
+	       }
+	  }
+	  else if ( offset == 37 || offset == 0 )
+	  {
+	       // BYTE bw,unknown
+	       if ( offset == 37 )
+	       {
+		    DEBUG("BYTE bw HEX %x\n", value);
+		    pvr.bw == value;
+	       }
+	       else if ( offset == 0 )
+	       {
+		    DEBUG("BYTE unknown HEX %x\n", value);
+		    pvr.unknown == value;
+	       }
+	  }
+	  else
+	  {
+	       DEBUG("some data is out of VertexChunkSize index %d\n", index);
+	       break; // ERROR
+	  }
+
+	  if ( index != 0 && offset == 0 )
+	  {
+	       m_vertexs.push_back(pvr);
+	  }
+     } 
+
+#if defined(DEBUG_BUILD) && defined(__GNUC__)
+     for (auto it = m_vertexs.begin(); it != m_vertexs.end(); ++it)
+     {
+	  DEBUG("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f,"
+		"b1:%d, b2:%d, bw:%x, uk:%x\n",
+		it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty, 
+		it->b1, it->b2, it->bw, it->unknown);
+     }
+#endif
+}
+
+void clsPMDFile::MakeIndexChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid)
+{
+     int index = 0;
+
+     for (auto it = fst; it != mid;  ++it, ++index )
+     {
+	  auto & value = *it;
+	  size_t offset = (index + 1) % SIZEOF_WORD;
+	  DEBUG("value: %x, index: %d, offset %lu\n", value, index, offset);
+
+	  if ( offset == 0 || offset == 1 )
+	  {
+	       AddWordChunk(value, offset % 2);
+	       if ( index != 0 && offset % 2 == 0 )
+	       {
+		    WORD w = MakeWordChunk();
+		    m_indexs.push_back(w);
+	       }
+	  }
+     }
+}
+
+void  clsPMDFile::AddFloatChunk(BYTE b, int index)
+{
+     if ( 0 <= index && index <= SIZEOF_FLOAT -1 )
+     {
+	  if ( index == 0)
+	  {
+	       index = SIZEOF_FLOAT;
+	  }
+		    
+	  m_Float[index-1] = b;
+     }
+}
+     
+float clsPMDFile::MakeFloatChunk()
+{
+     std::string floatHex;
+     for (int i = 0; i < SIZEOF_FLOAT; i++)
+     {
+	  if ( m_Float[SIZEOF_FLOAT -1 -i] == '0' )
+	  {
+	       continue;
+	  }
+	  else
+	  {
+	       std::stringstream ss;
+	       ss << std::hex << (int)m_Float[SIZEOF_FLOAT -1 -i];
+	       if ( ss.str().size() == 1 )
+	       {
+		    floatHex += "0";
+		    floatHex += ss.str();
+	       }
+	       else
+	       {
+		    floatHex += ss.str();
+	       }
+	  }
+     }
+
+     float f;
+     std::stringstream ss(floatHex);
+     ss.setf(std::ios::hex, std::ios::basefield);
+     DEBUG("Float HEX %s\n", floatHex.c_str());
+     ss >> std::hex >> f;
+
+     return f;
+}
+
+void  clsPMDFile::AddWordChunk(BYTE b, int index)
+{
+     if ( 0 <= index && index <= SIZEOF_WORD -1 )
+     {
+	  if ( index == 0)
+	  {
+	       index = SIZEOF_WORD;
+	  }
+
+	  m_Word[index-1] = b;
+     }
+}
+     
+WORD clsPMDFile::MakeWordChunk()
+{
+     std::string wordHex;
+     for (int i = 0; i < SIZEOF_WORD; i++)
+     {
+	  if ( m_Word[SIZEOF_WORD -1 -i] == '0' )
+	  {
+	       continue;
+	  }
+	  else
+	  {
+	       std::stringstream ss;
+	       ss << std::hex << (int)m_Word[SIZEOF_WORD -1 -i];
+	       if ( ss.str().size() == 1 )
+	       {
+		    wordHex += "0";
+		    wordHex += ss.str();
+	       }
+	       else
+	       {
+		    wordHex += ss.str();
+	       }
+	  }
+     }
+
+     WORD w;
+     std::stringstream ss(wordHex);
+     ss.setf(std::ios::hex, std::ios::basefield);
+     DEBUG("WORD HEX %s\n", wordHex.c_str());
+     ss >> std::hex >> w;
+
+     return w;
 }
