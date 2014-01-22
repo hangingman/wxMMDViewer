@@ -49,7 +49,7 @@ float ToDegree(float x);
 #if defined(DEBUG_BUILD) && defined(__GNUC__)
 #  define DEBUG(fmt, ...) printf("%s(): " fmt, __func__, ## __VA_ARGS__)
 #else
-#  define DEBUG(x) do {} while (0)
+#  define DEBUG(x, ...) do {} while (0)
 #endif
 
 #endif /** COMMON_HPP */

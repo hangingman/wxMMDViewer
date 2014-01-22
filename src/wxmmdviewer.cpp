@@ -180,7 +180,7 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 		    const wxString ret = openIsSuccess ? wxT("成功") : wxT("失敗");
 		    wxLogMessage(wxT("ファイル: %s 読み込み %s"), filenames[n].c_str(), ret.c_str());
 		    wxLogMessage(wxT("Version: %d"), pmdFile.GetVersion());
-		    wxLogMessage(wxT("Header: %s"), wxString::FromAscii(pmdFile.GetHeaderString()).c_str());
+		    wxLogMessage(wxT("Header1: %s"), wxString::FromAscii(pmdFile.GetHeaderString1()).c_str());
 		    // TODO:ActorにはShift_JISのモデル名が入るので文字コード変換が必要
 		    //std::unique_ptr<wxNKF> nkf(new wxNKF());
 		    //const std::string input(pmdFile.GetActor());

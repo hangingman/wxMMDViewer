@@ -3,8 +3,6 @@
 
 #include "clsPMDFile.hpp"
 
-#define SIZEOF_VERTEX 4
-
 BOOL clsPMDFile::Open(const char* name)
 {
 
@@ -82,106 +80,112 @@ BOOL clsPMDFile::Open(const char* name)
      DEBUG("VertexChunkSize %lu\n", size_d);
 
      // set PMD_VERTEX_RECORD
+     int index = 0;
      fst = mid;
-     std::advance(mid, size_d * sizeof(PMD_VERTEX_RECORD));
-     auto vertexFst = reinterpret_cast<PMD_VERTEX_CHUNK::const_iterator>(fst);
+     //std::advance(fst, SIZEOF_VERTEX);
+     std::advance(mid, size_d * sizeof(PMD_VERTEX_RECORD) );
+     PMD_VERTEX_RECORD pvr;
 
-     /**
-     PMD_VERTEX_CHUNK::const_iterator
-	  vertexMid = static_cast< PMD_VERTEX_CHUNK::const_iterator >(mid);
-     */
-     /**
-     std::transform(fst, mid, 
-		    back_inserter( m_vertexs ),
-		    [] () -> PMD_VERTEX_RECORD& { 
-			 PMD_VERTEX_RECORD;
-		    });*/
-     //std::copy(fst, mid, reinterpret_cast<BYTE*>(&m_vertexs));
+     for (auto it = fst; it != mid;  ++it, ++index )
+     {
+	  auto & value = *it;
+	  size_t offset = (index + 1) % SIZEOF_VERTEX_RECORD;
+	  DEBUG("value: %x, index: %d, offset %lu\n", value, index, offset);
+
+	  if ( 1 <= offset && offset <= 32 )
+	  {
+	       // float x,y,z,nx,ny,nz,tx,ty...
+	       AddFloatChunk(value, offset % 4);
+	       if ( offset % 4 == 0 && offset != 0 )
+	       {
+		    float f = MakeFloatChunk();
+
+		    switch (offset)
+		    {
+		    case 4:
+			 pvr.x = f;
+			 break;
+		    case 8:
+			 pvr.y = f;
+			 break;
+		    case 12:
+			 pvr.z = f;
+			 break;
+		    case 16:
+			 pvr.nx = f;
+			 break;
+		    case 20:
+			 pvr.ny = f;
+			 break;
+		    case 24:
+			 pvr.nz = f;
+			 break;
+		    case 28:
+			 pvr.tx = f;
+			 break;
+		    case 32:
+			 pvr.ty = f;
+			 break;
+		    default:
+			 DEBUG("some data is out of VertexChunkSize index %d\n", index);
+			 break;
+		    }
+	       }
+	  }
+	  else if ( 33 <= offset && offset <= 36 )
+	  {
+	       // WORD b1,b2
+	       AddWordChunk(value, offset % 2);
+	       if ( offset % 2 == 0 )
+	       {
+		    WORD w = MakeWordChunk();
+
+		    switch (offset)
+		    {
+		    case 34:
+			 pvr.b1 = w;
+			 break;
+		    case 36:
+			 pvr.b2 = w;
+			 break;
+		    }
+	       }
+	  }
+	  else if ( offset == 37 || offset == 0 )
+	  {
+	       // BYTE bw,unknown
+	       if ( offset == 37 )
+	       {
+		    DEBUG("BYTE bw HEX %x\n", value);
+		    pvr.bw == value;
+	       }
+	       else if ( offset == 0 )
+	       {
+		    DEBUG("BYTE unknown HEX %x\n", value);
+		    pvr.unknown == value;
+	       }
+	  }
+	  else
+	  {
+	       DEBUG("some data is out of VertexChunkSize index %d\n", index);
+	       break; // ERROR
+	  }
+
+	  if ( index != 0 && offset == 0 )
+	  {
+	       m_vertexs.push_back(pvr);
+	  }
+     } 
 
 #if defined(DEBUG_BUILD) && defined(__GNUC__)
      for (auto it = m_vertexs.begin(); it != m_vertexs.end(); ++it)
      {
-	  DEBUG("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f", 
-		it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty);
+	  DEBUG("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f,"
+		"b1:%d, b2:%d, bw:%x, uk:%x\n",
+		it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty, 
+		it->b1, it->b2, it->bw, it->unknown);
      }
 #endif
-
-     return true;
-
-/**
-   fs.read( (char*)&m_header,sizeof(m_header) );
-   DEBUG("header1 %s\n", &m_header.header1);
-   DEBUG("header2 %s\n", &m_header.header2);
-     
-   fs.read( (char*)&size,sizeof(size) );
-   SetVertexChunkSize(size);
-   DEBUG("VertexChunkSize %d\n", size);
-
-   DEBUG("sizeof(PMD_VERTEX_RECORD) %d\n", sizeof(PMD_VERTEX_RECORD));
-   DEBUG("size*sizeof(PMD_VERTEX_RECORD) %d\n", size*sizeof(PMD_VERTEX_RECORD));
-*/  
-     if ( size )
-     {
-	  try 
-	  {
-	       fs.clear();
-	       fs.seekg( sizeof(m_header) + sizeof(size), std::ios_base::beg);
-	       fs.read( (char*)(&m_vertexs[0]), size*sizeof(PMD_VERTEX_RECORD) );
-	       //inf.read( (char*)( &mDataBuffer[0] ), bytesAvailable ) ;
-	       DEBUG("end get VertexChunkSize\n");
-	  }
-	  catch(std::exception& e)
-	  {
-	       std::cerr << typeid(e).name() << std::endl;
-	       std::cerr << e.what() << std::endl;
-
-	       return FALSE;
-	  }
-     }
-
-     return true;
-
-     fs.read( (char*)&size,sizeof(size) );
-     SetIndexChunkSize(size);
-     if ( size )
-	  fs.read( (char*)&GetIndexChunk()[0],size*sizeof(WORD) );
-
-     fs.read( (char*)&size,sizeof(size) );
-     SetMaterialChunkSize(size);
-     if ( size )
-	  fs.read( (char*)&GetMaterialChunk()[0],size*sizeof(PMD_MATERIAL_RECORD) );
-
-     fs.read( (char*)&size_w,sizeof(size_w) );
-     SetBoneChunkSize( size_w );
-     if ( size_w )
-	  fs.read( (char*)&GetBoneChunk()[0],size_w*sizeof(PMD_BONE_RECORD) );
-
-     fs.read( (char*)&size_w,sizeof(size_w) );
-     SetIKChunkSize( size_w );
-     for (int i=0;i<size_w;i++){
-	  GetIKChunk()[i].Read(fs);
-     }
-
-     fs.read( (char*)&size_w,sizeof(size_w) );
-     SetMorpChunkSize( size_w );
-     for (int i=0;i<size_w;i++){
-	  GetMorpChunk()[i].Read(fs);
-     }
-
-     fs.read( (char*)&size_b,sizeof(size_b) );
-     SetCtrlChunkSize( size_b );
-     if ( size_b )
-	  fs.read( (char*)&GetCtrlChunk()[0],size_b*sizeof(WORD) );
-
-     fs.read( (char*)&size_b,sizeof(size_b) );
-     SetGrpNameChunkSize( size_b );
-     if ( size_b )
-	  fs.read( (char*)&GetGrpNameChunk()[0],size_b*sizeof(PMD_GRP_NAME_RECORD) );
-
-     fs.read( (char*)&size,sizeof(size) );
-     SetGrpChunkSize( size );
-     if ( size )
-	  fs.read( (char*)&GetGrpChunk()[0],size*sizeof(PMD_GRP_RECORD) );
 
      return TRUE;
 }
@@ -262,9 +266,14 @@ void clsPMDFile::SetVersion(int ver)
 {
 }
 
-const char* clsPMDFile::GetHeaderString()
+const char* clsPMDFile::GetHeaderString1()
 {
      return m_header.header1;
+}
+
+const char* clsPMDFile::GetHeaderString2()
+{
+     return m_header.header2;
 }
 
 void clsPMDFile::SetHeaderString(const char* name)

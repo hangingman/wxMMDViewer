@@ -103,60 +103,136 @@ void BasicGLPane::Render( wxPaintEvent& evt )
      glCullFace(GL_BACK);
 
      /** draw 3d model here */
-     GLfloat vertices2[] = { 1, 1, 1,  -1, 1, 1,  -1,-1, 1,   1,-1, 1,   // v0,v1,v2,v3 (front)
-                             1, 1, 1,   1,-1, 1,   1,-1,-1,   1, 1,-1,   // v0,v3,v4,v5 (right)
-                             1, 1, 1,   1, 1,-1,  -1, 1,-1,  -1, 1, 1,   // v0,v5,v6,v1 (top)
-                            -1, 1, 1,  -1, 1,-1,  -1,-1,-1,  -1,-1, 1,   // v1,v6,v7,v2 (left)
-                            -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1,   // v7,v4,v3,v2 (bottom)
-                             1,-1,-1,  -1,-1,-1,  -1, 1,-1,   1, 1,-1 }; // v4,v7,v6,v5 (back)
-      
-     // normal array
-     GLfloat normals2[]  = { 0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,   // v0,v1,v2,v3 (front)
-                             1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,   // v0,v3,v4,v5 (right)
-                             0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,   // v0,v5,v6,v1 (top)
-                            -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,   // v1,v6,v7,v2 (left)
-                             0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,   // v7,v4,v3,v2 (bottom)
-                             0, 0,-1,   0, 0,-1,   0, 0,-1,   0, 0,-1 }; // v4,v7,v6,v5 (back)
-      
-     // color array
-     GLfloat colors2[]   = { 1, 1, 1,   1, 1, 0,   1, 0, 0,   1, 0, 1,   // v0,v1,v2,v3 (front)
-                             1, 1, 1,   1, 0, 1,   0, 0, 1,   0, 1, 1,   // v0,v3,v4,v5 (right)
-                             1, 1, 1,   0, 1, 1,   0, 1, 0,   1, 1, 0,   // v0,v5,v6,v1 (top)
-                             1, 1, 0,   0, 1, 0,   0, 0, 0,   1, 0, 0,   // v1,v6,v7,v2 (left)
-                             0, 0, 0,   0, 0, 1,   1, 0, 1,   1, 0, 0,   // v7,v4,v3,v2 (bottom)
-                             0, 0, 1,   0, 0, 0,   0, 1, 0,   0, 1, 1 }; // v4,v7,v6,v5 (back)
-      
-     // index array of vertex array for glDrawElements() & glDrawRangeElement()
-     GLubyte indices[]  = { 0, 1, 2,   2, 3, 0,      // front
-                            4, 5, 6,   6, 7, 4,      // right
-                            8, 9,10,  10,11, 8,      // top
-                           12,13,14,  14,15,12,      // left
-                           16,17,18,  18,19,16,      // bottom
-                           20,21,22,  22,23,20 };    // back
 
-     // enable and specify pointers to vertex arrays
-     glEnableClientState(GL_NORMAL_ARRAY);
-     glEnableClientState(GL_COLOR_ARRAY);
-     glEnableClientState(GL_VERTEX_ARRAY);
-     glNormalPointer(GL_FLOAT, 0, normals2);
-     glColorPointer(3, GL_FLOAT, 0, colors2);
-     glVertexPointer(3, GL_FLOAT, 0, vertices2);
+     if (usePMDFile)
+     {
+
+
+	  GLfloat vert[m_pmdFile.m_vertexs.size() * 3];
+	  GLfloat norm[m_pmdFile.m_vertexs.size() * 3];
+	  GLushort indices[m_pmdFile.m_indexs.size()];
+
+	  int index = 0;
+
+	  for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it, index=index+3)
+	  {
+	       vert[index]   = it->x;
+	       vert[index+1] = it->y;
+	       vert[index+2] = - (it->z);
+
+	       norm[index]   = it->nx;
+	       norm[index+1] = it->ny;
+	       norm[index+2] = it->nz;
+	  }
+
+	  index = 0;
+	  for (auto it = m_pmdFile.m_indexs.begin(); it != m_pmdFile.m_indexs.end(); ++it, ++index)
+	  {
+	       indices[index] = *it;
+	  }
+
+	  glEnableClientState(GL_NORMAL_ARRAY);
+	  //glEnableClientState(GL_COLOR_ARRAY);
+	  glEnableClientState(GL_VERTEX_ARRAY);
+	  glNormalPointer(GL_FLOAT, 0, norm);
+	  //glColorPointer(3, GL_FLOAT, 0, colors2);
+	  glVertexPointer(3, GL_FLOAT, 0, vert);
   
-     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, indices);
+	  glDrawElements(GL_TRIANGLES, m_pmdFile.m_vertexs.size(), GL_UNSIGNED_SHORT, indices);
   
-     glDisableClientState(GL_VERTEX_ARRAY);
-     glDisableClientState(GL_COLOR_ARRAY);
-     glDisableClientState(GL_NORMAL_ARRAY);
-     glPopMatrix();
+	  glDisableClientState(GL_VERTEX_ARRAY);
+	  //glDisableClientState(GL_COLOR_ARRAY);
+	  glDisableClientState(GL_NORMAL_ARRAY);
+	  
+	  glPopMatrix();
  
-     glFlush();
-     SwapBuffers();
+	  glFlush();
+	  SwapBuffers();
+     }
+     else
+     {	  
+	  GLfloat vertices2[] = { 1, 1, 1,  -1, 1, 1,  -1,-1, 1,   1,-1, 1,   // v0,v1,v2,v3 (front)
+				  1, 1, 1,   1,-1, 1,   1,-1,-1,   1, 1,-1,   // v0,v3,v4,v5 (right)
+				  1, 1, 1,   1, 1,-1,  -1, 1,-1,  -1, 1, 1,   // v0,v5,v6,v1 (top)
+				  -1, 1, 1,  -1, 1,-1,  -1,-1,-1,  -1,-1, 1,   // v1,v6,v7,v2 (left)
+				  -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1,   // v7,v4,v3,v2 (bottom)
+				  1,-1,-1,  -1,-1,-1,  -1, 1,-1,   1, 1,-1 }; // v4,v7,v6,v5 (back)
+     
+	  // normal array
+	  GLfloat normals2[]  = { 0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,   // v0,v1,v2,v3 (front)
+				  1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,   // v0,v3,v4,v5 (right)
+				  0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,   // v0,v5,v6,v1 (top)
+				  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,   // v1,v6,v7,v2 (left)
+				  0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,   // v7,v4,v3,v2 (bottom)
+				  0, 0,-1,   0, 0,-1,   0, 0,-1,   0, 0,-1 }; // v4,v7,v6,v5 (back)
+      
+	  // color array
+	  GLfloat colors2[]   = { 1, 1, 1,   1, 1, 0,   1, 0, 0,   1, 0, 1,   // v0,v1,v2,v3 (front)
+				  1, 1, 1,   1, 0, 1,   0, 0, 1,   0, 1, 1,   // v0,v3,v4,v5 (right)
+				  1, 1, 1,   0, 1, 1,   0, 1, 0,   1, 1, 0,   // v0,v5,v6,v1 (top)
+				  1, 1, 0,   0, 1, 0,   0, 0, 0,   1, 0, 0,   // v1,v6,v7,v2 (left)
+				  0, 0, 0,   0, 0, 1,   1, 0, 1,   1, 0, 0,   // v7,v4,v3,v2 (bottom)
+				  0, 0, 1,   0, 0, 0,   0, 1, 0,   0, 1, 1 }; // v4,v7,v6,v5 (back)
+      
+	  // index array of vertex array for glDrawElements() & glDrawRangeElement()
+	  GLubyte indices[]  = { 0, 1, 2,   2, 3, 0,      // front
+				 4, 5, 6,   6, 7, 4,      // right
+				 8, 9,10,  10,11, 8,      // top
+				 12,13,14,  14,15,12,      // left
+				 16,17,18,  18,19,16,      // bottom
+				 20,21,22,  22,23,20 };    // back
+
+	  // enable and specify pointers to vertex arrays
+	  glEnableClientState(GL_NORMAL_ARRAY);
+	  glEnableClientState(GL_COLOR_ARRAY);
+	  glEnableClientState(GL_VERTEX_ARRAY);
+	  glNormalPointer(GL_FLOAT, 0, normals2);
+	  glColorPointer(3, GL_FLOAT, 0, colors2);
+	  glVertexPointer(3, GL_FLOAT, 0, vertices2);
+  
+	  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, indices);
+  
+	  glDisableClientState(GL_VERTEX_ARRAY);
+	  glDisableClientState(GL_COLOR_ARRAY);
+	  glDisableClientState(GL_NORMAL_ARRAY);
+	  glPopMatrix();
+ 
+	  glFlush();
+	  SwapBuffers();
+     }
 }
 
 void BasicGLPane::SetPMDFile(const clsPMDFile& pmdFile)
 {
      m_pmdFile = pmdFile;
      usePMDFile = true;
+
+     wxLogMessage(wxT("Befor: %d"), m_pmdFile.m_vertexs.size());
+
+     m_pmdFile.m_vertexs.erase(remove_if(m_pmdFile.m_vertexs.begin(), 
+					 m_pmdFile.m_vertexs.end(),
+					 [] (const PMD_VERTEX_RECORD& record) -> bool {
+					      return (record.x == 0.0 &&
+						      record.y == 0.0 &&
+						      record.z == 0.0);
+					 }), m_pmdFile.m_vertexs.end());
+
+     // enable and specify pointers to vertex arrays
+     wxLogMessage(wxT("After: %d"), m_pmdFile.m_vertexs.size());
+
+     for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it)
+     {
+	  wxLogMessage(wxT("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f"), 
+		       it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty);	  
+     }
+     
+     // vector<int>::iterator it = array.begin();
+     for (PMD_INDEX_CHUNK::iterator it = m_pmdFile.m_indexs.begin(); it != m_pmdFile.m_indexs.end(); ++it)
+     {
+	  //int* p = it; 
+	  short unsigned int w = *it;
+	  wxLogMessage(wxT("index:%hu"), &w);
+     }
 
      Refresh();
 }

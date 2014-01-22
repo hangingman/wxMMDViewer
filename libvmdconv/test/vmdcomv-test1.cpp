@@ -21,6 +21,7 @@
 
 #include <unistd.h>
 #include <memory>
+#include <cstring>
 #include "clsPMDFile.hpp"
 
 int main()
@@ -44,6 +45,43 @@ int main()
 	  std::cout << str << std::endl;
 	  ret = -2;
      }
+
+     // header1[]
+     const char* header1 = pmdFile->GetHeaderString1();
+     if ( strstr(header1, "Pmd") )
+     {
+	  std::cout << "header1 [ヘッダ１]: " << header1 << " ...OK!" << std::endl;
+     }
+     else
+     {
+	  std::cout << "header1 [ヘッダ１]: " << header1 << " ...NG" << std::endl;
+	  return -2;
+     }
+     
+     // header2[]
+     const char* header2 = pmdFile->GetHeaderString2();
+     if ( strstr(header2, "CRYPTON FUTURE MEDIA") )
+     {
+	  std::cout << "header2 [ヘッダ２]: " << header2 << " ...OK!" << std::endl;
+     }
+     else
+     {
+	  std::cout << "header2 [ヘッダ２]: " << header2 << " ...NG" << std::endl;
+	  return -2;
+     }
+
+     // nVertices[]
+     const int nVertices = pmdFile->GetVertexChunkSize();
+     if ( nVertices == 9036 )
+     {
+	  std::cout << "nVertices [頂点数]: " << nVertices << " ...OK!" << std::endl;
+     }
+     else
+     {
+	  std::cout << "nVertices [頂点数]: " << nVertices << " ...NG" << std::endl;
+	  return -2;
+     }
+     
 
      return ret;
 }

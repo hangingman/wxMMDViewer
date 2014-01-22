@@ -145,6 +145,11 @@ typedef std::vector<WORD>		 PMD_CTRL_CHUNK;
 typedef std::vector<PMD_GRP_NAME_RECORD> PMD_GRP_NAME_CHUNK;
 typedef std::vector<PMD_GRP_RECORD>      PMD_GRP_CHUNK;
 
+#define SIZEOF_BYTE           2
+#define SIZEOF_WORD           2
+#define SIZEOF_FLOAT          4
+#define SIZEOF_VERTEX         4
+#define SIZEOF_VERTEX_RECORD 38
 
 class clsPMDFile
 {
@@ -153,18 +158,19 @@ public:
      BOOL Open(const char* name);
      BOOL Commit(const char* name);
 
-     int		GetVersion();
-     void	SetVersion(int ver);
+     int  GetVersion();
+     void SetVersion(int ver);
 
-     const char* GetHeaderString();
-     void	SetHeaderString(const char* name);
+     const char* GetHeaderString1();
+     const char* GetHeaderString2();
+     void	 SetHeaderString(const char* name);
 
-     const char*	GetActor();
-     void	SetActor(const char* name );
+     const char* GetActor();
+     void	 SetActor(const char* name );
 
      int		GetVertexChunkSize();
-     void	SetVertexChunkSize(int size);
-     PMD_VERTEX_CHUNK& GetVertexChunk();
+     void	        SetVertexChunkSize(int size);
+     PMD_VERTEX_CHUNK&  GetVertexChunk();
 
      int		GetIndexChunkSize();
      void	SetIndexChunkSize(int size);
@@ -210,6 +216,104 @@ public:
      PMD_GRP_NAME_CHUNK         m_grp_name;
      PMD_GRP_CHUNK		m_grp;
 
+private:
+
+     unsigned char m_VertexFloat[SIZEOF_FLOAT];
+     unsigned char m_VertexWord[SIZEOF_WORD];
+
+     void  AddFloatChunk(BYTE b, int index)
+	  {
+	       if ( 0 <= index && index <= SIZEOF_FLOAT -1 )
+	       {
+		    if ( index == 0)
+		    {
+			 index = SIZEOF_FLOAT;
+		    }
+		    
+		    m_VertexFloat[index-1] = b;
+	       }
+	  };
+     
+     float MakeFloatChunk()
+	  {
+	       std::string floatHex;
+	       for (int i = 0; i < SIZEOF_FLOAT; i++)
+	       {
+		    if ( m_VertexFloat[SIZEOF_FLOAT -1 -i] == '0' )
+		    {
+			 continue;
+		    }
+		    else
+		    {
+			 std::stringstream ss;
+			 ss << std::hex << (int)m_VertexFloat[SIZEOF_FLOAT -1 -i];
+			 if ( ss.str().size() == 1 )
+			 {
+			      floatHex += "0";
+			      floatHex += ss.str();
+			 }
+			 else
+			 {
+			      floatHex += ss.str();
+			 }
+		    }
+	       }
+
+	       float f;
+	       std::stringstream ss(floatHex);
+	       ss.setf(std::ios::hex, std::ios::basefield);
+	       DEBUG("Float HEX %s\n", floatHex.c_str());
+	       ss >> std::hex >> f;
+
+	       return f;
+	  };
+
+     void  AddWordChunk(BYTE b, int index)
+	  {
+	       if ( 0 <= index && index <= SIZEOF_WORD -1 )
+	       {
+		    if ( index == 0)
+		    {
+			 index = SIZEOF_WORD;
+		    }
+
+		    m_VertexWord[index-1] = b;
+	       }
+	  };
+     
+     WORD MakeWordChunk()
+	  {
+	       std::string wordHex;
+	       for (int i = 0; i < SIZEOF_WORD; i++)
+	       {
+		    if ( m_VertexWord[SIZEOF_WORD -1 -i] == '0' )
+		    {
+			 continue;
+		    }
+		    else
+		    {
+			 std::stringstream ss;
+			 ss << std::hex << (int)m_VertexWord[SIZEOF_WORD -1 -i];
+			 if ( ss.str().size() == 1 )
+			 {
+			      wordHex += "0";
+			      wordHex += ss.str();
+			 }
+			 else
+			 {
+			      wordHex += ss.str();
+			 }
+		    }
+	       }
+
+	       WORD w;
+	       std::stringstream ss(wordHex);
+	       ss.setf(std::ios::hex, std::ios::basefield);
+	       DEBUG("WORD HEX %s\n", wordHex.c_str());
+	       ss >> std::hex >> w;
+
+	       return w;
+	  };
 };
 
 #endif /** CLSPMDFILE_HPP */
