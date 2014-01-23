@@ -110,38 +110,46 @@ void BasicGLPane::Render( wxPaintEvent& evt )
 
 	  GLfloat vert[m_pmdFile.m_vertexs.size() * 3];
 	  GLfloat norm[m_pmdFile.m_vertexs.size() * 3];
+	  GLfloat colors[m_pmdFile.m_vertexs.size() * 2];
 	  GLushort indices[m_pmdFile.m_indexs.size()];
 
 	  int index = 0;
 
-	  for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it, index=index+3)
-	  {
-	       vert[index]   = it->x;
-	       vert[index+1] = it->y;
-	       vert[index+2] = - (it->z);
+          for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it, index=index+3)
+          {
+               vert[index]   = it->x;
+               vert[index+1] = it->y;
+               vert[index+2] = - (it->z);
 
-	       norm[index]   = it->nx;
-	       norm[index+1] = it->ny;
-	       norm[index+2] = it->nz;
-	  }
+               norm[index]   = it->nx;
+               norm[index+1] = it->ny;
+               norm[index+2] = it->nz;
+          }
 
 	  index = 0;
-	  for (auto it = m_pmdFile.m_indexs.begin(); it != m_pmdFile.m_indexs.end(); ++it, ++index)
+	  for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it, index=index+2)
 	  {
-	       indices[index] = *it;
+	       colors[index] = it->tx;
+	       colors[index+1] = it->ty;	       
 	  }
 
+          index = 0;
+          for (auto it = m_pmdFile.m_indexs.begin(); it != m_pmdFile.m_indexs.end(); ++it, ++index)
+          {
+               indices[index] = *it;
+          }
+
 	  glEnableClientState(GL_NORMAL_ARRAY);
-	  //glEnableClientState(GL_COLOR_ARRAY);
+	  glEnableClientState(GL_COLOR_ARRAY);
 	  glEnableClientState(GL_VERTEX_ARRAY);
 	  glNormalPointer(GL_FLOAT, 0, norm);
-	  //glColorPointer(3, GL_FLOAT, 0, colors2);
+	  glColorPointer(3, GL_FLOAT, 0, colors);
 	  glVertexPointer(3, GL_FLOAT, 0, vert);
   
 	  glDrawElements(GL_TRIANGLES, m_pmdFile.m_vertexs.size(), GL_UNSIGNED_SHORT, indices);
   
 	  glDisableClientState(GL_VERTEX_ARRAY);
-	  //glDisableClientState(GL_COLOR_ARRAY);
+	  glDisableClientState(GL_COLOR_ARRAY);
 	  glDisableClientState(GL_NORMAL_ARRAY);
 	  
 	  glPopMatrix();
