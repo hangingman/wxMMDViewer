@@ -66,7 +66,7 @@ BOOL clsPMDFile::Open(const char* name)
 
      // set PMD_INDEX_CHUNK
      fst = mid;
-     std::advance(mid, nIndices * SIZEOF_DWORD );
+     std::advance(mid, nIndices * SIZEOF_WORD );
      MakeIndexChunk(fst, mid);
 
      return TRUE;
@@ -422,12 +422,12 @@ void clsPMDFile::MakeVertexChunk(std::vector<BYTE>::const_iterator& fst, std::ve
 	       if ( offset == 37 )
 	       {
 		    DEBUG("BYTE bw HEX %x\n", value);
-		    pvr.bw == value;
+		    pvr.bw = value;
 	       }
 	       else if ( offset == 0 )
 	       {
 		    DEBUG("BYTE unknown HEX %x\n", value);
-		    pvr.unknown == value;
+		    pvr.unknown = value;
 	       }
 	  }
 	  else
@@ -463,14 +463,11 @@ void clsPMDFile::MakeIndexChunk(std::vector<BYTE>::const_iterator& fst, std::vec
 	  size_t offset = (index + 1) % SIZEOF_WORD;
 	  DEBUG("value: %x, index: %d, offset %lu\n", value, index, offset);
 
-	  if ( offset == 0 || offset == 1 )
+	  AddWordChunk(value, offset % 2);
+	  if ( index != 0 && offset % 2 == 0 )
 	  {
-	       AddWordChunk(value, offset % 2);
-	       if ( index != 0 && offset % 2 == 0 )
-	       {
-		    WORD w = MakeWordChunk();
-		    m_indexs.push_back(w);
-	       }
+	       WORD w = MakeWordChunk();
+	       m_indexs.push_back(w);
 	  }
      }
 }
@@ -513,13 +510,13 @@ float clsPMDFile::MakeFloatChunk()
 	  }
      }
 
-     float f;
+     union IntFloat val;
      std::stringstream ss(floatHex);
      ss.setf(std::ios::hex, std::ios::basefield);
      DEBUG("Float HEX %s\n", floatHex.c_str());
-     ss >> std::hex >> f;
+     ss >> std::hex >> val.i;
 
-     return f;
+     return val.f;
 }
 
 void  clsPMDFile::AddWordChunk(BYTE b, int index)

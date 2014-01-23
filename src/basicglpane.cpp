@@ -207,19 +207,6 @@ void BasicGLPane::SetPMDFile(const clsPMDFile& pmdFile)
      m_pmdFile = pmdFile;
      usePMDFile = true;
 
-     wxLogMessage(wxT("Befor: %d"), m_pmdFile.m_vertexs.size());
-
-     m_pmdFile.m_vertexs.erase(remove_if(m_pmdFile.m_vertexs.begin(), 
-					 m_pmdFile.m_vertexs.end(),
-					 [] (const PMD_VERTEX_RECORD& record) -> bool {
-					      return (record.x == 0.0 &&
-						      record.y == 0.0 &&
-						      record.z == 0.0);
-					 }), m_pmdFile.m_vertexs.end());
-
-     // enable and specify pointers to vertex arrays
-     wxLogMessage(wxT("After: %d"), m_pmdFile.m_vertexs.size());
-
      for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it)
      {
 	  wxLogMessage(wxT("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f"), 

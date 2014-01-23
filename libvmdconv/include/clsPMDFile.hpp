@@ -150,6 +150,11 @@ typedef std::vector<PMD_GRP_RECORD>      PMD_GRP_CHUNK;
 #define SIZEOF_DWORD          4
 #define SIZEOF_VERTEX_RECORD 38
 
+union IntFloat {
+     uint32_t i;
+     float f;
+};
+
 class clsPMDFile
 {
 public:
