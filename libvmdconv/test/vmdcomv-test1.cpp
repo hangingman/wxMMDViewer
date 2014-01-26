@@ -23,6 +23,7 @@
 #include <memory>
 #include <cstring>
 #include "clsPMDFile.hpp"
+#include "wx/wxnkf.h"
 
 int main()
 {
@@ -60,13 +61,19 @@ int main()
      
      // header2[]
      const char* header2 = pmdFile->GetHeaderString2();
+     const std::string header2SJIS = header2;
+     std::string header2UTF8;
+
+     std::unique_ptr<wxNKF> nkf(new wxNKF());
+     nkf->ConvertSTDString(header2SJIS, header2UTF8, "--oc=UTF-8 --ic=CP932");
+
      if ( strstr(header2, "CRYPTON FUTURE MEDIA") )
      {
-	  std::cout << "header2 [ヘッダ２]: " << header2 << " ...OK!" << std::endl;
+	  std::cout << "header2 [ヘッダ２]: " << header2UTF8 << " ...OK!" << std::endl;
      }
      else
      {
-	  std::cout << "header2 [ヘッダ２]: " << header2 << " ...NG" << std::endl;
+	  std::cout << "header2 [ヘッダ２]: " << header2UTF8 << " ...NG" << std::endl;
 	  return -2;
      }
 

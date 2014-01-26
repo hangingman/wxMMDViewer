@@ -16,15 +16,10 @@ wxMMDViewer_SOURCES 	= main.cpp            \
 			  wxmmdutil.hpp       \
 			  wxmmdutil.cpp
 
-# trackball.c	      \
-# trackball.h	      \
-# dxfrenderer.cpp     \
-# dxfrenderer.h
-
 # common build rule
-wxMMDViewer_CXXFLAGS	= @CXXFLAGS@ -I$(top_builddir)/libvmdconv/include -I$(top_builddir)/libwxnkf
+wxMMDViewer_CXXFLAGS	= @CXXFLAGS@ -I$(top_builddir)/libvmdconv/include -I$(top_builddir)/libwxnkf/src
 ACLOCAL_AMFLAGS		= -I m4
 
 # Library dependency
-wxMMDViewer_LDADD	= $(top_builddir)/libvmdconv/src/libvmdconv.la $(top_builddir)/libwxnkf/libwxnkf.la
+wxMMDViewer_LDADD	= $(top_builddir)/libvmdconv/src/libvmdconv.la $(top_builddir)/libwxnkf/src/libwxnkf.la
 wxMMDViewer_LDFLAGS	= `@WX_CONFIG_PATH@ --libs aui,base,core,gl`

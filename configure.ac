@@ -169,8 +169,16 @@ AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
 # Checks for library functions.
 AC_CHECK_FUNCS([memset munmap nl_langinfo strcasecmp strchr strcspn strpbrk strrchr strspn strstr fdatasync usleep fullfsync localtime_r gmtime_r])
 
+# Checks for subdirectory
+if test ! -d libwxnkf; then
+   AC_MSG_RESULT([libwxnkf is not found. exec git submodule...])
+   git submodule init;
+   git submodule update;
+fi
+
+AC_CONFIG_SUBDIRS(libwxnkf)
+
 AC_CONFIG_FILES([Makefile
-		 libwxnkf/Makefile
                  libvmdconv/Makefile
                  libvmdconv/include/Makefile
                  libvmdconv/src/Makefile
