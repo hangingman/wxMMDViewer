@@ -23,6 +23,9 @@ BUNDLEPACKAGE		= APPL
 BUNDLESIGNATURE		= ???
 EXECUTABLE		= $(top_builddir)/src/.libs/$(PACKAGE_NAME)
 
+# OSX向けのバイナリ(パッケージ化しない)
+osx-make-bin-no-pack : remove_distdir $(BUNDLE) $(BUNDLE)/Contents/MacOS/$(PACKAGE_NAME) $(MACICON) $(MACPKGINFO) $(MACINFOPLIST) wxmac-dist-shared-lib-subdir wxmac-dist-subdir-lib-patch
+
 # OSX向けのバイナリ(テスト用)
 osx-make-bin : remove_distdir $(BUNDLE) $(BUNDLE)/Contents/MacOS/$(PACKAGE_NAME) $(MACICON) $(MACPKGINFO) $(MACINFOPLIST) wxmac-dist-shared-lib
 
@@ -97,10 +100,21 @@ LIBDEFDIR    = /usr/local/lib
 MACEXECUTABLE   = $(BUNDLE)/Contents/MacOS/$(PACKAGE_NAME)
 DYLIBBUNDLER = dylibbundler
 
-wxmac-dist-shared-lib:
+wxmac-dist-subdir-lib-patch:
+	@echo "Patching wxMMDViewer for subdir library..."
+	@for dylibs in `otool -L $(MACEXECUTABLE) | awk {'print $$1'} `; do         \
+	   if [[ $$dylibs = /usr/local/lib/wxmmdviewer* ]]; then                    \
+	      echo "Patching " $$dylibs " to " $(BINDIR)/lib;                       \
+	      install_name_tool -change $$dylibs                                    \
+	                        @executable_path/lib/`basename $$dylibs`            \
+	                        $(MACEXECUTABLE);                                   \
+	   fi                                                                       \
+	done
+
+wxmac-dist-shared-lib-subdir:
 	@echo "Copying and Patching wxMMDViewer subdirectory libraries to " $(BINDIR)/lib " ..."
 	mkdir $(BINDIR)/lib
-	@for dylibs in `find ./ -name \*.dylib -print | sort -u `; do                \
+	@for dylibs in `find ./ -name \*.dylib -print | sort -u `; do               \
 	   if [[ $$dylibs != /usr/lib/* ]]; then                                    \
 	      echo "Copying " $$dylibs " to " $(BINDIR)/lib;                        \
 	      cp -p $$dylibs $(BINDIR)/lib;                                         \
@@ -113,6 +127,8 @@ wxmac-dist-shared-lib:
 	@echo "=====================================================================";
 	@echo "End of wxMMDViewer's subdirectories patching...                      ";
 	@echo "=====================================================================";
+
+wxmac-dist-shared-lib: wxmac-dist-shared-lib-subdir
 	@for dylibs in `otool -L $(MACEXECUTABLE) | grep -o /.\*.dylib | sort -u `; do \
 	   if [[ $$dylibs != /usr/lib/* ]]; then                                    \
 	      echo "Copying " $$dylibs " to " $(BINDIR)/lib;                        \
