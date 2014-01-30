@@ -227,8 +227,8 @@ private:
      static DWORD GetDWORDSizeFromBin(unsigned char vertexHex[SIZEOF_DWORD]);
 
      // バイナリから型つきの値へ変換
-     unsigned char m_Float[SIZEOF_FLOAT];
-     unsigned char m_Word[SIZEOF_WORD];
+     unsigned char m_Float[SIZEOF_FLOAT + 1] = { 0x00, 0x00, 0x00, 0x00, 0x00 }; // +1は0x00用
+     unsigned char m_Word[SIZEOF_WORD   + 1] = { 0x00, 0x00, 0x00 };             // +1は0x00用
 
      void  AddFloatChunk(BYTE b, int index);
      float MakeFloatChunk();

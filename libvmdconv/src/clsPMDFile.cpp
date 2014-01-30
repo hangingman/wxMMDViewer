@@ -355,7 +355,8 @@ void clsPMDFile::MakeVertexChunk(std::vector<BYTE>::const_iterator& fst, std::ve
      {
 	  auto & value = *it;
 	  size_t offset = (index + 1) % SIZEOF_VERTEX_RECORD;
-	  DEBUG("value: %x, index: %d, offset %lu\n", value, index, offset);
+	  DEBUG("value: %x, index: %d, offset %lu, data index %d\n", 
+		value, index, offset, index/SIZEOF_VERTEX_RECORD);
 
 	  if ( 1 <= offset && offset <= 32 )
 	  {
@@ -479,6 +480,7 @@ void  clsPMDFile::AddFloatChunk(BYTE b, int index)
 	  if ( index == 0)
 	  {
 	       index = SIZEOF_FLOAT;
+	       m_Float[SIZEOF_FLOAT] = 0x00;
 	  }
 		    
 	  m_Float[index-1] = b;
@@ -490,9 +492,9 @@ float clsPMDFile::MakeFloatChunk()
      std::string floatHex;
      for (int i = 0; i < SIZEOF_FLOAT; i++)
      {
-	  if ( m_Float[SIZEOF_FLOAT -1 -i] == '0' )
+	  if ( m_Float[SIZEOF_FLOAT -1 -i] == 0x00 )
 	  {
-	       continue;
+	       floatHex += "00";
 	  }
 	  else
 	  {
@@ -526,6 +528,7 @@ void  clsPMDFile::AddWordChunk(BYTE b, int index)
 	  if ( index == 0)
 	  {
 	       index = SIZEOF_WORD;
+	       m_Word[SIZEOF_WORD] = 0x00;
 	  }
 
 	  m_Word[index-1] = b;
@@ -537,9 +540,9 @@ WORD clsPMDFile::MakeWordChunk()
      std::string wordHex;
      for (int i = 0; i < SIZEOF_WORD; i++)
      {
-	  if ( m_Word[SIZEOF_WORD -1 -i] == '0' )
+	  if ( m_Word[SIZEOF_WORD -1 -i] == 0x00 )
 	  {
-	       continue;
+	       wordHex += "00";
 	  }
 	  else
 	  {

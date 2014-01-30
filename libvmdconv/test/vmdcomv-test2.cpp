@@ -160,7 +160,7 @@ int compare(const PMD_VERTEX_CHUNK& left, const PMD_VERTEX_CHUNK& right) {
      auto rightIt = right.begin();
      std::vector<int> diffContainer;
      int diff = 0, ret = 0;
-     std::chrono::milliseconds sleep( 200 );
+     std::chrono::milliseconds sleep( 50 );
 
      while (leftIt != left.end() && rightIt != right.end()) {
 
