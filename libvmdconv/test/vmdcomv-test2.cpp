@@ -26,6 +26,8 @@
 #include <iostream>
 #include <string>
 #include <sstream> 
+#include <chrono>
+#include <thread>
 #include "clsPMDFile.hpp"
 #include "wx/wxnkf.h"
 
@@ -85,50 +87,62 @@ int main()
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.x;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.y;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.z;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.nx;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.ny;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.nz;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.tx;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.ty;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.b1;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.b2;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.bw;
+	       ss.clear(std::stringstream::goodbit);
 
 	       if ( ! std::getline( stream, token, ',' )) { break; }
 	       ss << token;
 	       ss >> pmdVertexRecord.unknown;
+	       ss.clear(std::stringstream::goodbit);
 
 	       pmdVertexChunkCSV.push_back(pmdVertexRecord);
 	  }
@@ -136,24 +150,8 @@ int main()
 
      // compare clsPMDFile and CSV data
      ret = compare(pmdFile.m_vertexs, pmdVertexChunkCSV);
-/**
-     for (auto it = pmdFile.m_vertexs.begin(); it != pmdFile.m_vertexs.end(); ++it)
-     {
-	  it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty);          
-     }
-*/
 
-/**
-const pair<deque<string>::const_iterator, list<string>::const_iterator> p 
-= std::mismatch(d.begin(), d.end(), l.begin());
-
-if(p.first != d.end())
-     std::cout << "First disagreement in d and l :\n"
-	       << *(p.first) << " and " << *(p.second) << std::endl;
-}
-*/
-
-     return 0;
+     return ret;
 }
 
 int compare(const PMD_VERTEX_CHUNK& left, const PMD_VERTEX_CHUNK& right) {
@@ -162,9 +160,10 @@ int compare(const PMD_VERTEX_CHUNK& left, const PMD_VERTEX_CHUNK& right) {
      auto rightIt = right.begin();
      std::vector<int> diffContainer;
      int diff = 0, ret = 0;
+     std::chrono::milliseconds sleep( 200 );
 
      while (leftIt != left.end() && rightIt != right.end()) {
-	  // it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty
+
 	  if (leftIt->x	 != rightIt->x	||
 	      leftIt->y	 != rightIt->y	||
 	      leftIt->z	 != rightIt->z	||
@@ -174,10 +173,36 @@ int compare(const PMD_VERTEX_CHUNK& left, const PMD_VERTEX_CHUNK& right) {
 	      leftIt->tx != rightIt->tx ||
 	      leftIt->ty != rightIt->ty) 
 	  {
+	       /** Data is somewhat wrong... */
 	       std::cout << "Error: Data is not match at " << diff << std::endl;
-	       diffContainer.push_back(diff);
-	       ret = -2;
+	       std::cout << "clsPMDFile x:" << leftIt->x
+			 << " y:"  <<  leftIt->y
+			 << " z:"  <<  leftIt->z
+			 << " nx:" <<  leftIt->nx
+			 << " ny:" <<  leftIt->ny
+			 << " nz:" <<  leftIt->nz
+			 << " tx:" <<  leftIt->tx
+			 << " ty:" <<  leftIt->ty
+			 << std::endl;
+
+	       std::cout << "csv file   x:" << rightIt->x
+			 << " y:"  <<  rightIt->y
+			 << " z:"  <<  rightIt->z
+			 << " nx:" <<  rightIt->nx
+			 << " ny:" <<  rightIt->ny
+			 << " nz:" <<  rightIt->nz
+			 << " tx:" <<  rightIt->tx
+			 << " ty:" <<  rightIt->ty
+			 << std::endl;
+
+	       return -2;
 	  }
+	  else
+	  {
+	       std::cout << "index: " << diff << " is OK..." << std::endl;
+	       std::this_thread::sleep_for( sleep );
+	  }
+	  
 	  ++leftIt;
 	  ++rightIt;
 	  ++diff;
