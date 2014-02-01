@@ -26,12 +26,11 @@
 #include <iostream>
 #include <string>
 #include <sstream> 
-#include <chrono>
-#include <thread>
 #include "clsPMDFile.hpp"
 #include "wx/wxnkf.h"
 
 int compare(const PMD_VERTEX_CHUNK& left, const PMD_VERTEX_CHUNK& right);
+bool floatIsEqual( const float& V1, const float& V2, long MaxUlps = 10 );
 
 int main()
 {
@@ -160,7 +159,6 @@ int compare(const PMD_VERTEX_CHUNK& left, const PMD_VERTEX_CHUNK& right) {
      auto rightIt = right.begin();
      std::vector<int> diffContainer;
      int diff = 0, ret = 0;
-     std::chrono::milliseconds sleep( 50 );
 
      while (leftIt != left.end() && rightIt != right.end()) {
 
@@ -173,34 +171,49 @@ int compare(const PMD_VERTEX_CHUNK& left, const PMD_VERTEX_CHUNK& right) {
 	      leftIt->tx != rightIt->tx ||
 	      leftIt->ty != rightIt->ty) 
 	  {
-	       /** Data is somewhat wrong... */
-	       std::cout << "Error: Data is not match at " << diff << std::endl;
-	       std::cout << "clsPMDFile x:" << leftIt->x
-			 << " y:"  <<  leftIt->y
-			 << " z:"  <<  leftIt->z
-			 << " nx:" <<  leftIt->nx
-			 << " ny:" <<  leftIt->ny
-			 << " nz:" <<  leftIt->nz
-			 << " tx:" <<  leftIt->tx
-			 << " ty:" <<  leftIt->ty
-			 << std::endl;
+	       /** flaot value is unmatch with ordinary compare method... */
 
-	       std::cout << "csv file   x:" << rightIt->x
-			 << " y:"  <<  rightIt->y
-			 << " z:"  <<  rightIt->z
-			 << " nx:" <<  rightIt->nx
-			 << " ny:" <<  rightIt->ny
-			 << " nz:" <<  rightIt->nz
-			 << " tx:" <<  rightIt->tx
-			 << " ty:" <<  rightIt->ty
-			 << std::endl;
+	       /** once more compare method allowing bit diff  */
+	       if (floatIsEqual(leftIt->x  , rightIt->x ) &&
+		   floatIsEqual(leftIt->y  , rightIt->y ) &&
+		   floatIsEqual(leftIt->z  , rightIt->z ) &&
+		   floatIsEqual(leftIt->nx , rightIt->nx) &&
+		   floatIsEqual(leftIt->ny , rightIt->ny) &&
+		   floatIsEqual(leftIt->nz , rightIt->nz) &&
+		   floatIsEqual(leftIt->tx , rightIt->tx) &&
+		   floatIsEqual(leftIt->ty , rightIt->ty) )
+	       {
+		    // if left and right is equal, go next
+		    std::cout << "Data is match at other method..." << std::endl;
+	       }
+	       else
+	       {
+		    /** Data is somewhat wrong... */
+		    std::cout << "Error: Data is not match at " << diff << std::endl;
+		    std::cout << "clsPMDFile x:" << leftIt->x
+			      << " y:"  <<  leftIt->y
+			      << " z:"  <<  leftIt->z
+			      << " nx:" <<  leftIt->nx
+			      << " ny:" <<  leftIt->ny
+			      << " nz:" <<  leftIt->nz
+			      << " tx:" <<  leftIt->tx
+			      << " ty:" <<  leftIt->ty
+			      << std::endl;
 
-	       return -2;
+		    std::cout << "csv file   x:" << rightIt->x
+			      << " y:"  <<  rightIt->y
+			      << " z:"  <<  rightIt->z
+			      << " nx:" <<  rightIt->nx
+			      << " ny:" <<  rightIt->ny
+			      << " nz:" <<  rightIt->nz
+			      << " tx:" <<  rightIt->tx
+			      << " ty:" <<  rightIt->ty
+			      << std::endl;
+	       }
 	  }
 	  else
 	  {
 	       std::cout << "index: " << diff << " is OK..." << std::endl;
-	       std::this_thread::sleep_for( sleep );
 	  }
 	  
 	  ++leftIt;
@@ -209,4 +222,14 @@ int compare(const PMD_VERTEX_CHUNK& left, const PMD_VERTEX_CHUNK& right) {
      }
 
      return ret;
+}
+
+bool floatIsEqual( const float& V1, const float& V2, long MaxUlps)
+{
+     long l1 = *(long*)&V1;
+     long l2 = *(long*)&V2;
+     l1 ^= ( ( ( 0x80000000 - l1 ) ^ l1 ) & ( l1 >> 31 ) );
+     l2 ^= ( ( ( 0x80000000 - l2 ) ^ l2 ) & ( l2 >> 31 ) );
+     long d = l1 - l2;
+     return ( ( d ^ ( d >> 31 ) ) - ( d >> 31 ) <= MaxUlps );
 }
