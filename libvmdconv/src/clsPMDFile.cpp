@@ -45,7 +45,7 @@ BOOL clsPMDFile::Open(const char* name)
      std::advance(mid, SIZEOF_DWORD);
      std::copy(fst, mid, &vertexHex[0]);
 
-     DWORD nVertices = clsPMDFile::GetDWORDSizeFromBin(vertexHex);
+     const DWORD nVertices = clsPMDFile::GetDWORDSizeFromBin(vertexHex);
      SetVertexChunkSize(nVertices);
      DEBUG("VertexChunkSize %lu\n", nVertices);
 
@@ -60,7 +60,7 @@ BOOL clsPMDFile::Open(const char* name)
      std::advance(mid, SIZEOF_DWORD );
      std::copy(fst, mid, &indexHex[0]);
 
-     DWORD nIndices = clsPMDFile::GetDWORDSizeFromBin(indexHex);
+     const DWORD nIndices = clsPMDFile::GetDWORDSizeFromBin(indexHex);
      SetIndexChunkSize(nIndices);
      DEBUG("IndexChunkSize %lu\n", nIndices);
 
@@ -68,6 +68,21 @@ BOOL clsPMDFile::Open(const char* name)
      fst = mid;
      std::advance(mid, nIndices * SIZEOF_WORD );
      MakeIndexChunk(fst, mid);
+
+     // set PMD_MATERIAL_CHUNK size
+     unsigned char materialHex[SIZEOF_DWORD];
+     fst = mid;
+     std::advance(mid, SIZEOF_DWORD );
+     std::copy(fst, mid, &materialHex[0]);
+
+     const DWORD nMaterials = clsPMDFile::GetDWORDSizeFromBin(materialHex);
+     SetMaterialChunkSize(nMaterials);
+     DEBUG("MaterialChunkSize %lu\n", nMaterials);
+
+     // set PMD_MATERIAL_CHUNK
+     fst = mid;
+     std::advance(mid, nMaterials * SIZEOF_MATERIAL_RECORD );
+     MakeMaterialChunk(fst, mid);
 
      return TRUE;
 }
@@ -242,12 +257,12 @@ PMD_IK_CHUNK& clsPMDFile::GetIKChunk()
      return m_ikbones;
 }
 
-int clsPMDFile::GetMaterialChunkSize()
+DWORD clsPMDFile::GetMaterialChunkSize()
 {
      return m_materials.size();
 }
 
-void clsPMDFile::SetMaterialChunkSize(int size)
+void clsPMDFile::SetMaterialChunkSize(DWORD size)
 {
      m_materials.reserve( size );
 }
@@ -452,6 +467,7 @@ void clsPMDFile::MakeVertexChunk(std::vector<BYTE>::const_iterator& fst, std::ve
 		it->b1, it->b2, it->bw, it->unknown);
      }
 #endif
+
 }
 
 void clsPMDFile::MakeIndexChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid)
@@ -471,6 +487,111 @@ void clsPMDFile::MakeIndexChunk(std::vector<BYTE>::const_iterator& fst, std::vec
 	       m_indexs.push_back(w);
 	  }
      }
+}
+
+void clsPMDFile::MakeMaterialChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid)
+{
+     int index = 0;
+     PMD_MATERIAL_RECORD pmr;
+
+     for (auto it = fst; it != mid;  ++it, ++index )
+     {
+	  auto & value = *it;
+	  size_t offset = (index + 1) % SIZEOF_MATERIAL_RECORD;
+	  DEBUG("value: %x, index: %d, offset %lu, data index %d\n", 
+		value, index, offset, index/SIZEOF_MATERIAL_RECORD);
+
+	  if ( 1 <= offset && offset <= 44 )
+	  {
+	       AddFloatChunk(value, offset % 4);
+	       if ( offset % 4 == 0 && offset != 0 )
+	       {
+		    float f = MakeFloatChunk();
+
+		    switch (offset)
+		    {
+		    case 4:
+			 pmr.diffuse.r = f;
+			 break;
+		    case 8:
+			 pmr.diffuse.g = f;
+			 break;
+		    case 12:
+			 pmr.diffuse.b = f;
+			 break;
+		    case 16:
+			 pmr.diffuse.a = f;
+			 break;
+		    case 20:
+			 pmr.shininess = f;
+			 break;
+		    case 24:
+			 pmr.specular.r = f;
+			 break;
+		    case 28:
+			 pmr.specular.g = f;
+			 break;
+		    case 32:
+			 pmr.specular.b = f;
+			 break;
+		    case 36:
+			 pmr.ambient.r = f;
+			 break;
+		    case 40:
+			 pmr.ambient.g = f;
+			 break;
+		    case 44:
+			 pmr.ambient.b = f;
+			 break;
+		    default:
+			 DEBUG("some data is out of VertexChunkSize index %d\n", index);
+			 break;
+		    }
+	       }
+	  }
+	  else if ( 45 <= offset && offset <= 46 )
+	  {
+	       // WORD p12
+	       AddWordChunk(value, offset % 2);
+	       if ( offset % 2 == 0 )
+	       {
+		    WORD w = MakeWordChunk();
+
+		    switch (offset)
+		    {
+		    case 46:
+			 pmr.p12 = w;
+			 break;
+		    }
+	       }
+	  }
+	  else if ( 47 <= offset && offset <= 50 )
+	  {
+	       // DWORD nEdges
+	       AddDwordChunk(value, offset % 2);
+	       if ( offset % 2 == 0 )
+	       {
+		    DWORD d = MakeDwordChunk();
+
+		    switch (offset)
+		    {
+		    case 50:
+			 pmr.nEdges = d;
+			 break;
+		    }
+	       }
+	  }
+	  else if ( 51 <= offset && offset <= 69 || offset == 0 )
+	  {
+	       const int fIndex = offset == 0 ? 19 : offset - 51;
+	       pmr.textureFileName[fIndex] = value;
+	  }
+
+	  if ( index != 0 && offset == 0 )
+	  {
+	       m_materials.push_back(pmr);
+	  }
+     }     
 }
 
 void  clsPMDFile::AddFloatChunk(BYTE b, int index)
@@ -567,4 +688,52 @@ WORD clsPMDFile::MakeWordChunk()
      ss >> std::hex >> w;
 
      return w;
+}
+
+void  clsPMDFile::AddDwordChunk(BYTE b, int index)
+{
+     if ( 0 <= index && index <= SIZEOF_DWORD -1 )
+     {
+	  if ( index == 0)
+	  {
+	       index = SIZEOF_DWORD;
+	       m_Dword[SIZEOF_DWORD] = 0x00;
+	  }
+		    
+	  m_Dword[index-1] = b;
+     }
+}
+     
+DWORD clsPMDFile::MakeDwordChunk()
+{
+     std::string dwordHex;
+     for (int i = 0; i < SIZEOF_DWORD; i++)
+     {
+	  if ( m_Dword[SIZEOF_DWORD -1 -i] == 0x00 )
+	  {
+	       dwordHex += "00";
+	  }
+	  else
+	  {
+	       std::stringstream ss;
+	       ss << std::hex << (int)m_Dword[SIZEOF_DWORD -1 -i];
+	       if ( ss.str().size() == 1 )
+	       {
+		    dwordHex += "0";
+		    dwordHex += ss.str();
+	       }
+	       else
+	       {
+		    dwordHex += ss.str();
+	       }
+	  }
+     }
+
+     union IntDword val;
+     std::stringstream ss(dwordHex);
+     ss.setf(std::ios::hex, std::ios::basefield);
+     DEBUG("Dword HEX %s\n", dwordHex.c_str());
+     ss >> std::hex >> val.i;
+
+     return val.d;
 }

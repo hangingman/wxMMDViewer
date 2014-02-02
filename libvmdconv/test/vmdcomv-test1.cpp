@@ -101,5 +101,17 @@ int main()
 	  return -2;
      }     
 
+     // nMaterials[]
+     const DWORD nMaterials = pmdFile->GetMaterialChunkSize();
+     if ( nMaterials == 17 )
+     {
+	  std::cout << "nMaterials [材質データ]: " << nMaterials << " ...OK!" << std::endl;
+     }
+     else
+     {
+	  std::cout << "nMaterials [材質データ]: " << nMaterials << " ...NG" << std::endl;
+	  return -2;
+     }     
+
      return ret;
 }

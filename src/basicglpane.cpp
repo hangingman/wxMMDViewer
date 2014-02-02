@@ -89,11 +89,12 @@ void BasicGLPane::Render( wxPaintEvent& evt )
 
      static GLfloat rot = 0.0;
      glClear(GL_COLOR_BUFFER_BIT);
-     glPushMatrix();
 
-     // スケール
+     //glLoadIdentity();
+
+     glPushMatrix();
+     glOrtho(-7.0f, 7.0f, -11.6f, 11.6f, 5.0f, 20.0f);
      glScalef(m_gldata.rotate_x, m_gldata.rotate_x, 1.0f );
-     // 回転
      glRotatef(m_gldata.xangle, 1.0f, 0.0f, 0.0f);
      glRotatef(m_gldata.yangle, 0.0f, 1.0f, 0.0f);
 
@@ -101,13 +102,14 @@ void BasicGLPane::Render( wxPaintEvent& evt )
      glFrontFace(GL_CW);
      glEnable(GL_CULL_FACE);
      glCullFace(GL_BACK);
+     //glMatrixMode(GL_PROJECTION);
+     glEnable(GL_LIGHTING);
+     glEnable(GL_LIGHT0);
 
      /** draw 3d model here */
 
      if (usePMDFile)
      {
-
-
 	  GLfloat vert[m_pmdFile.m_vertexs.size() * 3];
 	  GLfloat norm[m_pmdFile.m_vertexs.size() * 3];
 	  GLfloat colors[m_pmdFile.m_vertexs.size() * 2];
@@ -142,6 +144,7 @@ void BasicGLPane::Render( wxPaintEvent& evt )
 	  glEnableClientState(GL_NORMAL_ARRAY);
 	  glEnableClientState(GL_COLOR_ARRAY);
 	  glEnableClientState(GL_VERTEX_ARRAY);
+
 	  glNormalPointer(GL_FLOAT, 0, norm);
 	  glColorPointer(3, GL_FLOAT, 0, colors);
 	  glVertexPointer(3, GL_FLOAT, 0, vert);

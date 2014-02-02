@@ -148,11 +148,17 @@ typedef std::vector<PMD_GRP_RECORD>      PMD_GRP_CHUNK;
 #define SIZEOF_WORD           2
 #define SIZEOF_FLOAT          4
 #define SIZEOF_DWORD          4
-#define SIZEOF_VERTEX_RECORD 38
+#define SIZEOF_VERTEX_RECORD   38
+#define SIZEOF_MATERIAL_RECORD 70
 
 union IntFloat {
      uint32_t i;
      float f;
+};
+
+union IntDword {
+     uint32_t i;
+     DWORD d;
 };
 
 class clsPMDFile
@@ -172,41 +178,41 @@ public:
      const char* GetActor();
      void	 SetActor(const char* name );
 
-     DWORD		GetVertexChunkSize();
-     void	        SetVertexChunkSize(DWORD size);
-     PMD_VERTEX_CHUNK&  GetVertexChunk();
+     DWORD		 GetVertexChunkSize();
+     void	         SetVertexChunkSize(DWORD size);
+     PMD_VERTEX_CHUNK&   GetVertexChunk();
+			  
+     DWORD		 GetIndexChunkSize();
+     void	         SetIndexChunkSize(DWORD size);
+     PMD_INDEX_CHUNK&    GetIndexChunk();
 
-     DWORD		GetIndexChunkSize();
-     void	        SetIndexChunkSize(DWORD size);
-     PMD_INDEX_CHUNK&   GetIndexChunk();
-
-     int		GetBoneChunkSize();
-     void	SetBoneChunkSize(int size);
-     PMD_BONE_CHUNK& GetBoneChunk();
-
-     int		GetIKChunkSize();
-     void	SetIKChunkSize(int size);
-     PMD_IK_CHUNK& GetIKChunk();
-
-     int		GetMaterialChunkSize();
-     void	SetMaterialChunkSize(int size);
+     DWORD		 GetMaterialChunkSize();
+     void	         SetMaterialChunkSize(DWORD size);
      PMD_MATERIAL_CHUNK& GetMaterialChunk();
+			  
+     int		 GetBoneChunkSize();
+     void	         SetBoneChunkSize(int size);
+     PMD_BONE_CHUNK&     GetBoneChunk();
+			  
+     int		 GetIKChunkSize();
+     void	         SetIKChunkSize(int size);
+     PMD_IK_CHUNK&       GetIKChunk();
 
-     int		GetMorpChunkSize();
-     void	SetMorpChunkSize(int size);
-     PMD_MORP_CHUNK& GetMorpChunk();
+     int		 GetMorpChunkSize();
+     void	         SetMorpChunkSize(int size);
+     PMD_MORP_CHUNK&     GetMorpChunk();
 
-     int		GetCtrlChunkSize();
-     void	SetCtrlChunkSize(int size);
-     PMD_CTRL_CHUNK& GetCtrlChunk();
+     int		 GetCtrlChunkSize();
+     void	         SetCtrlChunkSize(int size);
+     PMD_CTRL_CHUNK&     GetCtrlChunk();
 
-     int		GetGrpNameChunkSize();
-     void	SetGrpNameChunkSize(int size);
+     int		 GetGrpNameChunkSize();
+     void	         SetGrpNameChunkSize(int size);
      PMD_GRP_NAME_CHUNK& GetGrpNameChunk();
 
-     int		GetGrpChunkSize();
-     void	SetGrpChunkSize(int size);
-     PMD_GRP_CHUNK& GetGrpChunk();
+     int		 GetGrpChunkSize();
+     void	         SetGrpChunkSize(int size);
+     PMD_GRP_CHUNK&      GetGrpChunk();
 
 public:
      PMD_HEADER			m_header;
@@ -228,23 +234,30 @@ private:
 
      // バイナリから型つきの値へ変換
      unsigned char m_Float[SIZEOF_FLOAT + 1] = { 0x00, 0x00, 0x00, 0x00, 0x00 }; // +1は0x00用
+     unsigned char m_Dword[SIZEOF_DWORD + 1] = { 0x00, 0x00, 0x00, 0x00, 0x00 }; // +1は0x00用
      unsigned char m_Word[SIZEOF_WORD   + 1] = { 0x00, 0x00, 0x00 };             // +1は0x00用
 
      void  AddFloatChunk(BYTE b, int index);
      float MakeFloatChunk();
+     void  AddDwordChunk(BYTE b, int index);
+     DWORD MakeDwordChunk();
      void  AddWordChunk(BYTE b, int index);
      WORD  MakeWordChunk();
 
      /**
       * PMD_VERTEX_CHUNK: 頂点座標取得用
       */
-
-     void  MakeVertexChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid);
+     void MakeVertexChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid);
 
      /**
       * PMD_INDEX_CHUNK: 頂点番号取得用
       */
-     void  MakeIndexChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid);
+     void MakeIndexChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid);
+
+     /**
+      * PMD_MATERIAL_CHUNK :材質データ情報取得用
+      */
+     void MakeMaterialChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid);
 
 };
 
