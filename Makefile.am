@@ -1,5 +1,5 @@
 # subdirectories
-SUBDIRS = libwxnkf libvmdconv src
+SUBDIRS = babel libvmdconv src
 
 # chain with ChangeLog
 dist-hook: ChangeLog

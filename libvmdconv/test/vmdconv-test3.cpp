@@ -27,7 +27,7 @@
 #include <string>
 #include <sstream> 
 #include "clsPMDFile.hpp"
-#include "wx/wxnkf.h"
+#include "babel.h"
 
 int compare(const PMD_INDEX_CHUNK& left, const PMD_INDEX_CHUNK& right);
 

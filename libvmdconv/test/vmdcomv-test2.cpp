@@ -27,7 +27,7 @@
 #include <string>
 #include <sstream> 
 #include "clsPMDFile.hpp"
-#include "wx/wxnkf.h"
+#include "babel.h"
 
 int compare(const PMD_VERTEX_CHUNK& left, const PMD_VERTEX_CHUNK& right);
 bool floatIsEqual( const float& V1, const float& V2, long MaxUlps = 10 );

@@ -23,7 +23,7 @@
 #include <memory>
 #include <cstring>
 #include "clsPMDFile.hpp"
-#include "wx/wxnkf.h"
+#include "babel.h"
 
 int main()
 {
@@ -64,8 +64,9 @@ int main()
      const std::string header2SJIS = header2;
      std::string header2UTF8;
 
-     std::unique_ptr<wxNKF> nkf(new wxNKF());
-     nkf->ConvertSTDString(header2SJIS, header2UTF8, "--oc=UTF-8 --ic=CP932");
+     #warning "TODO: wxNKF to babel !"
+     //std::unique_ptr<wxNKF> nkf(new wxNKF());
+     //nkf->ConvertSTDString(header2SJIS, header2UTF8, "--oc=UTF-8 --ic=CP932");
 
      if ( strstr(header2, "CRYPTON FUTURE MEDIA") )
      {

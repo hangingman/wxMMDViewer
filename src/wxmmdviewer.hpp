@@ -33,7 +33,7 @@
 #include <wx/filename.h>
 #include <wx/log.h>
 #include <clsPMDFile.hpp>
-#include "wx/wxnkf.h"
+#include "babel.h"
 #include "common.hpp"
 #include "basicglpane.hpp"
 #include "wxmmdutil.hpp"

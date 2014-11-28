@@ -17,9 +17,9 @@ wxMMDViewer_SOURCES 	= main.cpp            \
 			  wxmmdutil.cpp
 
 # common build rule
-wxMMDViewer_CXXFLAGS	= @CXXFLAGS@ -I$(top_builddir)/libvmdconv/include -I$(top_builddir)/libwxnkf/src
+wxMMDViewer_CXXFLAGS	= @CXXFLAGS@ -I$(top_builddir)/libvmdconv/include -I$(top_builddir)/babel
 ACLOCAL_AMFLAGS		= -I m4
 
 # Library dependency
-wxMMDViewer_LDADD	= $(top_builddir)/libvmdconv/src/libvmdconv.la $(top_builddir)/libwxnkf/src/libwxnkf.la
+wxMMDViewer_LDADD	= $(top_builddir)/libvmdconv/src/libvmdconv.la $(top_builddir)/babel/libbabel.la
 wxMMDViewer_LDFLAGS	= `@WX_CONFIG_PATH@ --libs aui,base,core,gl`
