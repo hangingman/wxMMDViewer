@@ -32,9 +32,25 @@ BOOL clsPMDFile::Open(const char* name)
 
      std::vector<BYTE>::const_iterator fst = temporary.begin();
      std::vector<BYTE>::const_iterator mid = temporary.begin();
-     std::advance(mid, sizeof(m_header));
-     // header
-     std::copy(fst, mid, reinterpret_cast<char*>(&m_header) );
+
+     // header1 => magic
+     std::advance(mid, sizeof(m_header.magic));
+     std::copy(fst, mid, reinterpret_cast<char*>(&m_header.magic) );
+     fst = mid;
+     // header1 => version
+     for (int index = 0; index < sizeof(m_header.version); ++index ) {
+	  m_Float[index] = *mid;
+	  mid++;
+     }
+     m_header.version = MakeFloatChunk();
+     fst = mid;
+     // header1 => modelName
+     std::advance(mid, sizeof(m_header.modelName));
+     std::copy(fst, mid, reinterpret_cast<char*>(&m_header.modelName) );
+     fst = mid;
+     // header2
+     std::advance(mid, sizeof(m_header.header2));
+     std::copy(fst, mid, reinterpret_cast<char*>(&m_header.header2) );
 
      DEBUG("header1 %s\n", &m_header.header1);
      DEBUG("header2 %s\n", &m_header.header2);
@@ -154,18 +170,25 @@ BOOL clsPMDFile::Commit(const char* name)
      return TRUE;
 }
 
-int clsPMDFile::GetVersion()
+float clsPMDFile::GetVersion()
 {
-     return 0;
+     return m_header.version;
 }
 
-void clsPMDFile::SetVersion(int ver)
+void clsPMDFile::SetVersion(float ver)
 {
+     // TODO
 }
 
 const char* clsPMDFile::GetHeaderString1()
 {
-     return m_header.header1;
+     const std::string header = 
+	  std::string(m_header.magic)       +
+	  std::string(" ")                  +
+	  std::to_string(m_header.version); // +
+//	  std::string(m_header.modelName);
+
+     return header.c_str();
 }
 
 const char* clsPMDFile::GetHeaderString2()
@@ -194,15 +217,16 @@ void *memcpy(         errno_t memcpy_s(
 
 const char* clsPMDFile::GetActor()
 {
-     return &m_header.header1[0x7];
+     return m_header.modelName;
 }
+
 void clsPMDFile::SetActor(const char* name )
 {
 
 #ifdef _WIN32
-     strncpy_s( &m_header.header1[0x7],_countof(m_header.header1)-0x7,name,_TRUNCATE );
+     strncpy_s( m_header.modelName, _countof(m_header.modelName), name, _TRUNCATE );
 #else
-     strncpy( &m_header.header1[0x7],name, countof(m_header.header1) - 0x7 );
+     //strncpy( m_header.modelName, name, countof(m_header.modelName));
 #endif
 }
 
@@ -736,4 +760,24 @@ DWORD clsPMDFile::MakeDwordChunk()
      ss >> std::hex >> val.i;
 
      return val.d;
+}
+
+
+std::string clsPMDFile::StringToHex(const std::string& input)
+{
+     static const char* const lut = "0123456789ABCDEF";
+     size_t len = input.length();
+
+     std::string output;
+     output.reserve(5 * len);
+     for (size_t i = 0; i < len; ++i)
+     {
+	  const unsigned char c = input[i];
+	  output.push_back('0');
+	  output.push_back('x');
+	  output.push_back(lut[c >> 4]);
+	  output.push_back(lut[c & 15]);
+	  output.push_back(' ');
+     }
+     return output;
 }

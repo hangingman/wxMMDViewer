@@ -251,7 +251,7 @@ void BasicGLPane::Spin(float xSpin, float ySpin)
 void BasicGLPane::KeyPressed(wxKeyEvent& event)
 {
      float angle = 5.0;
-     wxLogDebug(wxT("Key pressed."));
+     //wxLogDebug(wxT("Key pressed."));
 
      switch ( event.GetKeyCode() )
      {

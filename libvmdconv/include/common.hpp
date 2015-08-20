@@ -20,12 +20,13 @@
 
    /** MSW _countof */
    #include <type_traits>
+/**
    template < typename T, size_t N >
    size_t countof( T ( & arr )[ N ] )
    {
        return std::extent< T[ N ] >::value;
    }
-
+    */
 #endif
 
 #include <iostream>

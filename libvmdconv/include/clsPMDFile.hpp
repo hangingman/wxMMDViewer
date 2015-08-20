@@ -6,11 +6,20 @@
 #pragma pack(1)
 struct PMD_HEADER {
      PMD_HEADER(){
-	  memset(header1,0xFD,sizeof(header1));
+	  // 0xFDで埋める
+	  memset(magic,0xFD,sizeof(magic));
+	  memset(modelName,0xFD,sizeof(modelName));
 	  memset(header2,0xFD,sizeof(header2));
      }
-     char header1[0x1b];
-     char header2[0x100];
+
+     // 27byte
+     // ---------------------------------------------------
+     char magic[3];       // "Pmd"
+     float version;       // 0x00 0x00 0x80 0x3F == 1.00
+     char modelName[20]; // モデル名称
+
+     // char comment[256];   // コメントらしい
+     char header2[0x100];    // 256byte 
 };
 struct PMD_VERTEX_RECORD {
      float x;
@@ -168,8 +177,8 @@ public:
      BOOL Open(const char* name);
      BOOL Commit(const char* name);
 
-     int  GetVersion();
-     void SetVersion(int ver);
+     float GetVersion();
+     void SetVersion(float ver);
 
      const char* GetHeaderString1();
      const char* GetHeaderString2();
@@ -259,6 +268,8 @@ private:
       */
      void MakeMaterialChunk(std::vector<BYTE>::const_iterator& fst, std::vector<BYTE>::const_iterator& mid);
 
+     // デバッグ用
+     std::string StringToHex(const std::string& input);
 };
 
 #endif /** CLSPMDFILE_HPP */
