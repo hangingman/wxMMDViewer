@@ -219,17 +219,17 @@ void BasicGLPane::SetPMDFile(const clsPMDFile& pmdFile)
      usePMDFile = true;
 
      for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it)
-     {
+     {/**
 	  wxLogMessage(wxT("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f"), 
 		       it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty);	  
-     }
+      */}
      
      // vector<int>::iterator it = array.begin();
      for (PMD_INDEX_CHUNK::iterator it = m_pmdFile.m_indexs.begin(); it != m_pmdFile.m_indexs.end(); ++it)
      {
 	  //int* p = it; 
 	  short unsigned int w = *it;
-	  wxLogMessage(wxT("index:%hu"), &w);
+	  //wxLogMessage(wxT("index:%hu"), &w);
      }
 
      Refresh();

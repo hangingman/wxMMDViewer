@@ -181,22 +181,19 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 		    wxLogMessage(wxT("ファイル: %s 読み込み %s"), filenames[n].c_str(), ret.c_str());
 		    wxLogMessage(wxT("Version: %d"), pmdFile.GetVersion());
 		    wxLogMessage(wxT("Header1: %s"), wxString::FromAscii(pmdFile.GetHeaderString1()).c_str());
-		    // TODO:ActorにはShift_JISのモデル名が入るので文字コード変換が必要
-		    //std::unique_ptr<wxNKF> nkf(new wxNKF());
-		    //const std::string input(pmdFile.GetActor());
-		    //wxLogMessage(wxT("Actor: %s"), wxString::FromAscii(pmdFile.GetActor()).c_str());
-		    //const std::string option = "--oc=UTF-8 --ic=CP932";
-		    //const wxString output = nkf->MultiByteToWx(input, option);
-		    //wxLogMessage(wxT("Actor: %s"), output.c_str());
-		    wxLogMessage(wxT("VertexChunkSize: %d"), pmdFile.GetVertexChunkSize());
-		    wxLogMessage(wxT("GetIndexChunkSize: %d"), pmdFile.GetIndexChunkSize());
-		    wxLogMessage(wxT("BoneChunkSize: %d"), pmdFile.GetBoneChunkSize());
-		    wxLogMessage(wxT("IKChunkSize: %d"), pmdFile.GetIKChunkSize());
-		    wxLogMessage(wxT("MaterialChunkSize: %d"), pmdFile.GetMaterialChunkSize());
-		    wxLogMessage(wxT("MorpChunkSize: %d"), pmdFile.GetMorpChunkSize());
-		    wxLogMessage(wxT("CtrlChunkSize: %d"), pmdFile.GetCtrlChunkSize());
-		    wxLogMessage(wxT("GrpNameChunkSize: %d"), pmdFile.GetGrpNameChunkSize());
-		    wxLogMessage(wxT("GrpChunkSize: %d"), pmdFile.GetGrpChunkSize());
+		    // ActorにはShift_JISのモデル名が入るので文字コード変換が必要
+		    const std::string input(pmdFile.GetActor());
+		    const std::string output = babel::sjis_to_utf8(input);
+		    wxLogMessage(wxT("Actor: %s"), output.c_str());
+		    wxLogMessage(wxT("VertexChunkSize: %lu"), pmdFile.GetVertexChunkSize());
+		    wxLogMessage(wxT("GetIndexChunkSize: %lu"), pmdFile.GetIndexChunkSize());
+		    wxLogMessage(wxT("BoneChunkSize: %lu"), pmdFile.GetBoneChunkSize());
+		    wxLogMessage(wxT("IKChunkSize: %lu"), pmdFile.GetIKChunkSize());
+		    wxLogMessage(wxT("MaterialChunkSize: %lu"), pmdFile.GetMaterialChunkSize());
+		    wxLogMessage(wxT("MorpChunkSize: %lu"), pmdFile.GetMorpChunkSize());
+		    wxLogMessage(wxT("CtrlChunkSize: %lu"), pmdFile.GetCtrlChunkSize());
+		    wxLogMessage(wxT("GrpNameChunkSize: %lu"), pmdFile.GetGrpNameChunkSize());
+		    wxLogMessage(wxT("GrpChunkSize: %lu"), pmdFile.GetGrpChunkSize());
 
 		    // PMDファイルをwxGLCanvasに投入する
 		    DrawPMDFile(pmdFile);
