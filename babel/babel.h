@@ -70,7 +70,7 @@
 
 namespace {
 //	int unimplemented;
-};
+}
 
 //
 //	★コンパイラ情報による各種自動判別
@@ -506,7 +506,7 @@ namespace base_endian {
 		big_endian,
 		bi_endian,
 	};
-};
+}
 inline const int get_base_endian() {
 	using namespace base_endian;
 #ifdef	__LITTLE_ENDIAN_COMPUTER__
@@ -557,7 +557,7 @@ namespace base_encoding {
 		unicode,
 #endif
 	};
-};
+}
 
 //	↓ちょっと遊んでただけから気にしないで。
 
@@ -2043,4 +2043,3 @@ inline const bbl_binary translate_to_binary(const bbl_wstring &X, int X_to_base_
 	□■□■                  Wraith the Trickster                  □■□■
 	■□■□ ～I'll go with heaven's advantage and fool's wisdom.～ ■□■□
 ******************************************************************************/
-
