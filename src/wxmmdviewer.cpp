@@ -41,8 +41,8 @@ MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
      // OpenGL用描画用キャンバス
      glPane = new BasicGLPane(this, 0);
      // ログ出力用ウィンドウ
-     txtPane = new wxTextCtrl(this, wxID_ANY, wxEmptyString, 
-			      wxDefaultPosition, 
+     txtPane = new wxTextCtrl(this, wxID_ANY, wxEmptyString,
+			      wxDefaultPosition,
 			      wxDefaultSize,
 			      wxTE_MULTILINE | wxTE_READONLY);
      wxLog::SetActiveTarget(new wxLogTextCtrl(txtPane));
@@ -64,7 +64,7 @@ MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
  * SetProperties
  * 前回からのデータ引継ぎ等の処理を行う。
  */
-void MMDViewer::SetProperties() 
+void MMDViewer::SetProperties()
 {
      SetTitle(_("wxMMDViewer"));
      SetSize(wxSize(960, 640));
@@ -96,7 +96,7 @@ void MMDViewer::SetProperties()
  * ユーザーが触る前のアプリのレイアウトを設定する
  * 前回の起動時にレイアウトに変更があった場合はそれを反映する
  */
-void MMDViewer::DoLayout() 
+void MMDViewer::DoLayout()
 {
      // レイアウトの設定
      SetAuiPaneInfo();
@@ -110,8 +110,8 @@ void MMDViewer::DoLayout()
  * SetAuiPaneInfo
  * AuiManagerのPaneInfoを設定する
  */
-void MMDViewer::SetAuiPaneInfo() 
-{     
+void MMDViewer::SetAuiPaneInfo()
+{
      // OpenGL描画用キャンバス
      wxAuiPaneInfo glCanvas;
      glCanvas.Name(wxT("wxGLCanvas"));
@@ -119,7 +119,7 @@ void MMDViewer::SetAuiPaneInfo()
      glCanvas.Caption(wxT("ビュー部"));
      glCanvas.BestSize(400, 400);
      glCanvas.Center();
-     
+
      // ログ出力用ウィンドウ
      wxAuiPaneInfo logWindow;
      logWindow.Name(wxT("wxLogWindow"));
@@ -137,7 +137,7 @@ void MMDViewer::SetAuiPaneInfo()
 /**
  * デストラクタ
  */
-MMDViewer::~MMDViewer() 
+MMDViewer::~MMDViewer()
 {
      // Auiマネージャーを削除する
      m_mgr.UnInit();
@@ -164,7 +164,7 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 		    const wxString outputPath = mmdModelDir + wxFS + filename + wxFS + filename + wxT(".csv");
 		    ::wxMkdir(mmdModelDir + wxFS + filename);
 		    wxMMDViewerUtil::VMD2CSV( filenames[n].mb_str(), outputPath.mb_str() );
-	       } 
+	       }
 	       else if ( filenames[n] != wxEmptyString && ext == wxT("csv") )
 	       {
 		    const wxString outputPath = mmdCSVDir + wxFS + filename + wxFS + filename + wxT(".vmd");
@@ -179,11 +179,13 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 		    // 内部のデータをトレースする
 		    const wxString ret = openIsSuccess ? wxT("成功") : wxT("失敗");
 		    wxLogMessage(wxT("ファイル: %s 読み込み %s"), filenames[n].c_str(), ret.c_str());
-		    wxLogMessage(wxT("Version: %d"), pmdFile.GetVersion());
+		    wxLogMessage(wxT("Version: %f"), pmdFile.GetVersion());
 		    wxLogMessage(wxT("Header1: %s"), pmdFile.GetHeaderString1());
 		    // ActorにはShift_JISのモデル名が入るので文字コード変換が必要
 		    const std::string input(pmdFile.GetActor());
 		    const std::string output = babel::sjis_to_utf8(input);
+
+/**
 		    wxLogMessage(wxT("Actor: %s"), output.c_str());
 		    wxLogMessage(wxT("VertexChunkSize: %lu"), pmdFile.GetVertexChunkSize());
 		    wxLogMessage(wxT("GetIndexChunkSize: %lu"), pmdFile.GetIndexChunkSize());
@@ -194,7 +196,7 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 		    wxLogMessage(wxT("CtrlChunkSize: %lu"), pmdFile.GetCtrlChunkSize());
 		    wxLogMessage(wxT("GrpNameChunkSize: %lu"), pmdFile.GetGrpNameChunkSize());
 		    wxLogMessage(wxT("GrpChunkSize: %lu"), pmdFile.GetGrpChunkSize());
-
+*/
 		    // PMDファイルをwxGLCanvasに投入する
 		    DrawPMDFile(pmdFile);
 	       }

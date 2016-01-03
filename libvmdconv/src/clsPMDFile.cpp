@@ -13,11 +13,11 @@ BOOL clsPMDFile::Open(const char* name)
      // open the file:
      std::streampos fileSize;
      std::ifstream fs;
-     
+
      fs.open(name, std::ios::binary);
      if ( fs.bad() || fs.fail() )
      {
-	  DEBUG("%s\n", "File open failed");
+	  INFO("%s\n", "File open failed");
 	  return FALSE;
      }
 
@@ -47,13 +47,19 @@ BOOL clsPMDFile::Open(const char* name)
      // header1 => modelName
      std::advance(mid, sizeof(m_header.modelName));
      std::copy(fst, mid, reinterpret_cast<char*>(&m_header.modelName) );
+
      fst = mid;
      // header2
      std::advance(mid, sizeof(m_header.header2));
      std::copy(fst, mid, reinterpret_cast<char*>(&m_header.header2) );
 
-     DEBUG("header1 %s\n", &m_header.header1);
-     DEBUG("header2 %s\n", &m_header.header2);
+#ifdef __WXMSW__
+     INFO("header1 %s %f %s \n", m_header.magic, m_header.version, m_header.modelName);
+     INFO("header2 %s\n", m_header.header2);
+#else
+     INFO("header1 %s %f %s \n", m_header.magic, m_header.version, ToUTF8(m_header.modelName));
+     INFO("header2 %s\n", ToUTF8(m_header.header2));
+#endif
 
      // set PMD_VERTEX_RECORD size
      unsigned char vertexHex[SIZEOF_DWORD];
@@ -182,11 +188,12 @@ void clsPMDFile::SetVersion(float ver)
 
 const char* clsPMDFile::GetHeaderString1()
 {
-     const std::string header = 
+     const std::string header =
 	  std::string(m_header.magic)       +
 	  std::string(" ")                  +
-	  std::to_string(m_header.version); // +
-//	  std::string(m_header.modelName);
+	  std::to_string(m_header.version)  +
+	  std::string(" ")                  +
+	  babel::sjis_to_utf8(std::string(m_header.modelName));
 
      return header.c_str();
 }
@@ -200,12 +207,12 @@ void clsPMDFile::SetHeaderString(const char* name)
 {
 /**---------------------------------------------------
 
-void *memcpy(         errno_t memcpy_s(	    
-   void *dest,		 void *dest,	    
+void *memcpy(         errno_t memcpy_s(
+   void *dest,		 void *dest,
    const void *src,	 size_t sizeInBytes,
-   size_t count		 const void *src,   
-);			 size_t count	      
-		      );		   
+   size_t count		 const void *src,
+);			 size_t count
+		      );
 ------------------------------------------------------*/
 
 #ifdef _WIN32
@@ -394,7 +401,7 @@ void clsPMDFile::MakeVertexChunk(std::vector<BYTE>::const_iterator& fst, std::ve
      {
 	  auto & value = *it;
 	  size_t offset = (index + 1) % SIZEOF_VERTEX_RECORD;
-	  DEBUG("value: %x, index: %d, offset %lu, data index %d\n", 
+	  DEBUG("value: %x, index: %d, offset %lu, data index %d\n",
 		value, index, offset, index/SIZEOF_VERTEX_RECORD);
 
 	  if ( 1 <= offset && offset <= 32 )
@@ -480,14 +487,14 @@ void clsPMDFile::MakeVertexChunk(std::vector<BYTE>::const_iterator& fst, std::ve
 	  {
 	       m_vertexs.push_back(pvr);
 	  }
-     } 
+     }
 
 #if defined(DEBUG_BUILD) && defined(__GNUC__)
      for (auto it = m_vertexs.begin(); it != m_vertexs.end(); ++it)
      {
 	  DEBUG("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f,"
 		"b1:%d, b2:%d, bw:%x, uk:%x\n",
-		it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty, 
+		it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty,
 		it->b1, it->b2, it->bw, it->unknown);
      }
 #endif
@@ -522,7 +529,7 @@ void clsPMDFile::MakeMaterialChunk(std::vector<BYTE>::const_iterator& fst, std::
      {
 	  auto & value = *it;
 	  size_t offset = (index + 1) % SIZEOF_MATERIAL_RECORD;
-	  DEBUG("value: %x, index: %d, offset %lu, data index %d\n", 
+	  DEBUG("value: %x, index: %d, offset %lu, data index %d\n",
 		value, index, offset, index/SIZEOF_MATERIAL_RECORD);
 
 	  if ( 1 <= offset && offset <= 44 )
@@ -615,7 +622,7 @@ void clsPMDFile::MakeMaterialChunk(std::vector<BYTE>::const_iterator& fst, std::
 	  {
 	       m_materials.push_back(pmr);
 	  }
-     }     
+     }
 }
 
 void  clsPMDFile::AddFloatChunk(BYTE b, int index)
@@ -627,12 +634,12 @@ void  clsPMDFile::AddFloatChunk(BYTE b, int index)
 	       index = SIZEOF_FLOAT;
 	       m_Float[SIZEOF_FLOAT] = 0x00;
 	  }
-		    
+
 	  m_Float[index-1] = b;
      }
 }
-     
-float clsPMDFile::MakeFloatChunk()
+
+float clsPMDFile::MakeFloatChunk(bool debug)
 {
      std::string floatHex;
      for (int i = 0; i < SIZEOF_FLOAT; i++)
@@ -660,7 +667,11 @@ float clsPMDFile::MakeFloatChunk()
      union IntFloat val;
      std::stringstream ss(floatHex);
      ss.setf(std::ios::hex, std::ios::basefield);
-     DEBUG("Float HEX %s\n", floatHex.c_str());
+     if (debug)
+     {
+	  INFO("Float HEX %s\n", floatHex.c_str());
+     }
+
      ss >> std::hex >> val.i;
 
      return val.f;
@@ -679,7 +690,7 @@ void  clsPMDFile::AddWordChunk(BYTE b, int index)
 	  m_Word[index-1] = b;
      }
 }
-     
+
 WORD clsPMDFile::MakeWordChunk()
 {
      std::string wordHex;
@@ -723,11 +734,11 @@ void  clsPMDFile::AddDwordChunk(BYTE b, int index)
 	       index = SIZEOF_DWORD;
 	       m_Dword[SIZEOF_DWORD] = 0x00;
 	  }
-		    
+
 	  m_Dword[index-1] = b;
      }
 }
-     
+
 DWORD clsPMDFile::MakeDwordChunk()
 {
      std::string dwordHex;

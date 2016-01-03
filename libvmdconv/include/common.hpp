@@ -1,6 +1,8 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
 
+#include "babel.h"
+
 #ifdef _WIN32
    #include <windows.h>
 #else
@@ -36,15 +38,17 @@
 #include <utility>
 #include <sstream>
 #include <algorithm>
-#include <functional> 
+#include <functional>
 #include <iomanip>
 
 typedef std::vector<std::string> FIELDS;
 
 float ToRadian(float x);
 float ToDegree(float x);
+const char* ToUTF8(const char* sjis);
+std::string StringToHex(const std::string& input);
 
-#define NEW_FIELD(x) (x).clear()  
+#define NEW_FIELD(x) (x).clear()
 
 /** For debug log. Usage ./configure CXXFLAGS=-DDEBUG_BUILD; make */
 #if defined(DEBUG_BUILD) && defined(__GNUC__)
@@ -52,5 +56,8 @@ float ToDegree(float x);
 #else
 #  define DEBUG(x, ...) do {} while (0)
 #endif
+
+/** Always trace log */
+#define INFO(fmt, ...) printf("%s(): " fmt, __func__, ## __VA_ARGS__)
 
 #endif /** COMMON_HPP */

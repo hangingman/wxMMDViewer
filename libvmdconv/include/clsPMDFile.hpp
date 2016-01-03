@@ -16,10 +16,11 @@ struct PMD_HEADER {
      // ---------------------------------------------------
      char magic[3];       // "Pmd"
      float version;       // 0x00 0x00 0x80 0x3F == 1.00
-     char modelName[20]; // モデル名称
+     char modelName[20];  // モデル名称(Shift_JIS)
 
-     // char comment[256];   // コメントらしい
-     char header2[0x100];    // 256byte 
+     // 256byte
+     // ---------------------------------------------------
+     char header2[0x100];    // コメント(Shift_JIS)
 };
 struct PMD_VERTEX_RECORD {
      float x;
@@ -39,21 +40,21 @@ struct PMD_INDEX_RECORD {
      WORD  id;
 };
 struct PMD_MATERIAL_RECORD {
-     struct { 
+     struct {
 	  float r;
 	  float g;
 	  float b;
 	  float a;
      } diffuse;
      float shininess;
-     struct { 
+     struct {
 	  float r;
 	  float g;
 	  float b;
      } specular, ambient;
      WORD p12;
      DWORD nEdges;
-     char textureFileName[20]; 
+     char textureFileName[20];
 };
 struct PMD_BONE_RECORD {
      char  name[20];
@@ -105,14 +106,14 @@ struct PMD_MORP_RECORD {
 	  os.write( name,sizeof(name) );
 	  os.write( (char*)&vnum,sizeof(vnum) );
 	  os.write( (char*)&grp,sizeof(grp) );
-	  os.write( (char*)&mv[0],vnum*sizeof(PMD_MORP_VERTEX_RECORD) ); 
+	  os.write( (char*)&mv[0],vnum*sizeof(PMD_MORP_VERTEX_RECORD) );
      }
      char  name[20];
      DWORD vnum;
      BYTE grp;
      std::vector<PMD_MORP_VERTEX_RECORD>mv;
 };
-	
+
 struct PMD_GRP_NAME_RECORD {
      char name[50];
 };
@@ -190,7 +191,7 @@ public:
      DWORD		 GetVertexChunkSize();
      void	         SetVertexChunkSize(DWORD size);
      PMD_VERTEX_CHUNK&   GetVertexChunk();
-			  
+
      DWORD		 GetIndexChunkSize();
      void	         SetIndexChunkSize(DWORD size);
      PMD_INDEX_CHUNK&    GetIndexChunk();
@@ -198,11 +199,11 @@ public:
      DWORD		 GetMaterialChunkSize();
      void	         SetMaterialChunkSize(DWORD size);
      PMD_MATERIAL_CHUNK& GetMaterialChunk();
-			  
+
      int		 GetBoneChunkSize();
      void	         SetBoneChunkSize(int size);
      PMD_BONE_CHUNK&     GetBoneChunk();
-			  
+
      int		 GetIKChunkSize();
      void	         SetIKChunkSize(int size);
      PMD_IK_CHUNK&       GetIKChunk();
@@ -236,7 +237,7 @@ public:
      PMD_GRP_CHUNK		m_grp;
 
 private:
-     
+
      // PMDファイルはDWORD部分にサイズ情報を持っている
      // バイナリ情報からDWORDの情報を取り出す
      static DWORD GetDWORDSizeFromBin(unsigned char vertexHex[SIZEOF_DWORD]);
@@ -247,7 +248,7 @@ private:
      unsigned char m_Word[SIZEOF_WORD   + 1] = { 0x00, 0x00, 0x00 };             // +1は0x00用
 
      void  AddFloatChunk(BYTE b, int index);
-     float MakeFloatChunk();
+     float MakeFloatChunk(bool debug = false);
      void  AddDwordChunk(BYTE b, int index);
      DWORD MakeDwordChunk();
      void  AddWordChunk(BYTE b, int index);

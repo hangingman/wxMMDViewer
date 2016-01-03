@@ -44,7 +44,7 @@ const wxString mmdCSVDir   = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("c
 /**
  * メインのクラス
  */
-class MMDViewer : public wxFrame 
+class MMDViewer : public wxFrame
 {
 
 public:
@@ -74,25 +74,6 @@ private:
      wxString Dump(const std::string& dump)
 	  {
 	       return wxString(StringToHex(dump).c_str(), wxConvUTF8);
-	  };
-     
-     std::string StringToHex(const std::string& input)
-	  {
-	       static const char* const lut = "0123456789ABCDEF";
-	       size_t len = input.length();
-
-	       std::string output;
-	       output.reserve(5 * len);
-	       for (size_t i = 0; i < len; ++i)
-	       {
-		    const unsigned char c = input[i];
-		    output.push_back('0');
-		    output.push_back('x');
-		    output.push_back(lut[c >> 4]);
-		    output.push_back(lut[c & 15]);
-		    output.push_back(' ');
-	       }
-	       return output;
 	  };
 
      DECLARE_EVENT_TABLE()
