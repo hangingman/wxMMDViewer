@@ -17,7 +17,17 @@ set(wxmmdviewer_SRCS
   wxmmdutil.hpp
   wxmmdutil.cpp
   ../babel/babel.cpp
-  ../babel/babel.h)
+  ../babel/babel.h
+  ../kaitai_runtime/kaitai/kaitaistream.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/pmd.cpp)
+
+# kaitai struct
+add_custom_command(
+  OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/pmd.cpp
+  COMMAND ksc -t cpp_stl --cpp-standard 11 ${CMAKE_CURRENT_SOURCE_DIR}/rc/pmd.ksy
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/rc/pmd.ksy
+)
+
 
 if(${CMAKE_OS_NAME} MATCHES "OSX")
   # Generate Info.plist
@@ -38,15 +48,18 @@ endif()
 
 include("${wxWidgets_USE_FILE}")
 include_directories(${ZLIB_INCLUDE_DIRS})
-include_directories(${OPENSSL_INCLUDE_DIR})
+include_directories(${Iconv_INCLUDE_DIRS})
 include_directories(${root_SOURCE_DIR}/babel)
+include_directories(${root_SOURCE_DIR}/kaitai_runtime)
 include_directories(${CMAKE_BINARY_DIR})
 
 target_link_libraries(wxmmdviewer ${wxWidgets_LIBRARIES})
 target_link_libraries(wxmmdviewer ${ZLIB_LIBRARIES})
-target_link_libraries(wxmmdviewer ${OPENSSL_LIBRARIES})
+target_link_libraries(wxmmdviewer ${Iconv_LIBRARIES})
 target_link_libraries(wxmmdviewer ${OPENGL_LIBRARIES})
 target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
+target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
+add_definitions(-DKS_STR_ENCODING_ICONV)
 
 #
 # Debianパッケージの設定

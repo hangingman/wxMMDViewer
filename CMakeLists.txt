@@ -50,6 +50,7 @@ find_package(
 set(wxWidgets_CONFIG_OPTIONS --toolkit=aui,base,core,gl)
 
 find_package(ZLIB REQUIRED)
+find_package(Iconv REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
