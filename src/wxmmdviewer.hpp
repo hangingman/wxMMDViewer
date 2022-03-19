@@ -22,7 +22,9 @@
 #ifndef WXMMDVIEWER_HPP_
 #define WXMMDVIEWER_HPP_
 
-#include <memory>
+//#include <memory>
+#include <fstream>
+
 #include <wx/wx.h>
 #include <wx/aui/aui.h>
 #include <wx/aui/auibook.h>
@@ -32,11 +34,13 @@
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/log.h>
-//#include <clsPMDFile.hpp>
+
+#include <kaitai/kaitaistream.h>
 #include "babel.h"
 #include "common.hpp"
 #include "basicglpane.hpp"
 #include "wxmmdutil.hpp"
+#include "pmd.h"
 
 const wxString mmdModelDir = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("model");
 const wxString mmdCSVDir   = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("csv");

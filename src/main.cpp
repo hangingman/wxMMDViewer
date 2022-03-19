@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Contributor:
- *	Hiroyuki Nagata <idiotpanzer@gmail.com>
+ *  Hiroyuki Nagata <idiotpanzer@gmail.com>
  */
 
 #include "main.hpp"
@@ -26,72 +26,66 @@ IMPLEMENT_APP(wxMain)
 /**
  * wxMainの実装
  */
-bool wxMain::OnInit() 
-{
-    if (!wxApp::OnInit())
-	 return false;
+bool wxMain::OnInit() {
 
-    const wxString name = wxString::Format(_("wxMMDViewer-%s"), wxGetUserId().c_str());
-    m_checker = new wxSingleInstanceChecker(name);
-    if ( m_checker->IsAnotherRunning()) 
-    {
-	 wxMessageBox(wxT("誤作動防止のためwxMMDViewerは複数起動できません。終了します。"), 
-		      wxT("wxMMDViewer起動"), wxOK | wxICON_ERROR);
-	 return false;
-    }
+  if (!wxApp::OnInit()) {
+    return false;
+  }
 
-    render_loop_on = false;
-    wxMMDViewer = new MMDViewer(wxT("wxMMDViewer"));
-    SetTopWindow(wxMMDViewer);
-    wxMMDViewer->Show();
-     
-    ActivateRenderLoop(true);
-    return true;
+  const wxString name = wxString::Format(_("wxMMDViewer-%s"), wxGetUserId().c_str());
+  m_checker = new wxSingleInstanceChecker(name);
+  if ( m_checker->IsAnotherRunning()) {
+    wxMessageBox(wxT("誤作動防止のためwxMMDViewerは複数起動できません。終了します。"),
+                 wxT("wxMMDViewer起動"), wxOK | wxICON_ERROR);
+    return false;
+  }
+
+  render_loop_on = false;
+  wxMMDViewer = new MMDViewer(wxT("wxMMDViewer"));
+  SetTopWindow(wxMMDViewer);
+  wxMMDViewer->Show();
+
+  ActivateRenderLoop(true);
+  return true;
 }
 
 /**
  * 終了後の後始末
  */
 int wxMain::OnExit() {
-     return 0;
+  return 0;
 }
 
-void wxMain::ActivateRenderLoop(bool on)
-{
-     if(on && !render_loop_on)
-     {
-	  Connect( wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(wxMain::OnIdle) );
-	  render_loop_on = true;
-     }
-     else if(!on && render_loop_on)
-     {
-	  Disconnect( wxEVT_IDLE, wxIdleEventHandler(wxMain::OnIdle) );
-	  render_loop_on = false;
-     }
+void wxMain::ActivateRenderLoop(bool on) {
+
+  if(on && !render_loop_on) {
+    Connect( wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(wxMain::OnIdle) );
+    render_loop_on = true;
+  } else if(!on && render_loop_on) {
+    Disconnect( wxEVT_IDLE, wxIdleEventHandler(wxMain::OnIdle) );
+    render_loop_on = false;
+  }
 }
 
-void wxMain::OnIdle(wxIdleEvent& event)
-{
-     if(render_loop_on)
-     {
-	  wxThread::Sleep(5);
-	  wxMMDViewer->GetBasicGLPane()->Refresh();
-	  event.RequestMore(); // render continuously, not only once on idle
-     }
+void wxMain::OnIdle(wxIdleEvent& event) {
+
+  if(render_loop_on) {
+    wxThread::Sleep(5);
+    wxMMDViewer->GetBasicGLPane()->Refresh();
+    event.RequestMore(); // render continuously, not only once on idle
+  }
 }
 
 /**
  * キーイベントをここで判断する
  */
-int wxMain::FilterEvent(wxEvent& event) 
-{
+int wxMain::FilterEvent(wxEvent& event) {
 
-     if (event.GetEventType() == wxEVT_KEY_DOWN)
-     {
-	  wxLogDebug(wxT("Key pressed."));
-	  wxMMDViewer->GetBasicGLPane()->KeyPressed(((wxKeyEvent&)event));
-	  return true;
-     }
- 
-     return -1;
+  if (event.GetEventType() == wxEVT_KEY_DOWN) {
+    wxLogDebug(wxT("Key pressed."));
+    wxMMDViewer->GetBasicGLPane()->KeyPressed(((wxKeyEvent&)event));
+    return true;
+  }
+
+  return -1;
 }

@@ -119,7 +119,7 @@ void MMDViewer::SetAuiPaneInfo() {
     logWindow.Bottom();
     logWindow.CloseButton(true);
     logWindow.Caption(wxT("ログ表示"));
-    logWindow.MaxSize(20, 20);
+    logWindow.MaxSize(30, 30);
 
     // OpenGL描画用キャンバスを載せる
     m_mgr.AddPane(glPane, glCanvas);
@@ -143,49 +143,63 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event) {
     const wxString* filenames = event.GetFiles();
 
     for ( int n = 0; n < nFiles; n++ ) {
-        if (wxFile::Exists(filenames[n])) {
-            wxFileName file(filenames[n]);
-            wxString ext      = file.GetExt();
-            wxString filename = file.GetName();
 
-            if ( filenames[n] != wxEmptyString && ext == wxT("vmd") ) {
-                const wxString outputPath = mmdModelDir + wxFS + filename + wxFS + filename + wxT(".csv");
-                ::wxMkdir(mmdModelDir + wxFS + filename);
-                wxMMDViewerUtil::VMD2CSV( filenames[n].mb_str(), outputPath.mb_str() );
-            } else if ( filenames[n] != wxEmptyString && ext == wxT("csv") ) {
-                const wxString outputPath = mmdCSVDir + wxFS + filename + wxFS + filename + wxT(".vmd");
-                ::wxMkdir(mmdCSVDir + wxFS + filename);
-                wxMMDViewerUtil::CSV2VMD( filenames[n].mb_str(), outputPath.mb_str() );
-            } else if ( filenames[n] != wxEmptyString && ext == wxT("pmd") ) {
-                /**
-                   clsPMDFile pmdFile;
-                   const bool openIsSuccess = pmdFile.Open(filenames[n].mb_str());
-
-                   // 内部のデータをトレースする
-                   const wxString ret = openIsSuccess ? wxT("成功") : wxT("失敗");
-                   wxLogMessage(wxT("ファイル: %s 読み込み %s"), filenames[n].c_str(), ret.c_str());
-                   wxLogMessage(wxT("Version: %f"), pmdFile.GetVersion());
-                   wxLogMessage(wxT("Header1: %s"), pmdFile.GetHeaderString1());
-                   // ActorにはShift_JISのモデル名が入るので文字コード変換が必要
-                   const std::string input(pmdFile.GetActor());
-                   const std::string output = babel::sjis_to_utf8(input);
-
-                   /**
-                   wxLogMessage(wxT("Actor: %s"), output.c_str());
-                   wxLogMessage(wxT("VertexChunkSize: %lu"), pmdFile.GetVertexChunkSize());
-                   wxLogMessage(wxT("GetIndexChunkSize: %lu"), pmdFile.GetIndexChunkSize());
-                   wxLogMessage(wxT("BoneChunkSize: %lu"), pmdFile.GetBoneChunkSize());
-                   wxLogMessage(wxT("IKChunkSize: %lu"), pmdFile.GetIKChunkSize());
-                   wxLogMessage(wxT("MaterialChunkSize: %lu"), pmdFile.GetMaterialChunkSize());
-                   wxLogMessage(wxT("MorpChunkSize: %lu"), pmdFile.GetMorpChunkSize());
-                   wxLogMessage(wxT("CtrlChunkSize: %lu"), pmdFile.GetCtrlChunkSize());
-                   wxLogMessage(wxT("GrpNameChunkSize: %lu"), pmdFile.GetGrpNameChunkSize());
-                   wxLogMessage(wxT("GrpChunkSize: %lu"), pmdFile.GetGrpChunkSize());
-                   // PMDファイルをwxGLCanvasに投入する
-                   DrawPMDFile(pmdFile);
-                */
-            }
+        if (!wxFile::Exists(filenames[n])) {
+            continue;
         }
+
+        wxFileName file(filenames[n]);
+        wxString ext      = file.GetExt();
+        wxString filename = file.GetName();
+
+        if ( filenames[n] != wxEmptyString && ext == wxT("vmd") ) {
+            const wxString outputPath = mmdModelDir + wxFS + filename + wxFS + filename + wxT(".csv");
+            ::wxMkdir(mmdModelDir + wxFS + filename);
+            wxMMDViewerUtil::VMD2CSV( filenames[n].mb_str(), outputPath.mb_str() );
+        } else if ( filenames[n] != wxEmptyString && ext == wxT("csv") ) {
+            const wxString outputPath = mmdCSVDir + wxFS + filename + wxFS + filename + wxT(".vmd");
+            ::wxMkdir(mmdCSVDir + wxFS + filename);
+            wxMMDViewerUtil::CSV2VMD( filenames[n].mb_str(), outputPath.mb_str() );
+        } else if ( filenames[n] != wxEmptyString && ext == wxT("pmd") ) {
+
+            std::ifstream ifs(filenames[n].mb_str(), std::ifstream::binary);
+            kaitai::kstream ks(&ifs);
+
+            try {
+                auto pmd = std::make_unique<pmd_t>(&ks);
+
+                // 内部のデータをトレースする
+                wxLogMessage(wxT("ファイル: %s 読み込み"), filenames[n].c_str());
+                wxLogMessage(wxT("Version: %f"), pmd->header()->version());
+                wxLogMessage(wxT("モデル名: %s"), wxString::FromUTF8(pmd->header()->model_name().c_str()));
+                wxLogMessage(wxT("コメント: %s"), wxString::FromUTF8(pmd->header()->comment().c_str()));
+
+            } catch (std::runtime_error e) {
+                wxLogMessage(wxT("実行時例外: %s"), e.what());
+                continue;
+            }
+
+            /**
+               // ActorにはShift_JISのモデル名が入るので文字コード変換が必要
+               const std::string input(pmdFile.GetActor());
+               const std::string output = babel::sjis_to_utf8(input);
+
+               /**
+               wxLogMessage(wxT("Actor: %s"), output.c_str());
+               wxLogMessage(wxT("VertexChunkSize: %lu"), pmdFile.GetVertexChunkSize());
+               wxLogMessage(wxT("GetIndexChunkSize: %lu"), pmdFile.GetIndexChunkSize());
+               wxLogMessage(wxT("BoneChunkSize: %lu"), pmdFile.GetBoneChunkSize());
+               wxLogMessage(wxT("IKChunkSize: %lu"), pmdFile.GetIKChunkSize());
+               wxLogMessage(wxT("MaterialChunkSize: %lu"), pmdFile.GetMaterialChunkSize());
+               wxLogMessage(wxT("MorpChunkSize: %lu"), pmdFile.GetMorpChunkSize());
+               wxLogMessage(wxT("CtrlChunkSize: %lu"), pmdFile.GetCtrlChunkSize());
+               wxLogMessage(wxT("GrpNameChunkSize: %lu"), pmdFile.GetGrpNameChunkSize());
+               wxLogMessage(wxT("GrpChunkSize: %lu"), pmdFile.GetGrpChunkSize());
+               // PMDファイルをwxGLCanvasに投入する
+               DrawPMDFile(pmdFile);
+            */
+        }
+
     }
 }
 

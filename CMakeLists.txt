@@ -55,4 +55,5 @@ find_package(OpenSSL REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 
+add_subdirectory(backward-cpp)
 add_subdirectory(src)

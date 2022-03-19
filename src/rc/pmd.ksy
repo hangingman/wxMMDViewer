@@ -7,21 +7,23 @@ seq:
     type: header
 # - id: logical_screen
 #   type: logical_screen
+
 types:
   header:
     seq:
       - id: magic
-        contents: 'PMD'
+        contents: 'Pmd'
       - id: version
         type: f4
       - id: model_name
-        type: str
+        type: strz
         size: 20
-        encoding: ASCII
+        encoding: Shift_JIS
       - id: comment
-        type: str
+        type: strz
         size: 256
-        encoding: ASCII
+        encoding: Shift_JIS
+
 #  logical_screen:
 #    seq:
 #      - id: image_width

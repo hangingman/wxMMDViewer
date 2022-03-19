@@ -3,7 +3,9 @@ project(wxmmdviewer CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")
+
+# debug
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")
 
 set(wxmmdviewer_SRCS
   main.cpp
@@ -19,7 +21,8 @@ set(wxmmdviewer_SRCS
   ../babel/babel.cpp
   ../babel/babel.h
   ../kaitai_runtime/kaitai/kaitaistream.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/pmd.cpp)
+  ${CMAKE_CURRENT_BINARY_DIR}/pmd.cpp
+  ${BACKWARD_ENABLE}) # backward-cpp
 
 # kaitai struct
 add_custom_command(
@@ -59,7 +62,12 @@ target_link_libraries(wxmmdviewer ${Iconv_LIBRARIES})
 target_link_libraries(wxmmdviewer ${OPENGL_LIBRARIES})
 target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
 target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
-add_definitions(-DKS_STR_ENCODING_ICONV)
+add_definitions(-DKS_STR_ENCODING_ICONV -DKS_ZLIB)
+
+# backward-cpp
+add_backward(wxmmdviewer)
+target_link_libraries(wxmmdviewer bfd)
+target_link_libraries(wxmmdviewer dl)
 
 #
 # Debianパッケージの設定
