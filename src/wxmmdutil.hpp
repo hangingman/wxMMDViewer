@@ -16,20 +16,21 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Contributor:
- *	Hiroyuki Nagata <newserver002@gmail.com>
+ *      Hiroyuki Nagata <idiotpanzer@gmail.com>
  */
 
 #ifndef WXMMDVIEWERUTIL_HPP_
 #define WXMMDVIEWERUTIL_HPP_
 
-#include "MMD_IO.hpp"
-#include "clsCSVFile.hpp"
-#include "clsVMDFile.hpp"
+#include <cstddef>
+//#include "MMD_IO.hpp"
+//#include "clsCSVFile.hpp"
+//#include "clsVMDFile.hpp"
 
 /**
  * ユーティリティクラス
  */
-class wxMMDViewerUtil 
+class wxMMDViewerUtil
 {
 
 public:

@@ -16,14 +16,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Contributor:
- *	Hiroyuki Nagata <newserver002@gmail.com>
+ *	Hiroyuki Nagata <idiotpanzer@gmail.com>
  */
 
 #include "wxmmdviewer.hpp"
 #include "main.hpp"
 
 BEGIN_EVENT_TABLE(MMDViewer, wxFrame)
-    EVT_CLOSE(MMDViewer::OnClose)
+    //EVT_CLOSE(MMDViewer::OnClose)
     EVT_DROP_FILES(MMDViewer::OnDropFile)
 END_EVENT_TABLE()
 
@@ -173,6 +173,7 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 	       }
 	       else if ( filenames[n] != wxEmptyString && ext == wxT("pmd") )
 	       {
+		 /**
 		    clsPMDFile pmdFile;
 		    const bool openIsSuccess = pmdFile.Open(filenames[n].mb_str());
 
@@ -196,25 +197,25 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event)
 		    wxLogMessage(wxT("CtrlChunkSize: %lu"), pmdFile.GetCtrlChunkSize());
 		    wxLogMessage(wxT("GrpNameChunkSize: %lu"), pmdFile.GetGrpNameChunkSize());
 		    wxLogMessage(wxT("GrpChunkSize: %lu"), pmdFile.GetGrpChunkSize());
-*/
 		    // PMDファイルをwxGLCanvasに投入する
 		    DrawPMDFile(pmdFile);
+		    */
 	       }
 	  }
      }
 }
 
-void MMDViewer::DrawPMDFile(clsPMDFile& pmdFile)
-{
-     glPane->SetPMDFile(pmdFile);
-}
-
-void MMDViewer::OnClose(wxCloseEvent& event)
-{
-     wxAppConsole* app = wxAppConsole::GetInstance();
-     if ( wxMain* main = dynamic_cast<wxMain*>(app) )
-     {
-	  main->ActivateRenderLoop(false);
-	  event.Skip(); // don't stop event, we still want window to close
-     }
-}
+//void MMDViewer::DrawPMDFile(clsPMDFile& pmdFile)
+//{
+//     glPane->SetPMDFile(pmdFile);
+//}
+//
+//void MMDViewer::OnClose(wxCloseEvent& event)
+//{
+//     wxAppConsole* app = wxAppConsole::GetInstance();
+//     if ( wxMain* main = dynamic_cast<wxMain*>(app) )
+//     {
+// 	  main->ActivateRenderLoop(false);
+// 	  event.Skip(); // don't stop event, we still want window to close
+//     }
+//}

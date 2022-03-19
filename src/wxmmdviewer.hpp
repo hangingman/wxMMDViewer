@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Contributor:
- *	Hiroyuki Nagata <newserver002@gmail.com>
+ *      Hiroyuki Nagata <idiotpanzer@gmail.com>
  */
 
 #ifndef WXMMDVIEWER_HPP_
@@ -32,7 +32,7 @@
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/log.h>
-#include <clsPMDFile.hpp>
+//#include <clsPMDFile.hpp>
 #include "babel.h"
 #include "common.hpp"
 #include "basicglpane.hpp"
@@ -65,16 +65,17 @@ private:
      void DoLayout();
      void SetAuiPaneInfo();
      void OnDropFile(wxDropFilesEvent &event);
-     void DrawPMDFile(clsPMDFile& pmdFile);
+     //void DrawPMDFile(clsPMDFile& pmdFile);
 
      /** イベント */
-     void OnClose(wxCloseEvent& event);
+     //void OnClose(wxCloseEvent& event);
 
      /** ユーティリティ */
-     wxString Dump(const std::string& dump)
-	  {
-	       return wxString(StringToHex(dump).c_str(), wxConvUTF8);
-	  };
+     wxString Dump(const std::string& dump) {
+       // TODO
+       return wxEmptyString;
+       //return wxString(StringToHex(dump).c_str(), wxConvUTF8);
+     };
 
      DECLARE_EVENT_TABLE()
 };

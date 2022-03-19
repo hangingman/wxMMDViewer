@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Contributor:
- *	Hiroyuki Nagata <newserver002@gmail.com>
+ *      Hiroyuki Nagata <idiotpanzer@gmail.com>
  */
 
 #include "wxmmdutil.hpp"
@@ -26,9 +26,9 @@
  * @param const char* 入力ファイルのパス
  * @param const char* 出力ファイルのパス
  */
-int wxMMDViewerUtil::CSV2VMD( const char* inputFile, const char* outputFile )
-{
-     size_t line = 0,size;
+int wxMMDViewerUtil::CSV2VMD( const char* inputFile, const char* outputFile ) {
+  /**
+  size_t line = 0,size;
      FIELDS fields;
      clsVMDFile vmd;
      clsCSVFile csv;
@@ -40,12 +40,12 @@ int wxMMDViewerUtil::CSV2VMD( const char* inputFile, const char* outputFile )
      if ( pos == std::string::npos )
 	  return -1;
      out_name.replace(pos,4,".vmd");
-	
+
      if ( !csv.Open( in_name.c_str() ) )
 	  return -1;
      PARSE_LINE_BUFFER& buff = csv.GetBuffer();
-	
-     if ( buff.size() < 3 ) 
+
+     if ( buff.size() < 3 )
 	  return -2;
      buff[line++].Export( fields );
      vmd.GetHeader().Import( fields ) ;
@@ -62,7 +62,7 @@ int wxMMDViewerUtil::CSV2VMD( const char* inputFile, const char* outputFile )
 
      vmd.SetMotionChunkSize( size );
 
-     for ( size_t i=0;i<size;i++ ) 
+     for ( size_t i=0;i<size;i++ )
      {
 	  buff[line++].Export( fields );
 	  vmd.GetMotionChunk()[i].Import( fields );
@@ -72,7 +72,7 @@ int wxMMDViewerUtil::CSV2VMD( const char* inputFile, const char* outputFile )
      buff[line++].Export( fields );
      fields >> size;
      vmd.SetMorpChunkSize( size );
-     for ( size_t i=0;i<size;i++ ) 
+     for ( size_t i=0;i<size;i++ )
      {
 	  buff[line++].Export( fields );
 	  vmd.GetMorpChunk()[i].Import( fields );
@@ -82,7 +82,7 @@ int wxMMDViewerUtil::CSV2VMD( const char* inputFile, const char* outputFile )
      buff[line++].Export( fields );
      fields >> size;
      vmd.SetCameraChunkSize( size );
-     for ( size_t i=0;i<size;i++ ) 
+     for ( size_t i=0;i<size;i++ )
      {
 	  buff[line++].Export( fields );
 	  vmd.GetCameraChunk()[i].Import( fields );
@@ -92,7 +92,7 @@ int wxMMDViewerUtil::CSV2VMD( const char* inputFile, const char* outputFile )
      buff[line++].Export( fields );
      fields >> size;
      vmd.SetLightChunkSize( size );
-     for ( size_t i=0;i<size;i++ ) 
+     for ( size_t i=0;i<size;i++ )
      {
 	  buff[line++].Export( fields );
 	  vmd.GetLightChunk()[i].Import( fields );
@@ -102,6 +102,7 @@ int wxMMDViewerUtil::CSV2VMD( const char* inputFile, const char* outputFile )
 
      if ( !vmd.Commit( out_name.c_str() ) )
 	  return -3;
+  */
      return 0;
 }
 
@@ -110,8 +111,8 @@ int wxMMDViewerUtil::CSV2VMD( const char* inputFile, const char* outputFile )
  * @param const char* 入力ファイルのパス
  * @param const char* 出力ファイルのパス
  */
-int wxMMDViewerUtil::VMD2CSV( const char* inputFile, const char* outputFile )
-{
+int wxMMDViewerUtil::VMD2CSV( const char* inputFile, const char* outputFile ) {
+  /**
      FIELDS fields;
      clsVMDFile vmd;
      clsCSVFile csv;
@@ -122,13 +123,13 @@ int wxMMDViewerUtil::VMD2CSV( const char* inputFile, const char* outputFile )
      std::string::size_type pos = out_name.find_last_of(".");
      if ( pos == std::string::npos )
 	  return -1;
-	
+
      out_name.replace(pos,4,".csv");
 
      if ( !vmd.Open( in_name.c_str() ) )
 	  return -1;
 
-     if ( !vmd.GetActor() ) 
+     if ( !vmd.GetActor() )
      {
 	  return -1;
      }
@@ -146,7 +147,7 @@ int wxMMDViewerUtil::VMD2CSV( const char* inputFile, const char* outputFile )
 	  fields << vmd.GetMotionChunkSize();
 	  csv.AddFields( fields );
 
-	  for (size_t i=0;i<vmd.GetMotionChunkSize();i++) 
+	  for (size_t i=0;i<vmd.GetMotionChunkSize();i++)
 	  {
 	       VMD_MOTION_RECORD &rec = buff[i];
 	       rec.Export( fields );
@@ -160,7 +161,7 @@ int wxMMDViewerUtil::VMD2CSV( const char* inputFile, const char* outputFile )
 	  fields << vmd.GetMorpChunkSize();
 	  csv.AddFields( fields );
 
-	  for (size_t i=0;i<vmd.GetMorpChunkSize();i++) 
+	  for (size_t i=0;i<vmd.GetMorpChunkSize();i++)
 	  {
 	       VMD_MORP_RECORD &rec = buff[i];
 	       rec.Export( fields );
@@ -174,7 +175,7 @@ int wxMMDViewerUtil::VMD2CSV( const char* inputFile, const char* outputFile )
 	  fields << vmd.GetCameraChunkSize();
 	  csv.AddFields( fields );
 
-	  for (size_t i=0;i<vmd.GetCameraChunkSize();i++) 
+	  for (size_t i=0;i<vmd.GetCameraChunkSize();i++)
 	  {
 	       VMD_CAMERA_RECORD &rec = buff[i];
 	       rec.Export( fields );
@@ -188,7 +189,7 @@ int wxMMDViewerUtil::VMD2CSV( const char* inputFile, const char* outputFile )
 	  fields << vmd.GetLightChunkSize();
 	  csv.AddFields( fields );
 
-	  for (size_t i=0;i<vmd.GetLightChunkSize();i++) 
+	  for (size_t i=0;i<vmd.GetLightChunkSize();i++)
 	  {
 	       VMD_LIGHT_RECORD &rec = buff[i];
 	       rec.Export( fields );
@@ -197,5 +198,6 @@ int wxMMDViewerUtil::VMD2CSV( const char* inputFile, const char* outputFile )
      }
      if ( !csv.Commit( out_name.c_str() ) )
 	  return -3;
+  */
      return 0;
 }
