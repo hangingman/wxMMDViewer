@@ -51,7 +51,7 @@ include_directories(${ZLIB_INCLUDE_DIRS})
 include_directories(${Iconv_INCLUDE_DIRS})
 include_directories(${root_SOURCE_DIR}/babel)
 include_directories(${root_SOURCE_DIR}/kaitai_runtime)
-include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_BINARY_DIR}/src)
 
 target_link_libraries(wxmmdviewer ${wxWidgets_LIBRARIES})
 target_link_libraries(wxmmdviewer ${ZLIB_LIBRARIES})

@@ -16,4 +16,5 @@ wxMMDViewer
 *.deps
 *.dirstamp
 
+.idea/
 build/
