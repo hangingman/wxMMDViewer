@@ -174,27 +174,16 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event) {
                 wxLogMessage(wxT("モデル名: %s"), wxString::FromUTF8(pmd->header()->model_name().c_str()));
                 wxLogMessage(wxT("コメント: %s"), wxString::FromUTF8(pmd->header()->comment().c_str()));
 
+                wxLogMessage(wxT("vertex size: %u"), pmd->vertex()->vert_count());
+                wxLogMessage(wxT("face-vertex size: %u"), pmd->face_vertex()->face_vert_count());
+                wxLogMessage(wxT("material size: %u"), pmd->material()->material_count());
+
             } catch (std::runtime_error e) {
                 wxLogMessage(wxT("実行時例外: %s"), e.what());
                 continue;
             }
 
             /**
-               // ActorにはShift_JISのモデル名が入るので文字コード変換が必要
-               const std::string input(pmdFile.GetActor());
-               const std::string output = babel::sjis_to_utf8(input);
-
-               /**
-               wxLogMessage(wxT("Actor: %s"), output.c_str());
-               wxLogMessage(wxT("VertexChunkSize: %lu"), pmdFile.GetVertexChunkSize());
-               wxLogMessage(wxT("GetIndexChunkSize: %lu"), pmdFile.GetIndexChunkSize());
-               wxLogMessage(wxT("BoneChunkSize: %lu"), pmdFile.GetBoneChunkSize());
-               wxLogMessage(wxT("IKChunkSize: %lu"), pmdFile.GetIKChunkSize());
-               wxLogMessage(wxT("MaterialChunkSize: %lu"), pmdFile.GetMaterialChunkSize());
-               wxLogMessage(wxT("MorpChunkSize: %lu"), pmdFile.GetMorpChunkSize());
-               wxLogMessage(wxT("CtrlChunkSize: %lu"), pmdFile.GetCtrlChunkSize());
-               wxLogMessage(wxT("GrpNameChunkSize: %lu"), pmdFile.GetGrpNameChunkSize());
-               wxLogMessage(wxT("GrpChunkSize: %lu"), pmdFile.GetGrpChunkSize());
                // PMDファイルをwxGLCanvasに投入する
                DrawPMDFile(pmdFile);
             */
