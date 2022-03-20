@@ -16,13 +16,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Contributor:
- *	Hiroyuki Nagata <newserver002@gmail.com>
+ *      Hiroyuki Nagata <idiotpanzer@gmail.com>
  */
 
 #ifndef WXMMDVIEWER_HPP_
 #define WXMMDVIEWER_HPP_
 
-#include <memory>
+//#include <memory>
+#include <fstream>
+
 #include <wx/wx.h>
 #include <wx/aui/aui.h>
 #include <wx/aui/auibook.h>
@@ -32,11 +34,12 @@
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/log.h>
-#include <clsPMDFile.hpp>
-#include "babel.h"
+
+#include <kaitai/kaitaistream.h>
 #include "common.hpp"
 #include "basicglpane.hpp"
 #include "wxmmdutil.hpp"
+#include "pmd.h"
 
 const wxString mmdModelDir = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("model");
 const wxString mmdCSVDir   = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("csv");
@@ -65,16 +68,17 @@ private:
      void DoLayout();
      void SetAuiPaneInfo();
      void OnDropFile(wxDropFilesEvent &event);
-     void DrawPMDFile(clsPMDFile& pmdFile);
+     //void DrawPMDFile(clsPMDFile& pmdFile);
 
      /** イベント */
-     void OnClose(wxCloseEvent& event);
+     //void OnClose(wxCloseEvent& event);
 
      /** ユーティリティ */
-     wxString Dump(const std::string& dump)
-	  {
-	       return wxString(StringToHex(dump).c_str(), wxConvUTF8);
-	  };
+     wxString Dump(const std::string& dump) {
+       // TODO
+       return wxEmptyString;
+       //return wxString(StringToHex(dump).c_str(), wxConvUTF8);
+     };
 
      DECLARE_EVENT_TABLE()
 };

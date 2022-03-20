@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Contributor:
- *	Hiroyuki Nagata <newserver002@gmail.com>
+ *  Hiroyuki Nagata <idiotpanzer@gmail.com>
  */
 
 #ifndef COMMON_HPP_
@@ -31,16 +31,16 @@
 
 // ファイルの区切り文字(FileSeparator)
 #ifdef __WXMSW__
-  #define wxFS wxT("\\") 
+  #define wxFS wxT("\\")
 #else
-  #define wxFS wxT("/") 
+  #define wxFS wxT("/")
 #endif
 
 // 実行ファイルの拡張子
 #ifdef __WXMSW__
-  #define wxExt wxT(".exe") 
+  #define wxExt wxT(".exe")
 #else
-  #define wxExt wxT("") 
+  #define wxExt wxT("")
 #endif
 
 /** wxMMDViewerの作業用隠しフォルダ名 */

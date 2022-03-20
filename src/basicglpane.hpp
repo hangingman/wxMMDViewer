@@ -16,16 +16,16 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Contributor:
- *	Hiroyuki Nagata <newserver002@gmail.com>
+ *      Hiroyuki Nagata <idiotpanzer@gmail.com>
  */
 
 #ifndef BASICGLPANE_HPP_
 #define BASICGLPANE_HPP_
- 
+
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
 #include <GL/glut.h>
-#include <clsPMDFile.hpp>
+//#include <clsPMDFile.hpp>
 
 // OpenGL view data
 struct GLData
@@ -36,24 +36,24 @@ struct GLData
      float zoom;                 // field of view in degrees
      float xangle;               // model's angle X
      float yangle;               // model's angle Y
-     float rotate_x;             // camera's x 
+     float rotate_x;             // camera's x
 };
 
 class BasicGLPane : public wxGLCanvas
 {
      wxGLContext* m_context;
- 
+
 public:
      BasicGLPane(wxFrame* parent, int* args);
      virtual ~BasicGLPane();
 
-     void SetPMDFile(const clsPMDFile& pmdFile);
-     clsPMDFile& GetPMDFile();
+     //void SetPMDFile(const clsPMDFile& pmdFile);
+     //clsPMDFile& GetPMDFile();
      // events
      void KeyPressed(wxKeyEvent& event);
      void KeyReleased(wxKeyEvent& event);
 
-private: 
+private:
      void Resized(wxSizeEvent& evt);
      int GetWidth();
      int GetHeight();
@@ -71,7 +71,7 @@ private:
      // true: PMDファイル投入済、false: PMDファイルなし
      bool usePMDFile;
      // PMDファイルの情報
-     clsPMDFile  m_pmdFile;
+     //clsPMDFile  m_pmdFile;
      // モデルの描画状態
      GLData      m_gldata;
 

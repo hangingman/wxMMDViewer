@@ -1,9 +1,0 @@
-#!/bin/sh
-
-# create m4 dir if not exist
-if ! test -d m4; then
-    mkdir m4;
-fi
-
-# exec autoreconf
-autoreconf -vi -I`pwd`/m4

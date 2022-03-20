@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Encoding=UTF-8
+Name=wxMMDViewer
+Comment=Simple OpenGL testing application powered by wxWidgets
+#Icon=@WXMMDVIEWER_EXEC_RC_DIR@/wxmmdviewer.xpm
+Exec=wxmmdviewer
+Categories=Application;Network;
+StartupNotify=true

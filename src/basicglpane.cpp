@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Contributor:
- *	Hiroyuki Nagata <newserver002@gmail.com>
+ *      Hiroyuki Nagata <idiotpanzer@gmail.com>
  */
 
 #include "basicglpane.hpp"
@@ -32,8 +32,8 @@ BEGIN_EVENT_TABLE(BasicGLPane, wxGLCanvas)
    EVT_KEY_UP(BasicGLPane::KeyReleased)
    EVT_MOUSEWHEEL(BasicGLPane::MouseWheelMoved)
    EVT_PAINT(BasicGLPane::Render)
-END_EVENT_TABLE() 
- 
+END_EVENT_TABLE()
+
 // some useful events to use
 void BasicGLPane::MouseDown(wxMouseEvent& event) {}
 void BasicGLPane::MouseMoved(wxMouseEvent& event) {}
@@ -51,7 +51,7 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
      wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
 {
      m_context = new wxGLContext(this);
- 
+
      // To avoid flashing on MSW
      SetBackgroundStyle(wxBG_STYLE_CUSTOM);
      // set glData
@@ -59,31 +59,31 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
      m_gldata.yangle = 30.0;
      m_gldata.rotate_x = 0.5;
 }
- 
+
 BasicGLPane::~BasicGLPane()
 {
      delete m_context;
 }
- 
+
 void BasicGLPane::Resized(wxSizeEvent& evt)
 {
      Refresh();
 }
- 
+
 int BasicGLPane::GetWidth()
 {
      return GetSize().x;
 }
- 
+
 int BasicGLPane::GetHeight()
 {
      return GetSize().y;
-} 
- 
+}
+
 void BasicGLPane::Render( wxPaintEvent& evt )
 {
      if(!IsShown()) return;
- 
+
      wxGLCanvas::SetCurrent(*m_context);
      wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
 
@@ -108,6 +108,7 @@ void BasicGLPane::Render( wxPaintEvent& evt )
 
      /** draw 3d model here */
 
+       /**
      if (usePMDFile)
      {
 	  GLfloat vert[m_pmdFile.m_vertexs.size() * 3];
@@ -132,7 +133,7 @@ void BasicGLPane::Render( wxPaintEvent& evt )
 	  for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it, index=index+2)
 	  {
 	       colors[index] = it->tx;
-	       colors[index+1] = it->ty;	       
+	       colors[index+1] = it->ty;
 	  }
 
           index = 0;
@@ -148,27 +149,27 @@ void BasicGLPane::Render( wxPaintEvent& evt )
 	  glNormalPointer(GL_FLOAT, 0, norm);
 	  glColorPointer(3, GL_FLOAT, 0, colors);
 	  glVertexPointer(3, GL_FLOAT, 0, vert);
-  
+
 	  glDrawElements(GL_TRIANGLES, m_pmdFile.m_vertexs.size(), GL_UNSIGNED_SHORT, indices);
-  
+
 	  glDisableClientState(GL_VERTEX_ARRAY);
 	  glDisableClientState(GL_COLOR_ARRAY);
 	  glDisableClientState(GL_NORMAL_ARRAY);
-	  
+
 	  glPopMatrix();
- 
+
 	  glFlush();
 	  SwapBuffers();
      }
      else
-     {	  
+     {
 	  GLfloat vertices2[] = { 1, 1, 1,  -1, 1, 1,  -1,-1, 1,   1,-1, 1,   // v0,v1,v2,v3 (front)
 				  1, 1, 1,   1,-1, 1,   1,-1,-1,   1, 1,-1,   // v0,v3,v4,v5 (right)
 				  1, 1, 1,   1, 1,-1,  -1, 1,-1,  -1, 1, 1,   // v0,v5,v6,v1 (top)
 				  -1, 1, 1,  -1, 1,-1,  -1,-1,-1,  -1,-1, 1,   // v1,v6,v7,v2 (left)
 				  -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1,   // v7,v4,v3,v2 (bottom)
 				  1,-1,-1,  -1,-1,-1,  -1, 1,-1,   1, 1,-1 }; // v4,v7,v6,v5 (back)
-     
+
 	  // normal array
 	  GLfloat normals2[]  = { 0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,   // v0,v1,v2,v3 (front)
 				  1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,   // v0,v3,v4,v5 (right)
@@ -176,7 +177,7 @@ void BasicGLPane::Render( wxPaintEvent& evt )
 				  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,   // v1,v6,v7,v2 (left)
 				  0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,   // v7,v4,v3,v2 (bottom)
 				  0, 0,-1,   0, 0,-1,   0, 0,-1,   0, 0,-1 }; // v4,v7,v6,v5 (back)
-      
+
 	  // color array
 	  GLfloat colors2[]   = { 1, 1, 1,   1, 1, 0,   1, 0, 0,   1, 0, 1,   // v0,v1,v2,v3 (front)
 				  1, 1, 1,   1, 0, 1,   0, 0, 1,   0, 1, 1,   // v0,v3,v4,v5 (right)
@@ -184,7 +185,7 @@ void BasicGLPane::Render( wxPaintEvent& evt )
 				  1, 1, 0,   0, 1, 0,   0, 0, 0,   1, 0, 0,   // v1,v6,v7,v2 (left)
 				  0, 0, 0,   0, 0, 1,   1, 0, 1,   1, 0, 0,   // v7,v4,v3,v2 (bottom)
 				  0, 0, 1,   0, 0, 0,   0, 1, 0,   0, 1, 1 }; // v4,v7,v6,v5 (back)
-      
+
 	  // index array of vertex array for glDrawElements() & glDrawRangeElement()
 	  GLubyte indices[]  = { 0, 1, 2,   2, 3, 0,      // front
 				 4, 5, 6,   6, 7, 4,      // right
@@ -200,45 +201,45 @@ void BasicGLPane::Render( wxPaintEvent& evt )
 	  glNormalPointer(GL_FLOAT, 0, normals2);
 	  glColorPointer(3, GL_FLOAT, 0, colors2);
 	  glVertexPointer(3, GL_FLOAT, 0, vertices2);
-  
+
 	  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, indices);
-  
+
 	  glDisableClientState(GL_VERTEX_ARRAY);
 	  glDisableClientState(GL_COLOR_ARRAY);
 	  glDisableClientState(GL_NORMAL_ARRAY);
 	  glPopMatrix();
- 
+
 	  glFlush();
 	  SwapBuffers();
-     }
+	  }*/
 }
 
-void BasicGLPane::SetPMDFile(const clsPMDFile& pmdFile)
-{
-     m_pmdFile = pmdFile;
-     usePMDFile = true;
-
-     for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it)
-     {/**
-	  wxLogMessage(wxT("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f"), 
-		       it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty);	  
-      */}
-     
-     // vector<int>::iterator it = array.begin();
-     for (PMD_INDEX_CHUNK::iterator it = m_pmdFile.m_indexs.begin(); it != m_pmdFile.m_indexs.end(); ++it)
-     {
-	  //int* p = it; 
-	  short unsigned int w = *it;
-	  //wxLogMessage(wxT("index:%hu"), &w);
-     }
-
-     Refresh();
-}
-
-clsPMDFile& BasicGLPane::GetPMDFile()
-{
-     return m_pmdFile;
-}
+//void BasicGLPane::SetPMDFile(const clsPMDFile& pmdFile)
+//{
+//     m_pmdFile = pmdFile;
+//     usePMDFile = true;
+//
+//     for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it)
+//     {/**
+// 	  wxLogMessage(wxT("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f"),
+// 		       it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty);
+//      */}
+//
+//     // vector<int>::iterator it = array.begin();
+//     for (PMD_INDEX_CHUNK::iterator it = m_pmdFile.m_indexs.begin(); it != m_pmdFile.m_indexs.end(); ++it)
+//     {
+// 	  //int* p = it;
+// 	  short unsigned int w = *it;
+// 	  //wxLogMessage(wxT("index:%hu"), &w);
+//     }
+//
+//     Refresh();
+//}
+//
+//clsPMDFile& BasicGLPane::GetPMDFile()
+//{
+//     return m_pmdFile;
+//}
 
 void BasicGLPane::Spin(float xSpin, float ySpin)
 {
@@ -284,7 +285,7 @@ void BasicGLPane::MouseWheelMoved(wxMouseEvent& event)
 	  m_gldata.rotate_x -= .05;
      } else {
 	  // -
-	  m_gldata.rotate_x += .05; 
+	  m_gldata.rotate_x += .05;
      }
 
      event.Skip();
