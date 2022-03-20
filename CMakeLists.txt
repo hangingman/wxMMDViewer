@@ -26,10 +26,6 @@ if(${CMAKE_OS_NAME} MATCHES "OSX")
   set(ENV{HOMEBREW_NO_AUTO_UPDATE} 1)
 endif()
 
-#add_definitions(-DPACKAGE_VERSION="${PROJECT_VERSION}")
-#add_definitions(-DHAVE_CONFIG_H)
-#configure_file(config.h.in config.h @ONLY)
-
 set(UPSTREAM_URL
     "https://github.com/hangingman/wxMMDViewer"
     CACHE INTERNAL "")
@@ -55,5 +51,6 @@ find_package(OpenSSL REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 
-add_subdirectory(backward-cpp)
+# for debug
+# add_subdirectory(backward-cpp)
 add_subdirectory(src)

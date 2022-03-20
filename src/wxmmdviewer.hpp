@@ -36,7 +36,6 @@
 #include <wx/log.h>
 
 #include <kaitai/kaitaistream.h>
-#include "babel.h"
 #include "common.hpp"
 #include "basicglpane.hpp"
 #include "wxmmdutil.hpp"

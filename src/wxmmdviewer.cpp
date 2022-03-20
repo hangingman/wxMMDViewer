@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Contributor:
- *	Hiroyuki Nagata <idiotpanzer@gmail.com>
+ *  Hiroyuki Nagata <idiotpanzer@gmail.com>
  */
 
 #include "wxmmdviewer.hpp"
@@ -119,6 +119,7 @@ void MMDViewer::SetAuiPaneInfo() {
     logWindow.Bottom();
     logWindow.CloseButton(true);
     logWindow.Caption(wxT("ログ表示"));
+    glCanvas.BestSize(30, 30);
     logWindow.MaxSize(30, 30);
 
     // OpenGL描画用キャンバスを載せる

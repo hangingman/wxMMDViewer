@@ -29,7 +29,7 @@ jobs:
       run: sudo apt-get update -y
 
     - name: Install build tools
-      run: sudo apt-get install -y libwxbase3.0-dev libwxgtk3.0-gtk3-dev libwxsqlite3-3.0-dev libxml2-dev libcurl4-openssl-dev libssl-dev
+      run: sudo apt-get install -y libwxbase3.0-dev libwxgtk3.0-gtk3-dev libssl-dev freeglut3-dev zlib1g-dev
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -G Ninja

@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # debug
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")
 
 set(wxmmdviewer_SRCS
   main.cpp
@@ -18,11 +18,9 @@ set(wxmmdviewer_SRCS
   common.hpp
   wxmmdutil.hpp
   wxmmdutil.cpp
-  ../babel/babel.cpp
-  ../babel/babel.h
   ../kaitai_runtime/kaitai/kaitaistream.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/pmd.cpp
-  ${BACKWARD_ENABLE}) # backward-cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/pmd.cpp)
+#  ${BACKWARD_ENABLE}) # for debug, backward-cpp
 
 # kaitai struct
 add_custom_command(
@@ -64,10 +62,10 @@ target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
 target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
 add_definitions(-DKS_STR_ENCODING_ICONV -DKS_ZLIB)
 
-# backward-cpp
-add_backward(wxmmdviewer)
-target_link_libraries(wxmmdviewer bfd)
-target_link_libraries(wxmmdviewer dl)
+# for debug, backward-cpp
+# add_backward(wxmmdviewer)
+# target_link_libraries(wxmmdviewer bfd)
+# target_link_libraries(wxmmdviewer dl)
 
 #
 # Debianパッケージの設定
@@ -77,7 +75,7 @@ if(${CMAKE_OS_NAME} MATCHES "(Debian|Ubuntu)")
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Hiroyuki Nagata")
   set(CPACK_PACKAGE_NAME "wxmmdviewer")
   set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libwxbase3.0-0v5, libwxgtk3.0-0v5")
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libwxbase3.0-dev, libwxgtk3.0-gtk3-dev, libssl-dev, freeglut3-dev, zlib1g-dev")
 
   set(WXMMDVIEWER_EXEC_RC_DIR "/usr/share/pixmaps/wxmmdviewer")
 
