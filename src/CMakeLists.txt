@@ -81,7 +81,9 @@ if(${CMAKE_OS_NAME} MATCHES "(Debian|Ubuntu)")
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Hiroyuki Nagata")
   set(CPACK_PACKAGE_NAME "wxmmdviewer")
   set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libwxbase3.0-dev, libwxgtk3.0-gtk3-dev, libssl-dev, freeglut3-dev, zlib1g-dev")
+  set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+  # SHLIBDEPS will handle library dependencies. Add non-library dependencies here if any.
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "")
 
   set(WXMMDVIEWER_EXEC_RC_DIR "/usr/share/pixmaps/wxmmdviewer")
 
