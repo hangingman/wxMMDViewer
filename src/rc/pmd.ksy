@@ -29,12 +29,12 @@ types:
         encoding: Shift_JIS
   vertex_with_len:
     seq:
-      - id: vert_count
+      - id: num_vertex
         type: u4
       - id: vertex
         type: vertex_t
         repeat: expr
-        repeat-expr: vert_count
+        repeat-expr: num_vertex
   vertex_t:
     seq:
       - id: pos
@@ -59,21 +59,21 @@ types:
         type: u1
   face_vertex_with_len:
     seq:
-      - id: face_vert_count
+      - id: num_face_vert_index
         type: u4
       - id: face_vert_index
         type: u2
         repeat: expr
-        repeat-expr: face_vert_count
+        repeat-expr: num_face_vert_index
 
   material_with_len:
     seq:
-      - id: material_count
+      - id: num_material
         type: u4
       - id: material
         type: material_t
         repeat: expr
-        repeat-expr: material_count
+        repeat-expr: num_material
   material_t:
     seq:
       - id: diffuse_color

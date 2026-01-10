@@ -180,9 +180,9 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event) {
                 wxLogMessage(wxT("モデル名: %s"), wxString::FromUTF8(pmd->header()->model_name().c_str()));
                 wxLogMessage(wxT("コメント: %s"), wxString::FromUTF8(pmd->header()->comment().c_str()));
 
-                wxLogMessage(wxT("vertex size: %u"), pmd->vertex()->vert_count());
-                wxLogMessage(wxT("face-vertex size: %u"), pmd->face_vertex()->face_vert_count());
-                wxLogMessage(wxT("material size: %u"), pmd->material()->material_count());
+                wxLogMessage(wxT("vertex size: %u"), pmd->vertex()->num_vertex());
+                wxLogMessage(wxT("face-vertex size: %u"), pmd->face_vertex()->num_face_vert_index());
+                wxLogMessage(wxT("material size: %u"), pmd->material()->num_material());
 
                 DrawPMDFile(pmd.get());
 
