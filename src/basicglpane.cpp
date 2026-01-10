@@ -25,61 +25,7 @@
 #include <cmath>
 #include <algorithm>
 
-// Matrix Math Helpers
-static void mat4_identity(float* m) {
-    std::fill(m, m + 16, 0.0f);
-    m[0] = m[5] = m[10] = m[15] = 1.0f;
-}
-
-static void mat4_perspective(float* m, float fov_deg, float aspect, float zNear, float zFar) {
-    std::fill(m, m + 16, 0.0f);
-    float f = 1.0f / std::tan(fov_deg * 0.5f * 0.0174532925f);
-    m[0] = f / aspect;
-    m[5] = f;
-    m[10] = (zFar + zNear) / (zNear - zFar);
-    m[11] = -1.0f;
-    m[14] = (2.0f * zFar * zNear) / (zNear - zFar);
-}
-
-// Translate (1 0 0 x / 0 1 0 y / 0 0 1 z / 0 0 0 1) * M
-// But we want View Matrix usually.
-// Helper to create rotation matrix
-static void mat4_rotate_x(float* m, float angle_rad) {
-    mat4_identity(m);
-    float c = std::cos(angle_rad);
-    float s = std::sin(angle_rad);
-    m[5] = c; m[9] = -s;
-    m[6] = s; m[10] = c;
-}
-
-static void mat4_rotate_y(float* m, float angle_rad) {
-    mat4_identity(m);
-    float c = std::cos(angle_rad);
-    float s = std::sin(angle_rad);
-    m[0] = c; m[8] = s;
-    m[2] = -s; m[10] = c;
-}
-
-static void mat4_translate(float* m, float x, float y, float z) {
-    mat4_identity(m);
-    m[12] = x;
-    m[13] = y;
-    m[14] = z;
-}
-
-static void mat4_multiply(float* dest, const float* a, const float* b) {
-    float res[16];
-    for (int c = 0; c < 4; ++c) {
-        for (int r = 0; r < 4; ++r) {
-            float sum = 0.0f;
-            for (int k = 0; k < 4; ++k) {
-                sum += a[k*4 + r] * b[c*4 + k];
-            }
-            res[c*4 + r] = sum;
-        }
-    }
-    std::copy(res, res + 16, dest);
-}
+// Matrix Math Helpers removed in favor of GLM
 
 // Shader Sources
 const char* modelVertexSource = R"(
@@ -503,32 +449,21 @@ void BasicGLPane::Render(wxPaintEvent& evt)
      glUseProgram(shaderProgram);
 
      // MVP Setup
-     float proj[16], view[16], model[16];
-     float w = GetWidth();
-     float h = GetHeight();
-     mat4_perspective(proj, m_gldata.zoom, w/h, 0.1f, 100.0f);
-     
-     mat4_identity(view);
+     glm::mat4 proj = glm::perspective(glm::radians(m_gldata.zoom), (float)GetWidth() / (float)GetHeight(), 0.1f, 100.0f);
+
+     glm::mat4 view = glm::mat4(1.0f);
      // Simple Orbit Camera: Translate back, Rotate X, Rotate Y
-     // View = Translate(0,0,-dist) * RotX * RotY * CenterOffset
-     // Actually MmdLwjgl does: orbitBy(modelCenter, ...)
-     
-     float dist = 20.0f; // Zoom logic?
-     float t[16], r[16], tmp[16];
-     
-     mat4_translate(t, 0, -10.0f, -dist); // Initial offset
-     mat4_rotate_x(r, m_gldata.xangle * 0.01745f);
-     mat4_multiply(tmp, t, r);
-     
-     mat4_rotate_y(r, m_gldata.yangle * 0.01745f);
-     mat4_multiply(view, tmp, r);
+     float dist = 20.0f;
+     view = glm::translate(view, glm::vec3(0.0f, -10.0f, -dist));
+     view = glm::rotate(view, glm::radians(m_gldata.xangle), glm::vec3(1.0f, 0.0f, 0.0f));
+     view = glm::rotate(view, glm::radians(m_gldata.yangle), glm::vec3(0.0f, 1.0f, 0.0f));
 
-     mat4_identity(model);
+     glm::mat4 model = glm::mat4(1.0f);
 
-     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, proj);
-     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, view);
-     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, model);
-     
+     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(proj));
+     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
      glUniform3f(glGetUniformLocation(shaderProgram, "uLightPosition"), 20.0f, 20.0f, -20.0f);
      glUniform1f(glGetUniformLocation(shaderProgram, "uEdgeSize"), 1.0f);
      glUniform3f(glGetUniformLocation(shaderProgram, "uEdgeColor"), 0.0f, 0.0f, 0.0f);

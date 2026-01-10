@@ -31,7 +31,7 @@ jobs:
       run: sudo apt-get update -y
 
     - name: Install build tools
-      run: sudo apt-get install -y libwxgtk3.2-dev libssl-dev freeglut3-dev zlib1g-dev curl default-jre libglew-dev
+      run: sudo apt-get install -y libwxgtk3.2-dev libssl-dev freeglut3-dev zlib1g-dev curl default-jre libglew-dev libglm-dev
 
     - name: Install Kaitai Struct
       run: |

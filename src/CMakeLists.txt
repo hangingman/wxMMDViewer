@@ -62,6 +62,7 @@ target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
 include_directories(${GLEW_INCLUDE_DIRS})
 target_link_libraries(wxmmdviewer ${GLEW_LIBRARIES})
 target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
+target_link_libraries(wxmmdviewer glm::glm)
 add_definitions(-DKS_STR_ENCODING_ICONV -DKS_ZLIB)
 
 # for debug, backward-cpp
