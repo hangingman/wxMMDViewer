@@ -32,6 +32,7 @@ class pmd_t;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <map>
 
 // OpenGL view data
 struct GLData
@@ -60,6 +61,13 @@ enum class VboIndex {
     MAX_COUNT = 11
 };
 
+struct MaterialInfo {
+    size_t faceCount;
+    size_t faceOffset;
+    GLuint textureId;
+    bool hasTexture;
+};
+
 class BasicGLPane : public wxGLCanvas
 {
      wxGLContext* m_context;
@@ -68,7 +76,7 @@ public:
      BasicGLPane(wxFrame* parent, int* args);
      virtual ~BasicGLPane();
 
-     void SetPMDData(pmd_t* pmd);
+     void SetPMDData(pmd_t* pmd, const wxString& modelPath);
      // events
      void KeyPressed(wxKeyEvent& event);
      void KeyReleased(wxKeyEvent& event);
@@ -80,6 +88,8 @@ private:
      void Render(wxPaintEvent& evt);
      void InitShader();
      void Cleanup();
+     GLuint LoadTexture(const wxString& path);
+     void CleanupTextures();
 
      // events
      void MouseMoved(wxMouseEvent& event);
@@ -127,6 +137,10 @@ private:
 
      // モデルの描画状態
      GLData      m_gldata;
+
+     // Materials and Textures
+     std::vector<MaterialInfo> m_materials;
+     std::map<wxString, GLuint> m_textureCache;
 
      DECLARE_EVENT_TABLE()
 };

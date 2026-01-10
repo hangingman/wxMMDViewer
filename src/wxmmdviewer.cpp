@@ -213,7 +213,7 @@ void MMDViewer::LoadModel(const wxString& path) {
         wxLogMessage(wxT("face-vertex size: %u"), pmd->face_vertex()->num_face_vert_index());
         wxLogMessage(wxT("material size: %u"), pmd->material()->num_material());
 
-        DrawPMDFile(pmd.get());
+        DrawPMDFile(pmd.get(), path);
 
     } catch (const std::exception& e) {
         wxLogMessage(wxT("実行時例外: %s"), e.what());
@@ -283,8 +283,8 @@ void MMDViewer::OnModelSelect(wxCommandEvent& event) {
     }
 }
 
-void MMDViewer::DrawPMDFile(pmd_t* pmdFile) {
-     glPane->SetPMDData(pmdFile);
+void MMDViewer::DrawPMDFile(pmd_t* pmdFile, const wxString& modelPath) {
+     glPane->SetPMDData(pmdFile, modelPath);
 }
 
 void MMDViewer::OnClose(wxCloseEvent& event) {

@@ -42,6 +42,8 @@ bool wxMain::OnInit() {
     return false;
   }
 
+  wxInitAllImageHandlers();
+
   const wxString name = wxString::Format(_("wxMMDViewer-%s"), wxGetUserId().c_str());
   m_checker = new wxSingleInstanceChecker(name);
   if ( m_checker->IsAnotherRunning()) {

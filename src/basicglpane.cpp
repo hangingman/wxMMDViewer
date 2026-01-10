@@ -21,9 +21,9 @@
 
 #include "basicglpane.hpp"
 #include "pmd.h"
-#include <iostream>
-#include <cmath>
 #include <algorithm>
+#include <wx/filename.h>
+#include <map>
 
 // Matrix Math Helpers removed in favor of GLM
 
@@ -94,7 +94,8 @@ const char* modelFragmentSource = R"(
 #version 330 core
 uniform vec3 uLightPosition;
 uniform vec3 uEdgeColor;
-uniform sampler2DArray tex; 
+uniform sampler2D uSampler;
+uniform int uHasTexture;
 
 in float vAlpha;
 in vec3 vDiffuseColor;
@@ -120,18 +121,14 @@ void main() {
     vec3 normal = normalize(vNormal);
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = diff * vDiffuseColor;
-    vec3 ambient = vAmbientColor; // Simple ambient
+    vec3 ambient = vAmbientColor;
+
+    vec4 texColor = vec4(1.0);
+    if (uHasTexture == 1) {
+        texColor = texture(uSampler, UV);
+    }
     
-    // Specular? Reference has it.
-    vec3 viewDir = normalize(-vPosition); // View is at 0,0,0 in ViewSpace? No, vPosition is World or Model? 
-    // Reference shader assumes vPosition is World/Model? 
-    // "vec3 lightDirection = normalize(uLightPosition - vPosition);"
-    // We will assume vPosition passed from Vertex is Local Model Space unless transformed. 
-    // Wait, Vertex Shader: "vPosition = position;" -> Local Model Space.
-    // So uLightPosition must be in Model Space or vPosition transformed.
-    // Let's stick to simple shading:
-    
-    fragColor = vec4(ambient + diffuse, vAlpha);
+    fragColor = vec4(ambient + diffuse, vAlpha) * texColor;
 }
 )";
 
@@ -197,6 +194,62 @@ void BasicGLPane::Cleanup() {
         if(vbo[i]) glDeleteBuffers(1, &vbo[i]);
     }
     if (shaderProgram) glDeleteProgram(shaderProgram);
+    CleanupTextures();
+}
+
+GLuint BasicGLPane::LoadTexture(const wxString& path) {
+    if (m_textureCache.count(path)) return m_textureCache[path];
+
+    if (!wxFileExists(path)) {
+        return 0;
+    }
+
+    wxImage image;
+    if (!image.LoadFile(path)) {
+        return 0;
+    }
+
+    GLuint tid;
+    glGenTextures(1, &tid);
+    glBindTexture(GL_TEXTURE_2D, tid);
+
+    // MMD textures often have repeats or specific wrap modes, but let's start with repeat
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    unsigned char* data = image.GetData();
+    bool hasAlpha = image.HasAlpha();
+    unsigned char* alpha = hasAlpha ? image.GetAlpha() : nullptr;
+
+    if (hasAlpha) {
+        // Interleave RGB and A correctly or use GL_RGBA
+        // wxImage stores RGB and Alpha separately. We need to merge them for GL_RGBA.
+        int w = image.GetWidth();
+        int h = image.GetHeight();
+        std::vector<unsigned char> rgba(w * h * 4);
+        for (int i = 0; i < w * h; ++i) {
+            rgba[i * 4 + 0] = data[i * 3 + 0];
+            rgba[i * 4 + 1] = data[i * 3 + 1];
+            rgba[i * 4 + 2] = data[i * 3 + 2];
+            rgba[i * 4 + 3] = alpha[i];
+        }
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba.data());
+    } else {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.GetWidth(), image.GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    }
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    m_textureCache[path] = tid;
+    return tid;
+}
+
+void BasicGLPane::CleanupTextures() {
+    for (std::map<wxString, GLuint>::iterator it = m_textureCache.begin(); it != m_textureCache.end(); ++it) {
+        glDeleteTextures(1, &(it->second));
+    }
+    m_textureCache.clear();
 }
 
 void BasicGLPane::Resized(wxSizeEvent& evt)
@@ -268,7 +321,7 @@ void BasicGLPane::InitShader() {
     m_glInitialized = true;
 }
 
-void BasicGLPane::SetPMDData(pmd_t* pmd)
+void BasicGLPane::SetPMDData(pmd_t* pmd, const wxString& modelPath)
 {
     if (!pmd) return;
     
@@ -298,9 +351,11 @@ void BasicGLPane::SetPMDData(pmd_t* pmd)
     m_info_shininess.clear();
     m_info_edge.clear();
     m_info_uv.clear();
-    m_info_tex_layer.clear();
     m_info_sphere_mode.clear();
     m_indices.clear();
+    m_materials.clear();
+    // Keep texture cache across models or clear it? Usually we clear it if it's a new model.
+    CleanupTextures();
 
     auto* vertices = pmd->vertex()->vertex();
     auto* faces = pmd->face_vertex()->face_vert_index();
@@ -312,6 +367,7 @@ void BasicGLPane::SetPMDData(pmd_t* pmd)
     // Iterate materials to find which faces range map to which material
     // And assign vertices in those faces to that material
     size_t current_face_idx = 0;
+    size_t current_face_offset = 0;
     for (size_t mat_idx = 0; mat_idx < materials->size(); ++mat_idx) {
         auto* mat = (*materials)[mat_idx].get();
         size_t face_count = mat->face_vert_count();
@@ -327,7 +383,32 @@ void BasicGLPane::SetPMDData(pmd_t* pmd)
                 }
             }
         }
+
+        // Record material info for rendering
+        MaterialInfo mi;
+        mi.faceCount = face_count;
+        mi.faceOffset = current_face_offset;
+        mi.hasTexture = false;
+        mi.textureId = 0;
+
+        wxString texFileName = wxString::FromUTF8(mat->texture_file_name().c_str());
+        if (!texFileName.IsEmpty()) {
+            // Split by '*' or '/' if needed (PMD sometimes uses '*' for sphere map)
+            // For now just take the part before '*'
+            wxString mainTex = texFileName.BeforeFirst('*');
+            if (!mainTex.IsEmpty()) {
+                wxFileName fn(modelPath);
+                wxString texPath = fn.GetPathWithSep() + mainTex;
+                mi.textureId = LoadTexture(texPath);
+                if (mi.textureId != 0) {
+                    mi.hasTexture = true;
+                }
+            }
+        }
+        m_materials.push_back(mi);
+
         current_face_idx += face_count;
+        current_face_offset += face_count;
     }
 
     // Populate Attributes
@@ -469,7 +550,20 @@ void BasicGLPane::Render(wxPaintEvent& evt)
      glUniform3f(glGetUniformLocation(shaderProgram, "uEdgeColor"), 0.0f, 0.0f, 0.0f);
 
      glBindVertexArray(vao);
-     glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_SHORT, 0);
+     
+     for (const auto& mat : m_materials) {
+         if (mat.hasTexture) {
+             glActiveTexture(GL_TEXTURE0);
+             glBindTexture(GL_TEXTURE_2D, mat.textureId);
+             glUniform1i(glGetUniformLocation(shaderProgram, "uSampler"), 0);
+             glUniform1i(glGetUniformLocation(shaderProgram, "uHasTexture"), 1);
+         } else {
+             glUniform1i(glGetUniformLocation(shaderProgram, "uHasTexture"), 0);
+         }
+         
+         glDrawElements(GL_TRIANGLES, mat.faceCount, GL_UNSIGNED_SHORT, (void*)(mat.faceOffset * sizeof(uint16_t)));
+     }
+     
      glBindVertexArray(0);
      
      glUseProgram(0);

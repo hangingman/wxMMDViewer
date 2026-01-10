@@ -74,7 +74,7 @@ private:
      void DoLayout();
      void SetAuiPaneInfo();
      void OnDropFile(wxDropFilesEvent &event);
-     void DrawPMDFile(pmd_t* pmdFile);
+     void DrawPMDFile(pmd_t* pmdFile, const wxString& modelPath);
      void LoadModel(const wxString& path);
      void PopulateModelMenu();
 
