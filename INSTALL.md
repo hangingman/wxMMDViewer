@@ -46,3 +46,15 @@ sudo apt-get install build-essential cmake ninja-build
     ```bash
     ./build/src/wxmmdviewer
     ```
+
+### Debug Build (with backward-cpp)
+
+To enable better stack traces on crash (using backward-cpp), use the `ENABLE_BACKWARD` option:
+
+```bash
+mkdir build
+cd build
+cmake -G "Ninja" -DENABLE_BACKWARD=ON ..
+ninja
+```
+

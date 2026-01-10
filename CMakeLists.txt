@@ -52,5 +52,8 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 
 # for debug
-# add_subdirectory(backward-cpp)
+option(ENABLE_BACKWARD "Enable backward-cpp" OFF)
+if(ENABLE_BACKWARD)
+  add_subdirectory(backward-cpp)
+endif()
 add_subdirectory(src)

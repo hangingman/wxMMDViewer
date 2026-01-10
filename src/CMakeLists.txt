@@ -63,9 +63,11 @@ target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
 add_definitions(-DKS_STR_ENCODING_ICONV -DKS_ZLIB)
 
 # for debug, backward-cpp
-# add_backward(wxmmdviewer)
-# target_link_libraries(wxmmdviewer bfd)
-# target_link_libraries(wxmmdviewer dl)
+if(ENABLE_BACKWARD)
+  add_backward(wxmmdviewer)
+  target_link_libraries(wxmmdviewer bfd)
+  target_link_libraries(wxmmdviewer dl)
+endif()
 
 #
 # Debianパッケージの設定
