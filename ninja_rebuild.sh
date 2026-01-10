@@ -6,5 +6,5 @@ if [ ! $(type -P ${CMAKE} 2>/dev/null) ]; then CMAKE=/usr/local/bin/cmake; fi
 mkdir build
 cd build
 $CMAKE --version
-$CMAKE -G "Ninja" ..
+$CMAKE -G "Ninja" -DENABLE_BACKWARD=ON ..
 ninja $@

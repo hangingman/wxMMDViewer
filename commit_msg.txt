@@ -1,0 +1,6 @@
+Enable PMD file drawing using Kaitai Struct
+
+- Uncomment and implement `MMDViewer::DrawPMDFile` and `OnClose`
+- Update `BasicGLPane` to accept `pmd_t*` and store vertex/index data
+- Add `SetPMDData` to `BasicGLPane` to handle data extraction
+- Cleanup legacy commented-out code

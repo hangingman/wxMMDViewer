@@ -25,7 +25,8 @@
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
 #include <GL/glut.h>
-//#include <clsPMDFile.hpp>
+class pmd_t;
+#include <vector>
 
 // OpenGL view data
 struct GLData
@@ -47,8 +48,7 @@ public:
      BasicGLPane(wxFrame* parent, int* args);
      virtual ~BasicGLPane();
 
-     //void SetPMDFile(const clsPMDFile& pmdFile);
-     //clsPMDFile& GetPMDFile();
+     void SetPMDData(pmd_t* pmd);
      // events
      void KeyPressed(wxKeyEvent& event);
      void KeyReleased(wxKeyEvent& event);
@@ -71,7 +71,9 @@ private:
      // true: PMDファイル投入済、false: PMDファイルなし
      bool usePMDFile;
      // PMDファイルの情報
-     //clsPMDFile  m_pmdFile;
+     std::vector<float> m_vertices;
+     std::vector<float> m_normals;
+     std::vector<uint16_t> m_indices;
      // モデルの描画状態
      GLData      m_gldata;
 

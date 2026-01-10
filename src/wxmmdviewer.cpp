@@ -184,6 +184,8 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event) {
                 wxLogMessage(wxT("face-vertex size: %u"), pmd->face_vertex()->face_vert_count());
                 wxLogMessage(wxT("material size: %u"), pmd->material()->material_count());
 
+                DrawPMDFile(pmd.get());
+
             } catch (const std::exception& e) {
                 wxLogMessage(wxT("実行時例外: %s"), e.what());
                 std::cerr << "Exception: " << e.what() << std::endl;
@@ -193,24 +195,18 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event) {
                 std::cerr << "Unknown exception occurred" << std::endl;
                 continue;
             }
-
-            /**
-               // PMDファイルをwxGLCanvasに投入する
-               DrawPMDFile(pmdFile);
-            */
         }
-
     }
 }
 
-//void MMDViewer::DrawPMDFile(clsPMDFile& pmdFile) {
-//     glPane->SetPMDFile(pmdFile);
-//}
-//
-//void MMDViewer::OnClose(wxCloseEvent& event) {
-//     wxAppConsole* app = wxAppConsole::GetInstance();
-//     if ( wxMain* main = dynamic_cast<wxMain*>(app) ) {
-//        main->ActivateRenderLoop(false);
-//        event.Skip(); // don't stop event, we still want window to close
-//     }
-//}
+void MMDViewer::DrawPMDFile(pmd_t* pmdFile) {
+     glPane->SetPMDData(pmdFile);
+}
+
+void MMDViewer::OnClose(wxCloseEvent& event) {
+     wxAppConsole* app = wxAppConsole::GetInstance();
+     if ( wxMain* main = dynamic_cast<wxMain*>(app) ) {
+        main->ActivateRenderLoop(false);
+        event.Skip(); // don't stop event, we still want window to close
+     }
+}

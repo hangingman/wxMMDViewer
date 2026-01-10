@@ -20,6 +20,7 @@
  */
 
 #include "basicglpane.hpp"
+#include "pmd.h"
 
 BEGIN_EVENT_TABLE(BasicGLPane, wxGLCanvas)
    EVT_MOTION(BasicGLPane::MouseMoved)
@@ -58,6 +59,8 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
      m_gldata.xangle = 30.0;
      m_gldata.yangle = 30.0;
      m_gldata.rotate_x = 0.5;
+     
+     usePMDFile = false;
 }
 
 BasicGLPane::~BasicGLPane()
@@ -88,7 +91,7 @@ void BasicGLPane::Render( wxPaintEvent& evt )
      wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
 
      static GLfloat rot = 0.0;
-     glClear(GL_COLOR_BUFFER_BIT);
+     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Added DEPTH_BUFFER_BIT for 3D
 
      //glLoadIdentity();
 
@@ -99,68 +102,40 @@ void BasicGLPane::Render( wxPaintEvent& evt )
      glRotatef(m_gldata.yangle, 0.0f, 1.0f, 0.0f);
 
      glClearColor (0.0, 0.0, 0.4, 0.0);
-     glFrontFace(GL_CW);
+     glFrontFace(GL_CW); // PMD is usually standard, but let's see. original code had CW.
+     // glFrontFace(GL_CCW);
      glEnable(GL_CULL_FACE);
      glCullFace(GL_BACK);
      //glMatrixMode(GL_PROJECTION);
      glEnable(GL_LIGHTING);
      glEnable(GL_LIGHT0);
+     glEnable(GL_DEPTH_TEST);
 
      /** draw 3d model here */
 
-       /**
-     if (usePMDFile)
+     if (usePMDFile && !m_vertices.empty() && !m_indices.empty())
      {
-	  GLfloat vert[m_pmdFile.m_vertexs.size() * 3];
-	  GLfloat norm[m_pmdFile.m_vertexs.size() * 3];
-	  GLfloat colors[m_pmdFile.m_vertexs.size() * 2];
-	  GLushort indices[m_pmdFile.m_indexs.size()];
+          glEnableClientState(GL_NORMAL_ARRAY);
+          // glEnableClientState(GL_COLOR_ARRAY); // Not using colors yet
+          glEnableClientState(GL_VERTEX_ARRAY);
 
-	  int index = 0;
+          if (!m_normals.empty())
+               glNormalPointer(GL_FLOAT, 0, m_normals.data());
+          // glColorPointer(3, GL_FLOAT, 0, colors);
+          glVertexPointer(3, GL_FLOAT, 0, m_vertices.data());
 
-          for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it, index=index+3)
-          {
-               vert[index]   = it->x;
-               vert[index+1] = it->y;
-               vert[index+2] = - (it->z);
+          glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_SHORT, m_indices.data());
 
-               norm[index]   = it->nx;
-               norm[index+1] = it->ny;
-               norm[index+2] = it->nz;
-          }
+          glDisableClientState(GL_VERTEX_ARRAY);
+          // glDisableClientState(GL_COLOR_ARRAY);
+          glDisableClientState(GL_NORMAL_ARRAY);
 
-	  index = 0;
-	  for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it, index=index+2)
-	  {
-	       colors[index] = it->tx;
-	       colors[index+1] = it->ty;
-	  }
+          glPopMatrix();
 
-          index = 0;
-          for (auto it = m_pmdFile.m_indexs.begin(); it != m_pmdFile.m_indexs.end(); ++it, ++index)
-          {
-               indices[index] = *it;
-          }
-
-	  glEnableClientState(GL_NORMAL_ARRAY);
-	  glEnableClientState(GL_COLOR_ARRAY);
-	  glEnableClientState(GL_VERTEX_ARRAY);
-
-	  glNormalPointer(GL_FLOAT, 0, norm);
-	  glColorPointer(3, GL_FLOAT, 0, colors);
-	  glVertexPointer(3, GL_FLOAT, 0, vert);
-
-	  glDrawElements(GL_TRIANGLES, m_pmdFile.m_vertexs.size(), GL_UNSIGNED_SHORT, indices);
-
-	  glDisableClientState(GL_VERTEX_ARRAY);
-	  glDisableClientState(GL_COLOR_ARRAY);
-	  glDisableClientState(GL_NORMAL_ARRAY);
-
-	  glPopMatrix();
-
-	  glFlush();
-	  SwapBuffers();
+          glFlush();
+          SwapBuffers();
      }
+
      else
      {
 	  GLfloat vertices2[] = { 1, 1, 1,  -1, 1, 1,  -1,-1, 1,   1,-1, 1,   // v0,v1,v2,v3 (front)
@@ -211,35 +186,48 @@ void BasicGLPane::Render( wxPaintEvent& evt )
 
 	  glFlush();
 	  SwapBuffers();
-	  }*/
+	  }
 }
 
-//void BasicGLPane::SetPMDFile(const clsPMDFile& pmdFile)
-//{
-//     m_pmdFile = pmdFile;
-//     usePMDFile = true;
-//
-//     for (auto it = m_pmdFile.m_vertexs.begin(); it != m_pmdFile.m_vertexs.end(); ++it)
-//     {/**
-// 	  wxLogMessage(wxT("x:%f, y:%f, z:%f, nx:%f, ny:%f, nz:%f, tx:%f, ty:%f"),
-// 		       it->x, it->y, it->z, it->nx, it->ny, it->nz, it->tx, it->ty);
-//      */}
-//
-//     // vector<int>::iterator it = array.begin();
-//     for (PMD_INDEX_CHUNK::iterator it = m_pmdFile.m_indexs.begin(); it != m_pmdFile.m_indexs.end(); ++it)
-//     {
-// 	  //int* p = it;
-// 	  short unsigned int w = *it;
-// 	  //wxLogMessage(wxT("index:%hu"), &w);
-//     }
-//
-//     Refresh();
-//}
-//
-//clsPMDFile& BasicGLPane::GetPMDFile()
-//{
-//     return m_pmdFile;
-//}
+void BasicGLPane::SetPMDData(pmd_t* pmd)
+{
+     if (!pmd) return;
+
+     m_vertices.clear();
+     m_normals.clear();
+     m_indices.clear();
+
+     // Populate vertices and normals
+     auto* vertices = pmd->vertex()->vertex();
+     if (vertices) {
+          m_vertices.reserve(vertices->size() * 3);
+          m_normals.reserve(vertices->size() * 3);
+
+          for (const auto& v : *vertices) {
+               auto* pos = v->pos();
+               auto* norm = v->normal_vec();
+               if (pos && pos->size() >= 3) {
+                    m_vertices.push_back((*pos)[0]);
+                    m_vertices.push_back((*pos)[1]);
+                    m_vertices.push_back(-(*pos)[2]); // Invert Z coordinate as per original code
+               }
+               if (norm && norm->size() >= 3) {
+                    m_normals.push_back((*norm)[0]);
+                    m_normals.push_back((*norm)[1]);
+                    m_normals.push_back((*norm)[2]);
+               }
+          }
+     }
+
+     // Populate indices
+     auto* face_indices = pmd->face_vertex()->face_vert_index();
+     if (face_indices) {
+          m_indices = *face_indices; // Copy the vector
+     }
+
+     usePMDFile = true;
+     Refresh();
+}
 
 void BasicGLPane::Spin(float xSpin, float ySpin)
 {
