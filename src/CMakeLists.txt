@@ -64,6 +64,7 @@ add_definitions(-DKS_STR_ENCODING_ICONV -DKS_ZLIB)
 
 # for debug, backward-cpp
 if(ENABLE_BACKWARD)
+  add_definitions(-DENABLE_BACKWARD)
   add_backward(wxmmdviewer)
   target_link_libraries(wxmmdviewer bfd)
   target_link_libraries(wxmmdviewer dl)

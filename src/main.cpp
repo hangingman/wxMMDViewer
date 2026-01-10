@@ -21,12 +21,22 @@
 
 #include "main.hpp"
 
+#ifdef ENABLE_BACKWARD
+#include "backward.hpp"
+#endif
+
 IMPLEMENT_APP(wxMain)
 
 /**
  * wxMainの実装
  */
 bool wxMain::OnInit() {
+
+#ifdef ENABLE_BACKWARD
+  static backward::SignalHandling sh;
+#endif
+
+  setlocale(LC_ALL, "");
 
   if (!wxApp::OnInit()) {
     return false;

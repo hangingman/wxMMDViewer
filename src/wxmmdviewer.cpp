@@ -21,6 +21,7 @@
 
 #include "wxmmdviewer.hpp"
 #include "main.hpp"
+#include <iostream>
 
 BEGIN_EVENT_TABLE(MMDViewer, wxFrame)
 //EVT_CLOSE(MMDViewer::OnClose)
@@ -163,7 +164,11 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event) {
             wxMMDViewerUtil::CSV2VMD( filenames[n].mb_str(), outputPath.mb_str() );
         } else if ( filenames[n] != wxEmptyString && ext == wxT("pmd") ) {
 
-            std::ifstream ifs(filenames[n].mb_str(), std::ifstream::binary);
+            std::ifstream ifs(filenames[n].fn_str(), std::ifstream::binary);
+            if (!ifs.is_open()) {
+                std::cerr << "Failed to open file stream!" << std::endl;
+                continue;
+            }
             kaitai::kstream ks(&ifs);
 
             try {
@@ -179,8 +184,13 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event) {
                 wxLogMessage(wxT("face-vertex size: %u"), pmd->face_vertex()->face_vert_count());
                 wxLogMessage(wxT("material size: %u"), pmd->material()->material_count());
 
-            } catch (std::runtime_error e) {
+            } catch (const std::exception& e) {
                 wxLogMessage(wxT("実行時例外: %s"), e.what());
+                std::cerr << "Exception: " << e.what() << std::endl;
+                continue;
+            } catch (...) {
+                wxLogMessage(wxT("未知の例外が発生しました"));
+                std::cerr << "Unknown exception occurred" << std::endl;
                 continue;
             }
 
