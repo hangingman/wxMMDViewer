@@ -59,6 +59,8 @@ target_link_libraries(wxmmdviewer ${ZLIB_LIBRARIES})
 target_link_libraries(wxmmdviewer ${Iconv_LIBRARIES})
 target_link_libraries(wxmmdviewer ${OPENGL_LIBRARIES})
 target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
+include_directories(${GLEW_INCLUDE_DIRS})
+target_link_libraries(wxmmdviewer ${GLEW_LIBRARIES})
 target_link_libraries(wxmmdviewer ${GLUT_LIBRARIES})
 add_definitions(-DKS_STR_ENCODING_ICONV -DKS_ZLIB)
 

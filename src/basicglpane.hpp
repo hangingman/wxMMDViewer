@@ -22,6 +22,7 @@
 #ifndef BASICGLPANE_HPP_
 #define BASICGLPANE_HPP_
 
+#include <GL/glew.h>
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
 #include <GL/glut.h>
@@ -38,6 +39,21 @@ struct GLData
      float xangle;               // model's angle X
      float yangle;               // model's angle Y
      float rotate_x;             // camera's x
+};
+
+enum class VboIndex {
+    VERTEX = 0,
+    ALPHA = 1,
+    DIFFUSE_COLOR = 2,
+    AMBIENT_COLOR = 3,
+    SPECULAR_COLOR = 4,
+    NORMAL = 5,
+    SHININESS = 6,
+    EDGE = 7,
+    TEXTURE_COORD = 8,
+    TEXTURE_LAYER = 9,
+    SPHERE_MODE = 10,
+    MAX_COUNT = 11
 };
 
 class BasicGLPane : public wxGLCanvas
@@ -58,6 +74,8 @@ private:
      int GetWidth();
      int GetHeight();
      void Render(wxPaintEvent& evt);
+     void InitShader();
+     void Cleanup();
 
      // events
      void MouseMoved(wxMouseEvent& event);
@@ -70,10 +88,39 @@ private:
 
      // true: PMDファイル投入済、false: PMDファイルなし
      bool usePMDFile;
-     // PMDファイルの情報
+
+     // OpenGL Initialization state
+     bool m_glInitialized;
+
+     // VBO/VAO handles
+     GLuint vao;
+     GLuint vbo[static_cast<int>(VboIndex::MAX_COUNT)];
+     GLuint vboi; // Index buffer
+     GLsizei indicesCount;
+
+     // Shader handles
+     GLuint vertShaderObj;
+     GLuint fragShaderObj;
+     GLuint shaderProgram;
+     
+     // Attribute locations
+     GLint attribVertex;
+     GLint attribTexcoord;
+
+     // PMD Attributes (Expanded for per-vertex)
      std::vector<float> m_vertices;
+     std::vector<float> m_info_alpha;
+     std::vector<float> m_info_diffuse;
+     std::vector<float> m_info_ambient;
+     std::vector<float> m_info_specular;
      std::vector<float> m_normals;
+     std::vector<float> m_info_shininess;
+     std::vector<float> m_info_edge;
+     std::vector<float> m_info_uv;
+     std::vector<float> m_info_tex_layer;
+     std::vector<float> m_info_sphere_mode;
      std::vector<uint16_t> m_indices;
+
      // モデルの描画状態
      GLData      m_gldata;
 

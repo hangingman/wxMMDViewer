@@ -50,6 +50,7 @@ find_package(Iconv REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
+find_package(GLEW REQUIRED)
 
 # for debug
 option(ENABLE_BACKWARD "Enable backward-cpp" OFF)
