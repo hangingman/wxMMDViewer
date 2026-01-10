@@ -1,3 +1,6 @@
 [submodule "backward-cpp"]
 	path = backward-cpp
 	url = https://github.com/bombela/backward-cpp.git
+[submodule "kaitai_runtime"]
+	path = kaitai_runtime
+	url = https://github.com/kaitai-io/kaitai_struct_cpp_stl_runtime

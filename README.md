@@ -9,7 +9,4 @@ Work(?)
 * Mac OS X
 
 ### Build & Run
-```
-  $ ./ninja_build.sh
-  $ ./build/src/wxmmdviewer
-```
+See [INSTALL.md](INSTALL.md) for detailed build instructions.
