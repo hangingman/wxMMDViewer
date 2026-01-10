@@ -24,6 +24,8 @@
 
 //#include <memory>
 #include <fstream>
+#include <map>
+
 
 #include <wx/wx.h>
 #include <wx/aui/aui.h>
@@ -62,6 +64,10 @@ private:
      BasicGLPane* glPane;
      // ログ出力用ウィンドウ
      wxTextCtrl* txtPane;
+     // モデル選択メニュー
+     wxMenu* m_modelMenu;
+     // メニューIDとモデルのパスの対応表
+     std::map<int, wxString> m_modelPaths;
 
      /** レイアウト  */
      void SetProperties();
@@ -70,10 +76,12 @@ private:
      void OnDropFile(wxDropFilesEvent &event);
      void DrawPMDFile(pmd_t* pmdFile);
      void LoadModel(const wxString& path);
+     void PopulateModelMenu();
 
      /** イベント */
      void OnClose(wxCloseEvent& event);
      void OnImportModel(wxCommandEvent& event);
+     void OnModelSelect(wxCommandEvent& event);
 
      /** ユーティリティ */
      wxString Dump(const std::string& dump) {

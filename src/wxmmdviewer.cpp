@@ -24,13 +24,15 @@
 #include <iostream>
 
 enum {
-    ID_IMPORT_MODEL = wxID_HIGHEST + 100
+    ID_IMPORT_MODEL = wxID_HIGHEST + 100,
+    ID_MODEL_START  = wxID_HIGHEST + 200
 };
 
 BEGIN_EVENT_TABLE(MMDViewer, wxFrame)
 //EVT_CLOSE(MMDViewer::OnClose)
 EVT_MENU(ID_IMPORT_MODEL, MMDViewer::OnImportModel)
-EVT_DROP_FILES(MMDViewer::OnDropFile)
+EVT_MENU_RANGE(ID_MODEL_START, ID_MODEL_START + 1000, MMDViewer::OnModelSelect)
+//EVT_DROP_FILES(MMDViewer::OnDropFile)
 END_EVENT_TABLE()
 
 #include "importdialog.hpp"
@@ -60,14 +62,20 @@ MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title) {
     fileMenu->AppendSeparator();
     fileMenu->Append(wxID_EXIT, wxT("終了\tAlt+X"));
     menuBar->Append(fileMenu, wxT("ファイル"));
+
+    m_modelMenu = new wxMenu;
+    menuBar->Append(m_modelMenu, wxT("モデルを選択"));
+
     SetMenuBar(menuBar);
 
     // 各種GUI設定を行う
     SetProperties();       // 前回までの設定を読み出す
     DoLayout();            // 実際にレイアウトに展開する
 
+    PopulateModelMenu();
+
     // DnDできるように設定する
-    this->DragAcceptFiles(true);
+    // this->DragAcceptFiles(true);
 
     // ステータスバーを設定する
     CreateStatusBar(2);
@@ -227,7 +235,51 @@ void MMDViewer::OnImportModel(wxCommandEvent& event) {
         if (dialog.ShowModal() == wxID_OK) {
             wxString importedPath = dialog.GetImportedPath();
             LoadModel(importedPath);
+            PopulateModelMenu(); // Re-populate menu after import
         }
+    }
+}
+
+void MMDViewer::PopulateModelMenu() {
+    // Clear existing menu items
+    wxMenuItemList& items = m_modelMenu->GetMenuItems();
+    while (!items.IsEmpty()) {
+        m_modelMenu->Delete(items.GetFirst()->GetData());
+    }
+    m_modelPaths.clear();
+
+    const wxString modelRoot = ::wxGetHomeDir() + wxFS + WXMMD_DIR + wxFS + wxT("model");
+    if (!wxDir::Exists(modelRoot)) return;
+
+    wxDir dir(modelRoot);
+    if (!dir.IsOpened()) return;
+
+    wxString subDirName;
+    bool cont = dir.GetFirst(&subDirName, wxEmptyString, wxDIR_DIRS);
+    int menuId = ID_MODEL_START;
+
+    while (cont) {
+        wxString subDirPath = modelRoot + wxFS + subDirName;
+        wxDir subDir(subDirPath);
+        if (subDir.IsOpened()) {
+            wxString pmdFileName;
+            bool foundPmd = subDir.GetFirst(&pmdFileName, wxT("*.pmd"), wxDIR_FILES);
+            if (foundPmd) {
+                wxString pmdPath = subDirPath + wxFS + pmdFileName;
+                m_modelMenu->Append(menuId, subDirName);
+                m_modelPaths[menuId] = pmdPath;
+                menuId++;
+                if (menuId >= ID_MODEL_START + 1000) break; // Limit to 1000 models
+            }
+        }
+        cont = dir.GetNext(&subDirName);
+    }
+}
+
+void MMDViewer::OnModelSelect(wxCommandEvent& event) {
+    int id = event.GetId();
+    if (m_modelPaths.count(id)) {
+        LoadModel(m_modelPaths[id]);
     }
 }
 
