@@ -18,6 +18,12 @@ set(wxmmdviewer_SRCS
   common.hpp
   wxmmdutil.hpp
   wxmmdutil.cpp
+  mmdimporter.cpp
+  mmdimporter.hpp
+  importdialog.cpp
+  importdialog.hpp
+  ../vmdconv/clsPMDFile.cpp
+  ../vmdconv/common.cpp
   ../kaitai_runtime/kaitai/kaitaistream.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/pmd.cpp)
 #  ${BACKWARD_ENABLE}) # for debug, backward-cpp

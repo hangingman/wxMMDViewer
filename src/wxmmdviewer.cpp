@@ -23,10 +23,17 @@
 #include "main.hpp"
 #include <iostream>
 
+enum {
+    ID_IMPORT_MODEL = wxID_HIGHEST + 100
+};
+
 BEGIN_EVENT_TABLE(MMDViewer, wxFrame)
 //EVT_CLOSE(MMDViewer::OnClose)
+EVT_MENU(ID_IMPORT_MODEL, MMDViewer::OnImportModel)
 EVT_DROP_FILES(MMDViewer::OnDropFile)
 END_EVENT_TABLE()
+
+#include "importdialog.hpp"
 
 BasicGLPane* MMDViewer::GetBasicGLPane() {
     return glPane;
@@ -45,6 +52,15 @@ MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title) {
                              wxDefaultSize,
                              wxTE_MULTILINE | wxTE_READONLY);
     wxLog::SetActiveTarget(new wxLogTextCtrl(txtPane));
+
+    // メニューバーを設定
+    wxMenuBar* menuBar = new wxMenuBar;
+    wxMenu* fileMenu = new wxMenu;
+    fileMenu->Append(ID_IMPORT_MODEL, wxT("モデルをインポート...\tCtrl+I"));
+    fileMenu->AppendSeparator();
+    fileMenu->Append(wxID_EXIT, wxT("終了\tAlt+X"));
+    menuBar->Append(fileMenu, wxT("ファイル"));
+    SetMenuBar(menuBar);
 
     // 各種GUI設定を行う
     SetProperties();       // 前回までの設定を読み出す
@@ -163,38 +179,54 @@ void MMDViewer::OnDropFile(wxDropFilesEvent &event) {
             ::wxMkdir(mmdCSVDir + wxFS + filename);
             wxMMDViewerUtil::CSV2VMD( filenames[n].mb_str(), outputPath.mb_str() );
         } else if ( filenames[n] != wxEmptyString && ext == wxT("pmd") ) {
+            LoadModel(filenames[n]);
+        }
+    }
+}
 
-            std::ifstream ifs(filenames[n].fn_str(), std::ifstream::binary);
-            if (!ifs.is_open()) {
-                std::cerr << "Failed to open file stream!" << std::endl;
-                continue;
-            }
-            kaitai::kstream ks(&ifs);
+void MMDViewer::LoadModel(const wxString& path) {
+    std::ifstream ifs(path.fn_str(), std::ifstream::binary);
+    if (!ifs.is_open()) {
+        wxLogError(wxT("Failed to open file: %s"), path.c_str());
+        return;
+    }
+    kaitai::kstream ks(&ifs);
 
-            try {
-                auto pmd = std::make_unique<pmd_t>(&ks);
+    try {
+        auto pmd = std::make_unique<pmd_t>(&ks);
 
-                // 内部のデータをトレースする
-                wxLogMessage(wxT("ファイル: %s 読み込み"), filenames[n].c_str());
-                wxLogMessage(wxT("Version: %f"), pmd->header()->version());
-                wxLogMessage(wxT("モデル名: %s"), wxString::FromUTF8(pmd->header()->model_name().c_str()));
-                wxLogMessage(wxT("コメント: %s"), wxString::FromUTF8(pmd->header()->comment().c_str()));
+        // 内部のデータをトレースする
+        wxLogMessage(wxT("ファイル: %s 読み込み"), path.c_str());
+        wxLogMessage(wxT("Version: %f"), pmd->header()->version());
+        wxLogMessage(wxT("モデル名: %s"), wxString::FromUTF8(pmd->header()->model_name().c_str()));
+        wxLogMessage(wxT("コメント: %s"), wxString::FromUTF8(pmd->header()->comment().c_str()));
 
-                wxLogMessage(wxT("vertex size: %u"), pmd->vertex()->num_vertex());
-                wxLogMessage(wxT("face-vertex size: %u"), pmd->face_vertex()->num_face_vert_index());
-                wxLogMessage(wxT("material size: %u"), pmd->material()->num_material());
+        wxLogMessage(wxT("vertex size: %u"), pmd->vertex()->num_vertex());
+        wxLogMessage(wxT("face-vertex size: %u"), pmd->face_vertex()->num_face_vert_index());
+        wxLogMessage(wxT("material size: %u"), pmd->material()->num_material());
 
-                DrawPMDFile(pmd.get());
+        DrawPMDFile(pmd.get());
 
-            } catch (const std::exception& e) {
-                wxLogMessage(wxT("実行時例外: %s"), e.what());
-                std::cerr << "Exception: " << e.what() << std::endl;
-                continue;
-            } catch (...) {
-                wxLogMessage(wxT("未知の例外が発生しました"));
-                std::cerr << "Unknown exception occurred" << std::endl;
-                continue;
-            }
+    } catch (const std::exception& e) {
+        wxLogMessage(wxT("実行時例外: %s"), e.what());
+        std::cerr << "Exception: " << e.what() << std::endl;
+    } catch (...) {
+        wxLogMessage(wxT("未知の例外が発生しました"));
+        std::cerr << "Unknown exception occurred" << std::endl;
+    }
+}
+
+void MMDViewer::OnImportModel(wxCommandEvent& event) {
+    wxFileDialog openFileDialog(this, wxT("インポートするPMDファイルを選択"), wxEmptyString, wxEmptyString,
+                                 wxT("PMD files (*.pmd)|*.pmd"),
+                                 wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_OK) {
+        wxString pmdPath = openFileDialog.GetPath();
+        ImportDialog dialog(this, pmdPath);
+        if (dialog.ShowModal() == wxID_OK) {
+            wxString importedPath = dialog.GetImportedPath();
+            LoadModel(importedPath);
         }
     }
 }

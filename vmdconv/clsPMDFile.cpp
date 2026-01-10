@@ -1,3 +1,4 @@
+#include <set>
 #include "common.hpp"
 #include "MMD_IO.hpp"
 
@@ -176,6 +177,38 @@ BOOL clsPMDFile::Commit(const char* name)
      return TRUE;
 }
 
+std::vector<std::string> clsPMDFile::GetTexturePaths()
+{
+     std::set<std::string> paths;
+     for (const auto& mat : m_materials)
+     {
+          // Handle potential non-null terminated string
+          std::string texFile;
+          for (int i = 0; i < 20; ++i)
+          {
+               if (mat.textureFileName[i] == '\0') break;
+               texFile += mat.textureFileName[i];
+          }
+
+          if (texFile.empty()) continue;
+
+          // Split by '*'
+          size_t starPos = texFile.find('*');
+          if (starPos != std::string::npos)
+          {
+               std::string path1 = texFile.substr(0, starPos);
+               std::string path2 = texFile.substr(starPos + 1);
+               if (!path1.empty()) paths.insert(path1);
+               if (!path2.empty()) paths.insert(path2);
+          }
+          else
+          {
+               paths.insert(texFile);
+          }
+     }
+     return std::vector<std::string>(paths.begin(), paths.end());
+}
+
 float clsPMDFile::GetVersion()
 {
      return m_header.version;
@@ -193,7 +226,7 @@ const char* clsPMDFile::GetHeaderString1()
 	  std::string(" ")                  +
 	  std::to_string(m_header.version)  +
 	  std::string(" ")                  +
-	  babel::sjis_to_utf8(std::string(m_header.modelName));
+	  ToUTF8(m_header.modelName);
 
      return header.c_str();
 }

@@ -69,9 +69,11 @@ private:
      void SetAuiPaneInfo();
      void OnDropFile(wxDropFilesEvent &event);
      void DrawPMDFile(pmd_t* pmdFile);
+     void LoadModel(const wxString& path);
 
      /** イベント */
      void OnClose(wxCloseEvent& event);
+     void OnImportModel(wxCommandEvent& event);
 
      /** ユーティリティ */
      wxString Dump(const std::string& dump) {

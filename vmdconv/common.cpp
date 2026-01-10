@@ -1,5 +1,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <iconv.h>
+#include <memory>
 
 #include "common.hpp"
 
@@ -13,8 +15,27 @@ float ToDegree(float x)
 }
 const char* ToUTF8(const char* sjis)
 {
-     const std::string input(sjis);
-     const std::string output = babel::sjis_to_utf8(input);
+     static std::string output;
+     output.clear();
+     if (!sjis || *sjis == '\0') return "";
+
+     iconv_t cd = iconv_open("UTF-8", "SHIFT-JIS");
+     if (cd == (iconv_t)-1) return sjis;
+
+     size_t inlen = strlen(sjis);
+     size_t outlen = inlen * 3 + 1;
+     std::unique_ptr<char[]> outbuf(new char[outlen]);
+     char* inptr = const_cast<char*>(sjis);
+     char* outptr = outbuf.get();
+     size_t outleft = outlen - 1;
+
+     if (iconv(cd, &inptr, &inlen, &outptr, &outleft) == (size_t)-1) {
+          iconv_close(cd);
+          return sjis;
+     }
+     *outptr = '\0';
+     iconv_close(cd);
+     output = outbuf.get();
      return output.c_str();
 }
 std::string StringToHex(const std::string& input)

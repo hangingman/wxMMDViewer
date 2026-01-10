@@ -1,8 +1,6 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
 
-#include "babel.h"
-
 #ifdef _WIN32
    #include <windows.h>
 #else

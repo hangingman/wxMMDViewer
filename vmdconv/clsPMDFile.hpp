@@ -2,6 +2,7 @@
 #define CLSPMDFILE_HPP
 
 #include "common.hpp"
+#include <cstdint>
 
 #pragma pack(1)
 struct PMD_HEADER {
@@ -177,6 +178,8 @@ public:
 
      BOOL Open(const char* name);
      BOOL Commit(const char* name);
+
+     std::vector<std::string> GetTexturePaths();
 
      float GetVersion();
      void SetVersion(float ver);
