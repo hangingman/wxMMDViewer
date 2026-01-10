@@ -17,7 +17,9 @@ jobs:
 
     steps:
     - name: Checkout source
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
+      with:
+        submodules: recursive
 
     - name: install-cmake
       uses: Symbitic/install-cmake@v0.1.0
@@ -29,12 +31,12 @@ jobs:
       run: sudo apt-get update -y
 
     - name: Install build tools
-      run: sudo apt-get install -y libwxbase3.0-dev libwxgtk3.0-gtk3-dev libssl-dev freeglut3-dev zlib1g-dev curl
+      run: sudo apt-get install -y libwxgtk3.2-dev libssl-dev freeglut3-dev zlib1g-dev curl default-jre libglew-dev
 
     - name: Install Kaitai Struct
       run: |
-        curl -LO https://github.com/kaitai-io/kaitai_struct_compiler/releases/download/0.9/kaitai-struct-compiler_0.9_all.deb
-        sudo apt-get install -y ./kaitai-struct-compiler_0.9_all.deb
+        curl -LO https://github.com/kaitai-io/kaitai_struct_compiler/releases/download/0.11/kaitai-struct-compiler_0.11_all.deb
+        sudo apt-get install -y ./kaitai-struct-compiler_0.11_all.deb
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -G Ninja
