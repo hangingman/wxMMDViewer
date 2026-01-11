@@ -91,11 +91,21 @@ if(${CMAKE_OS_NAME} MATCHES "(Debian|Ubuntu)")
   # SHLIBDEPS will handle library dependencies. Add non-library dependencies here if any.
   set(CPACK_DEBIAN_PACKAGE_DEPENDS "")
 
-  set(WXMMDVIEWER_EXEC_RC_DIR "/usr/share/pixmaps/wxmmdviewer")
+  set(WXMMDVIEWER_EXEC_RC_DIR "/usr/share/pixmaps")
 
   install(TARGETS wxmmdviewer RUNTIME DESTINATION "/usr/bin/")
-  file(GLOB RC_FILES ${wxmmdviewer_SOURCE_DIR}/rc/*)
-  install(FILES ${RC_FILES} DESTINATION ${WXMMDVIEWER_EXEC_RC_DIR})
+  # install(FILES ${RC_FILES} DESTINATION ${WXMMDVIEWER_EXEC_RC_DIR})
+  # Install the master icon as a fallback if needed, or just rely on the themed icons
+  install(FILES "rc/wxmmdviewer.png" DESTINATION ${WXMMDVIEWER_EXEC_RC_DIR})
+
+  # Install icons for various sizes
+  foreach(size 16x16 32x32 48x48 64x64 128x128 256x256 512x512)
+    install(FILES "rc/icons/${size}/wxmmdviewer.png"
+            DESTINATION "/usr/share/icons/hicolor/${size}/apps")
+  endforeach()
+  # Also install a default icon to pixmaps
+  install(FILES "rc/icons/48x48/wxmmdviewer.png"
+          DESTINATION "/usr/share/pixmaps")
 
   configure_file(${root_SOURCE_DIR}/misc/wxmmdviewer.desktop.in
     ${CMAKE_BINARY_DIR}/misc/wxmmdviewer.desktop @ONLY)
