@@ -81,6 +81,9 @@ MMDViewer::MMDViewer(const wxString& title) : wxFrame(NULL, wxID_ANY, title) {
     CreateStatusBar(2);
     SetStatusText(wxT("完了"));
     wxLogMessage(wxT("レイアウト完了..."));
+
+    // アイコンを設定
+    SetAppIcons();
 }
 
 /**
@@ -151,6 +154,36 @@ void MMDViewer::SetAuiPaneInfo() {
     m_mgr.AddPane(glPane, glCanvas);
     m_mgr.AddPane(txtPane, logWindow);
     m_mgr.Update();
+}
+
+/**
+ * SetAppIcons
+ * 各種サイズのアイコンを読み込み、アプリのアイコンとして設定する
+ */
+void MMDViewer::SetAppIcons() {
+    wxIconBundle icons;
+    const wxString sizes[] = { wxT("16x16"), wxT("32x32"), wxT("48x48"), wxT("64x64"), wxT("128x128"), wxT("256x256"), wxT("512x512") };
+
+    // 実行バイナリからの相対パスやソースツリー内でのパスを試行する
+    // 本来はインストールパス（/usr/share/icons/...）も考慮すべきだが、開発環境での利便性を優先
+    for (const wxString& size : sizes) {
+        wxString iconPath = wxT("src/rc/icons/") + size + wxT("/wxmmdviewer.png");
+        if (wxFileExists(iconPath)) {
+            icons.AddIcon(wxIcon(iconPath, wxBITMAP_TYPE_PNG));
+        } else {
+            // 他のパスも試す（例：カレントディレクトリがsrcの場合など）
+            iconPath = wxT("rc/icons/") + size + wxT("/wxmmdviewer.png");
+            if (wxFileExists(iconPath)) {
+                icons.AddIcon(wxIcon(iconPath, wxBITMAP_TYPE_PNG));
+            }
+        }
+    }
+
+    if (!icons.IsEmpty()) {
+        SetIcons(icons);
+    } else {
+        wxLogWarning(wxT("アプリケーションアイコンが見つかりませんでした。"));
+    }
 }
 
 /**

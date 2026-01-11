@@ -73,6 +73,7 @@ private:
      void SetProperties();
      void DoLayout();
      void SetAuiPaneInfo();
+     void SetAppIcons();
      void OnDropFile(wxDropFilesEvent &event);
      void DrawPMDFile(pmd_t* pmdFile, const wxString& modelPath);
      void LoadModel(const wxString& path);
